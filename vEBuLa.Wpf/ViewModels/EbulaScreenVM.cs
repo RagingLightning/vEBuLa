@@ -5,6 +5,7 @@ using System.Data;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Media;
 using vEBuLa.Wpf.Commands;
 using vEBuLa.Wpf.Extensions;
 
@@ -119,6 +120,17 @@ public class EbulaScreenVM : ScreenBaseVM {
 
   public ObservableCollection<EbulaEntryVM> ActiveEntries { get; } = new();
   public ObservableCollection<EbulaEntryVM> Entries { get; } = new();
+
+  private Brush _rowHighlight = new SolidColorBrush(Color.FromRgb(200,200,200));
+  public Brush RowHighlight {
+    get {
+      return _rowHighlight;
+    }
+    set {
+      _rowHighlight = value;
+      OnPropertyChanged(nameof(RowHighlight));
+    }
+  }
 
   #region Footer
 

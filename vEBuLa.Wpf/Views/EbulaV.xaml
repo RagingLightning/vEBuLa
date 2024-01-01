@@ -17,14 +17,36 @@
             <Setter Property="Width" Value="45"/>
             <Setter Property="Height" Value="45"/>
             <Setter Property="Background" Value="Black"/>
-            <Setter Property="Foreground" Value="LightGray"/>
-            <Setter Property="BorderThickness" Value="3"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="VerticalContentAlignment" Value="Top"/>
+            <Setter Property="HorizontalContentAlignment" Value="Left"/>
+            <Setter Property="FontSize" Value="20"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}" BorderBrush="#444" BorderThickness="3">
+                            <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}" Margin="1,-3"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
             <Style.Resources>
                 <Style TargetType="Border">
                     <Setter Property="CornerRadius" Value="5"/>
                 </Style>
             </Style.Resources>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#444"/>
+                </Trigger>
+            </Style.Triggers>
         </Style>
+        <PathGeometry x:Key="FullLight" Figures="M9,4 A3,3 180 1 1 9,16 A3,3 180 1 1 9,4 Z M2,3 L16,17 M2,17 L16,3 M9,0 L9,19 M0,10 L19,10"/>
+        <PathGeometry x:Key="HalfLight" Figures="M9,4 A3,3 180 1 1 9,16 Z"/>
+        <PathGeometry x:Key="ArrowLeft" Figures="M8,0 L8,10 L0,5 Z"/>
+        <PathGeometry x:Key="ArrowRight" Figures="M0,0 L0,10 L8,5 Z"/>
+        <PathGeometry x:Key="ArrowUp" Figures="M0,8 L10,8 L5,0 Z"/>
+        <PathGeometry x:Key="ArrowDown" Figures="M0,0 L10,0 L5,8 Z"/>
     </UserControl.Resources>
     <Grid Background="Black">
         <Grid.ColumnDefinitions>
@@ -53,24 +75,44 @@
         </Grid.RowDefinitions>
 
         <!--#region Top Buttons-->
-        <Button Grid.Column="1" Style="{StaticResource EbulaButton}" d:Content="aus" Command="{Binding ToggleScreenCommand}"/>
-        <Button Grid.Column="2" Style="{StaticResource EbulaButton}" d:Content="S"/>
-        <Button Grid.Column="3" Style="{StaticResource EbulaButton}" d:Content="I"/>
-        <Button Grid.Column="4" Grid.ColumnSpan="2" Style="{StaticResource EbulaButton}" d:Content="St" Width="120"/>
-        <Button Grid.Column="6" Style="{StaticResource EbulaButton}" d:Content="V>0"/>
-        <Button Grid.Column="7" Style="{StaticResource EbulaButton}" d:Content="V=0"/>
-        <Button Grid.Column="8" Style="{StaticResource EbulaButton}" d:Content="H"/>
-        <Button Grid.Column="9" Style="{StaticResource EbulaButton}" d:Content="K"/>
-        <Button Grid.Column="10" Style="{StaticResource EbulaButton}" d:Content="UD"/>
+        <Button Grid.Column="1" Style="{StaticResource EbulaButton}" Command="{Binding ToggleScreenCommand}">
+            <Canvas Width="37" Height="37" Margin="0,4,0,0">
+                <Path Data="{StaticResource FullLight}" Stroke="White" Fill="White" Canvas.Left="0" Canvas.Top="0"/>
+            <TextBlock Text="aus" Foreground="White" FontSize="20" Canvas.Top="13" Canvas.Left="5"/>
+            </Canvas>
+        </Button>
+        <Button Grid.Column="2" Style="{StaticResource EbulaButton}" Content="S"/>
+        <Button Grid.Column="3" Style="{StaticResource EbulaButton}" Content="I"/>
+        <Button Grid.Column="4" Grid.ColumnSpan="2" Style="{StaticResource EbulaButton}" Content="St" Width="120"/>
+        <Button Grid.Column="6" Style="{StaticResource EbulaButton}" Content="V>0"/>
+        <Button Grid.Column="7" Style="{StaticResource EbulaButton}" Content="V=0"/>
+        <Button Grid.Column="8" Style="{StaticResource EbulaButton}">
+            <Path Data="{StaticResource FullLight}" Fill="White" Stroke="White" Margin="0,4,0,0"/>
+        </Button>
+        <Button Grid.Column="9" Style="{StaticResource EbulaButton}">
+            <Grid>
+                <Path Data="{StaticResource FullLight}" Fill="White" Stroke="White" Margin="0,4,0,0" Panel.ZIndex="1"/>
+                <Path Data="{StaticResource HalfLight}" Fill="Black" Stroke="White" Margin="0,4,0,0" Panel.ZIndex="2"/>
+            </Grid>
+        </Button>
+        <Button Grid.Column="10" Style="{StaticResource EbulaButton}" Content="UD"/>
         <!--#endregion-->
 
         <!--#region Right Buttons-->
-        <Button Grid.Column="11" Grid.Row="1" Style="{StaticResource EbulaButton}" d:Content="C" Command="{Binding NavigateCommand}" CommandParameter="{x:Static com:NavAction.CANCEL}"/>
-        <Button Grid.Column="11" Grid.Row="2" Style="{StaticResource EbulaButton}" d:Content="&lt;" Command="{Binding NavigateCommand}" CommandParameter="{x:Static com:NavAction.MOVE_LEFT}"/>
-        <Button Grid.Column="11" Grid.Row="3" Style="{StaticResource EbulaButton}" d:Content="&gt;" Command="{Binding NavigateCommand}" CommandParameter="{x:Static com:NavAction.MOVE_RIGHT}"/>
-        <Button Grid.Column="11" Grid.Row="4" Style="{StaticResource EbulaButton}" d:Content="^" Command="{Binding NavigateCommand}" CommandParameter="{x:Static com:NavAction.MOVE_UP}"/>
-        <Button Grid.Column="11" Grid.Row="5" Style="{StaticResource EbulaButton}" d:Content="v" Command="{Binding NavigateCommand}" CommandParameter="{x:Static com:NavAction.MOVE_DOWN}"/>
-        <Button Grid.Column="11" Grid.Row="6" Style="{StaticResource EbulaButton}" d:Content="E" Command="{Binding NavigateCommand}" CommandParameter="{x:Static com:NavAction.ACCEPT}"/>
+        <Button Grid.Column="11" Grid.Row="1" Style="{StaticResource EbulaButton}" Content="C" Command="{Binding NavigateCommand}" CommandParameter="{x:Static com:NavAction.CANCEL}"/>
+        <Button Grid.Column="11" Grid.Row="2" Style="{StaticResource EbulaButton}" Command="{Binding NavigateCommand}" CommandParameter="{x:Static com:NavAction.MOVE_LEFT}">
+            <Path Data="{StaticResource ArrowLeft}" Margin="2,6,0,0" Stroke="White" Fill="White"/>
+        </Button>
+        <Button Grid.Column="11" Grid.Row="3" Style="{StaticResource EbulaButton}" Command="{Binding NavigateCommand}" CommandParameter="{x:Static com:NavAction.MOVE_RIGHT}" HorizontalContentAlignment="Right">
+            <Path Data="{StaticResource ArrowRight}" Margin="0,6,2,0" Stroke="White" Fill="White"/>
+        </Button>
+        <Button Grid.Column="11" Grid.Row="4" Style="{StaticResource EbulaButton}" Command="{Binding NavigateCommand}" CommandParameter="{x:Static com:NavAction.MOVE_UP}">
+            <Path Data="{StaticResource ArrowUp}" Margin="2,6,0,0" Stroke="White" Fill="White"/>
+        </Button>
+        <Button Grid.Column="11" Grid.Row="5" Style="{StaticResource EbulaButton}" Command="{Binding NavigateCommand}" CommandParameter="{x:Static com:NavAction.MOVE_DOWN}">
+            <Path Data="{StaticResource ArrowDown}" Margin="2,6,0,0" Stroke="White" Fill="White"/>
+        </Button>
+        <Button Grid.Column="11" Grid.Row="6" Style="{StaticResource EbulaButton}" Content="E" Command="{Binding NavigateCommand}" CommandParameter="{x:Static com:NavAction.ACCEPT}"/>
         <!--#endregion-->
 
         <!--#region Bottom Buttons-->

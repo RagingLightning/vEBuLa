@@ -16,6 +16,23 @@
         <Style x:Key="ListContainerStyle" TargetType="ListViewItem">
             <Setter Property="Padding" Value="0"/>
             <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="BorderBrush" Value="{Binding BorderBrush, RelativeSource={RelativeSource AncestorType=ListView}}"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type ListViewItem}">
+                        <Grid>
+                            <Rectangle Fill="{TemplateBinding BorderBrush}" Height="2" VerticalAlignment="Top"/>
+                            <ContentPresenter />
+                            <Rectangle Fill="{TemplateBinding BorderBrush}" Height="2" VerticalAlignment="Bottom"/>
+                        </Grid>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="False">
+                    <Setter Property="BorderBrush" Value="{x:Null}"/>
+                </Trigger>
+            </Style.Triggers>
         </Style>
         <Style x:Key="ListStyle" TargetType="ListView">
             <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
@@ -25,6 +42,9 @@
             <Setter Property="ItemTemplate" Value="{StaticResource ListItemTemplate}"/>
             <Setter Property="ScrollViewer.VerticalScrollBarVisibility" Value="Disabled"/>
             <Setter Property="ScrollViewer.HorizontalScrollBarVisibility" Value="Disabled"/>
+        </Style>
+        <Style TargetType="ListViewItem">
+            
         </Style>
     </UserControl.Resources>
     <DockPanel Background="White">
@@ -96,6 +116,6 @@
         <Rectangle DockPanel.Dock="Bottom" Height="30" Fill="Wheat"/>
         <Rectangle DockPanel.Dock="Bottom" Height="3" Fill="Black"/>
 
-        <ListView ItemsSource="{Binding ActiveEntries}" Style="{StaticResource ListStyle}" d:ItemsSource="{d:SampleData ItemCount=15}"/>
+        <ListView ItemsSource="{Binding ActiveEntries}" Style="{StaticResource ListStyle}" BorderBrush="{Binding RowHighlight}" d:ItemsSource="{d:SampleData ItemCount=15}"/>
     </DockPanel>
 </UserControl>
