@@ -1,13 +1,9 @@
 ﻿using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Reflection.Metadata.Ecma335;
-using System.Text;
-using System.Text.Json.Nodes;
-using System.Threading.Tasks;
+using System.IO;
 
-namespace vEBuLa;
+namespace vEBuLa.Models;
 public class Ebula {
   public List<EbulaEntry> Entries { get; } = new();
   public int currentEntry = 0;
@@ -27,7 +23,7 @@ public class Ebula {
     Entries.Add(new EbulaEntry { Location = 50200, Symbol = EbulaSymbol.WEICHENBEREICH });
     Entries.Add(new EbulaEntry { Location = 50500, TunnelStart = true, LocationName = "Herchener Tunnel", Symbol = EbulaSymbol.STUMPFGLEIS });
     Entries.Add(new EbulaEntry { Location = 50500, SpeedLimit = 120, Symbol = EbulaSymbol.BERMSWEG_KURZ });
-    Entries.Add(new EbulaEntry { Location = 50900, TunnelEnd = true, Symbol = EbulaSymbol.ZUGFUNK});
+    Entries.Add(new EbulaEntry { Location = 50900, TunnelEnd = true, Symbol = EbulaSymbol.ZUGFUNK });
   }
 
   public bool Load(string fileName) {

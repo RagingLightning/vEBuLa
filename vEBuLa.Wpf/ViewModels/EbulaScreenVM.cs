@@ -1,15 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Data;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Media;
-using vEBuLa.Wpf.Commands;
-using vEBuLa.Wpf.Extensions;
+using vEBuLa.Extensions;
 
-namespace vEBuLa.Wpf.ViewModels;
+namespace vEBuLa.ViewModels;
 public class EbulaScreenVM : ScreenBaseVM {
 
   public void UpdateList() {
@@ -121,7 +116,7 @@ public class EbulaScreenVM : ScreenBaseVM {
   public ObservableCollection<EbulaEntryVM> ActiveEntries { get; } = new();
   public ObservableCollection<EbulaEntryVM> Entries { get; } = new();
 
-  private Brush _rowHighlight = new SolidColorBrush(Color.FromRgb(200,200,200));
+  private Brush _rowHighlight = new SolidColorBrush(Color.FromRgb(200, 200, 200));
   public Brush RowHighlight {
     get {
       return _rowHighlight;

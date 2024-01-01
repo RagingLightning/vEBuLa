@@ -1,9 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Windows;
-using System.Windows.Threading;
 
-namespace vEBuLa.Wpf.Extensions;
+namespace vEBuLa.Extensions;
 public static class ObservableCollectionExtensions {
 
   /// <summary>

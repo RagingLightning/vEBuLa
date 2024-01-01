@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace vEBuLa.Wpf.Commands;
+﻿namespace vEBuLa.Commands;
 abstract partial class NavigateScreenC : BaseC {
   public override void Execute(object? parameter) {
     switch (parameter) {

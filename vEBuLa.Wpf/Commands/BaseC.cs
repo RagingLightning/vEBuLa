@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Windows.Input;
 
-namespace vEBuLa.Wpf.Commands;
+namespace vEBuLa.Commands;
 
 public abstract class BaseC : ICommand {
   public event EventHandler? CanExecuteChanged;

@@ -1,7 +1,7 @@
 ﻿using System;
-using System.Reflection.Emit;
+using vEBuLa.Models;
 
-namespace vEBuLa.Wpf.ViewModels;
+namespace vEBuLa.ViewModels;
 public class EbulaEntryVM : BaseVM {
   public EbulaEntryVM(EbulaEntry entry, TimeSpan serviceStart, EbulaEntryVM? prev) {
     Location = entry.Location;
@@ -28,18 +28,14 @@ public class EbulaEntryVM : BaseVM {
     }
 
     switch (entry.GradientMark) {
-      case vEBuLa.Gradient.ABOVE_30: Gradient = 3; break;
-      case vEBuLa.Gradient.BELOW_30: Gradient = 2; break;
-      case vEBuLa.Gradient.BELOW_20: Gradient = 1; break;
+      case Models.Gradient.ABOVE_30: Gradient = 3; break;
+      case Models.Gradient.BELOW_30: Gradient = 2; break;
+      case Models.Gradient.BELOW_20: Gradient = 1; break;
     }
 
-    if (entry.Arrival is TimeSpan) {
-      Arrival = serviceStart.Add(entry.Arrival.Value);
-    }
+    if (entry.Arrival is TimeSpan) Arrival = serviceStart.Add(entry.Arrival.Value);
 
-    if (entry.Departure is TimeSpan) {
-      Departure = serviceStart.Add(entry.Departure.Value);
-    }
+    if (entry.Departure is TimeSpan) Departure = serviceStart.Add(entry.Departure.Value);
 
     TunnelStart = entry.TunnelStart;
     TunnelEnd = entry.TunnelEnd;
@@ -86,7 +82,7 @@ public class EbulaEntryVM : BaseVM {
     }
   }
 
-  public string SpeedLimitText => SpeedLimitDisplay ? Math.Max(SpeedLimit,160).ToString() : string.Empty;
+  public string SpeedLimitText => SpeedLimitDisplay ? Math.Max(SpeedLimit, 160).ToString() : string.Empty;
 
   #endregion
 
@@ -114,8 +110,8 @@ public class EbulaEntryVM : BaseVM {
       OnPropertyChanged(nameof(LocationFrac));
     }
   }
-  public string LocationInt => (Location/1000).ToString();
-  public string LocationFrac => (Location%1000/100).ToString();
+  public string LocationInt => (Location / 1000).ToString();
+  public string LocationFrac => (Location % 1000 / 100).ToString();
 
   public bool ZigZag1 => Gradient > 0;
   public bool ZigZag2 => Gradient > 1;
@@ -314,7 +310,7 @@ public class EbulaEntryVM : BaseVM {
   public bool HasArrival => Arrival is not null;
   public string ArrivalHr => Arrival?.Hours.ToString("00") ?? string.Empty;
   public string ArrivalMn => Arrival?.Minutes.ToString("00") ?? string.Empty;
-  public string ArrivalFr => (Arrival?.Seconds/6)?.ToString("0") ?? string.Empty;
+  public string ArrivalFr => (Arrival?.Seconds / 6)?.ToString("0") ?? string.Empty;
 
   #endregion
 
@@ -348,7 +344,7 @@ public class EbulaEntryVM : BaseVM {
   public bool HasDeparture => Departure is not null;
   public string DepartureHr => Departure?.Hours.ToString("00") ?? string.Empty;
   public string DepartureMn => Departure?.Minutes.ToString("00") ?? string.Empty;
-  public string DepartureFr => (Departure?.Seconds/6)?.ToString("0") ?? string.Empty;
+  public string DepartureFr => (Departure?.Seconds / 6)?.ToString("0") ?? string.Empty;
 
   #endregion
 }

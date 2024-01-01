@@ -1,11 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace vEBuLa;
+namespace vEBuLa.Models;
 public class EbulaEntry {
   [DefaultValue(0)]
   public int SpeedLimit { get; set; } = 0;
@@ -22,14 +18,14 @@ public class EbulaEntry {
   public string LocationName { get; set; } = string.Empty;
   public bool LocationNameBold { get; set; } = false;
 
-  [DefaultValue ("")]
+  [DefaultValue("")]
   public string LocationNotes { get; set; } = string.Empty;
   public bool LocationNotesBold { get; set; } = false;
-  
-  [DefaultValue(Gradient.BELOW_10)] 
+
+  [DefaultValue(Gradient.BELOW_10)]
   public Gradient GradientMark { get; set; } = Gradient.BELOW_10;
   public TimeSpan? Arrival { get; set; } = null;
   public TimeSpan? Departure { get; set; } = null;
   public bool TunnelStart { get; set; } = false;
-  public bool TunnelEnd { get; set;} = false;
+  public bool TunnelEnd { get; set; } = false;
 }

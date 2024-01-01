@@ -1,11 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using vEBuLa.Wpf.Commands;
+﻿using vEBuLa.Commands;
 
-namespace vEBuLa.Wpf.ViewModels;
+namespace vEBuLa.ViewModels;
 public abstract class ScreenBaseVM : BaseVM {
   #region Properties
   #region Commands

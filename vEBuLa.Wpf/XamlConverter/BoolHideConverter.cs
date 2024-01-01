@@ -3,7 +3,7 @@ using System.Globalization;
 using System.Windows;
 using System.Windows.Data;
 
-namespace vEBuLa.Wpf.XamlConverter;
+namespace vEBuLa.XamlConverter;
 internal class BoolHideConverter : IValueConverter {
   public object Convert(object value, Type targetType, object parameter, CultureInfo culture) {
     if (!targetType.IsAssignableFrom(typeof(Visibility))) throw new Exception();

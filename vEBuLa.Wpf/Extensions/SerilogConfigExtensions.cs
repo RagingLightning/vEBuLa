@@ -3,7 +3,7 @@ using System;
 using System.IO;
 using System.Linq;
 
-namespace vEBuLa.Wpf.Extensions;
+namespace vEBuLa.Extensions;
 internal static class SerilogConfigExtensions {
   private const string fileSection = "Serilog:WriteTo:FileSink:Args:path";
   private const string clefSection = "Serilog:WriteTo:ClefSink:Args:path";
