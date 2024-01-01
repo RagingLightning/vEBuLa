@@ -25,9 +25,9 @@ public class Ebula {
     Entries.Add(new EbulaEntry { Location = 49800, LocationName = "Herchen", LocationNameBold = true, Arrival = new TimeSpan(7, 3, 18), Departure = new TimeSpan(7, 4, 0) });
     Entries.Add(new EbulaEntry { Location = 50000, LocationName = "Asig", LocationNotes = "A60" });
     Entries.Add(new EbulaEntry { Location = 50200, Symbol = EbulaSymbol.WEICHENBEREICH });
-    Entries.Add(new EbulaEntry { Location = 50500, TunnelStart = true, LocationName = "Herchener Tunnel" });
-    Entries.Add(new EbulaEntry { Location = 50500, SpeedLimit = 120 });
-    Entries.Add(new EbulaEntry { Location = 50900, TunnelEnd = true });
+    Entries.Add(new EbulaEntry { Location = 50500, TunnelStart = true, LocationName = "Herchener Tunnel", Symbol = EbulaSymbol.STUMPFGLEIS });
+    Entries.Add(new EbulaEntry { Location = 50500, SpeedLimit = 120, Symbol = EbulaSymbol.BERMSWEG_KURZ });
+    Entries.Add(new EbulaEntry { Location = 50900, TunnelEnd = true, Symbol = EbulaSymbol.ZUGFUNK});
   }
 
   public bool Load(string fileName) {

@@ -7,7 +7,7 @@
              xmlns:vm="clr-namespace:vEBuLa.Wpf.ViewModels"
              xmlns:conv="clr-namespace:vEBuLa.Wpf.XamlConverter"
              mc:Ignorable="d" 
-             d:DesignHeight="31" d:DesignWidth="800" d:DataContext="{d:DesignInstance vm:EbulaEntryVM}">
+             Height="31" Width="800" d:DataContext="{d:DesignInstance vm:EbulaEntryVM}">
     <UserControl.Resources>
         <conv:BoolHideConverter x:Key="BoolHide"/>
         <conv:BoolBoldConverter x:Key="BoolBold"/>
@@ -17,6 +17,8 @@
         <PathGeometry x:Key="TunnelMid" Figures="M0,0 L0,10 L1,10 L1,0 Z M0,26 L0,16 L1,16 L1,26 Z M15,0 L15,10 L14,10 L14,0 Z M15,26 L15,16 L14,16 L14,26 Z"/>
         <PathGeometry x:Key="TunnelEnd" Figures="M0,0 L0,24 L15,24 L15,0 L14,0 L12,13 L3,13 L1,0 Z"/>
         <PathGeometry x:Key="YMarker" Figures="M2,0 L7,0 L11,11 L15,0 L20,0 L16,11 L22,11 L22,14 L14,14 L14,17 L22,17 L22,20 L14,20 L14,24 L8,24 L8,20 L0,20 L0,17 L8,17 L8,14 L0,14 L0,11 L6,11 Z"/>
+        <PathGeometry x:Key="TriangleMarker" Figures="M0,0 L22,0 L11,11 Z"/>
+        <PathGeometry x:Key="TMarker" Figures="M0,0 L0,20 M0,10 L25,10"/>
     </UserControl.Resources>
     <Grid>
         <Grid.ColumnDefinitions>
@@ -68,32 +70,37 @@
         </DockPanel>
 
         <Rectangle Grid.Column="3" Width="3" Height="2" Fill="Black" Visibility="{Binding KilometerBreak, Converter={StaticResource BoolHide}}" VerticalAlignment="Bottom" HorizontalAlignment="Left"/>
-        
+
         <Path Grid.Column="4" Data="{StaticResource TunnelStart}" Stroke="Black" Fill="Black" HorizontalAlignment="Center" VerticalAlignment="Center" Visibility="{Binding TunnelStart, Converter={StaticResource BoolHide}}"/>
         <Path Grid.Column="4" Data="{StaticResource TunnelMid}" Stroke="Black" Fill="Black" HorizontalAlignment="Center" VerticalAlignment="Center" Visibility="{Binding TunnelMid, Converter={StaticResource BoolHide}}"/>
         <Path Grid.Column="4" Data="{StaticResource TunnelEnd}" Stroke="Black" Fill="Black" HorizontalAlignment="Center" VerticalAlignment="Center" Visibility="{Binding TunnelEnd, Converter={StaticResource BoolHide}}"/>
 
         <DockPanel Grid.Column="5" Margin="5,0,20,0">
-            <Path DockPanel.Dock="Left" Data="{StaticResource YMarker}" Stroke="Black" Fill="Black" VerticalAlignment="Center" Visibility="{Binding YMarker, Converter={StaticResource BoolHide}}"/>
+            <Grid DockPanel.Dock="Left" Width="25">
+                <Path Data="{StaticResource YMarker}" Stroke="Black" Fill="Black" HorizontalAlignment="Center" VerticalAlignment="Center" Visibility="{Binding YMarker, Converter={StaticResource BoolHide}}"/>
+                <Image Source="../phone.png" HorizontalAlignment="Center" VerticalAlignment="Center" Visibility="{Binding PhoneMarker, Converter={StaticResource BoolHide}}"/>
+                <Path Data="{StaticResource TriangleMarker}" Stroke="Black" HorizontalAlignment="Center" VerticalAlignment="center" Margin="0,7,0,0" Visibility="{Binding TriangleMarker, Converter={StaticResource BoolHide}}"/>
+                <Path Data="{StaticResource TMarker}" Stroke="Black" StrokeThickness="2" HorizontalAlignment="Center" VerticalAlignment="center" Visibility="{Binding TMarker, Converter={StaticResource BoolHide}}"/>
+            </Grid>
             <Rectangle DockPanel.Dock="Bottom" Height="2" Fill="LightGray" Margin="5,0"/>
             <TextBlock DockPanel.Dock="Right" Text="{Binding SecondaryLabel}" d:Text="E60" FontSize="20" Margin="5,0,5,-2" FontWeight="{Binding SecondaryBold, Converter={StaticResource BoolBold}}" VerticalAlignment="Center"/>
             <TextBlock DockPanel.Dock="Left" Text="{Binding MainLabel}" d:Text="Herchener Tunnel" FontSize="20" Margin="10,0,10,-2" FontWeight="{Binding MainBold, Converter={StaticResource BoolBold}}" VerticalAlignment="Center"/>
         </DockPanel>
 
         <StackPanel Grid.Column="7" Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Center" Visibility="{Binding HasArrival, Converter={StaticResource BoolHide}}">
-            <TextBlock Text="{Binding ArrivalHr}" d:Text="07" FontSize="20" FontWeight="Bold" VerticalAlignment="Center" Margin="0,0,0,-1"/>
-            <TextBlock Text=":" FontSize="20" FontWeight="Bold" VerticalAlignment="Center" Margin="0,0,0,-1"/>
-            <TextBlock Text="{Binding ArrivalMn}" d:Text="03" FontSize="20" FontWeight="Bold" VerticalAlignment="Center" Margin="0,0,0,-1"/>
-            <TextBlock Text="." FontSize="13" FontWeight="Bold" VerticalAlignment="Bottom" Margin="0,0,0,1"/>
-            <TextBlock Text="{Binding ArrivalFr}" d:Text="3" FontSize="13" FontWeight="Bold" VerticalAlignment="Bottom" Margin="0,0,0,1"/>
+            <TextBlock Text="{Binding ArrivalHr}" d:Text="07" FontSize="20" FontWeight="{Binding ArrivalBold, Converter={StaticResource BoolBold}}" VerticalAlignment="Center" Margin="0,0,0,-1"/>
+            <TextBlock Text=":" FontSize="20" FontWeight="{Binding ArrivalBold, Converter={StaticResource BoolBold}}" VerticalAlignment="Center" Margin="0,0,0,-1"/>
+            <TextBlock Text="{Binding ArrivalMn}" d:Text="03" FontSize="20" FontWeight="{Binding ArrivalBold, Converter={StaticResource BoolBold}}" VerticalAlignment="Center" Margin="0,0,0,-1"/>
+            <TextBlock Text="." FontSize="13" FontWeight="{Binding ArrivalBold, Converter={StaticResource BoolBold}}" VerticalAlignment="Bottom" Margin="0,0,0,1"/>
+            <TextBlock Text="{Binding ArrivalFr}" d:Text="3" FontSize="13" FontWeight="{Binding ArrivalBold, Converter={StaticResource BoolBold}}" VerticalAlignment="Bottom" Margin="0,0,0,1"/>
         </StackPanel>
 
         <StackPanel Grid.Column="9" Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Center" Visibility="{Binding HasDeparture, Converter={StaticResource BoolHide}}">
-            <TextBlock Text="{Binding DepartureHr}" d:Text="07" FontSize="20" FontWeight="Bold" VerticalAlignment="Center" Margin="0,0,0,-1"/>
-            <TextBlock Text=":" FontSize="20" FontWeight="Bold" VerticalAlignment="Center" Margin="0,0,0,-1"/>
-            <TextBlock Text="{Binding DepartureMn}" d:Text="03" FontSize="20" FontWeight="Bold" VerticalAlignment="Center" Margin="0,0,0,-1"/>
-            <TextBlock Text="." FontSize="13" FontWeight="Bold" VerticalAlignment="Bottom" Margin="0,0,0,1"/>
-            <TextBlock Text="{Binding DepartureFr}" d:Text="3" FontSize="13" FontWeight="Bold" VerticalAlignment="Bottom" Margin="0,0,0,1"/>
+            <TextBlock Text="{Binding DepartureHr}" d:Text="07" FontSize="20" FontWeight="{Binding ArrivalBold, Converter={StaticResource BoolBold}}" VerticalAlignment="Center" Margin="0,0,0,-1"/>
+            <TextBlock Text=":" FontSize="20" FontWeight="{Binding ArrivalBold, Converter={StaticResource BoolBold}}" VerticalAlignment="Center" Margin="0,0,0,-1"/>
+            <TextBlock Text="{Binding DepartureMn}" d:Text="03" FontSize="20" FontWeight="{Binding ArrivalBold, Converter={StaticResource BoolBold}}" VerticalAlignment="Center" Margin="0,0,0,-1"/>
+            <TextBlock Text="." FontSize="13" FontWeight="{Binding ArrivalBold, Converter={StaticResource BoolBold}}" VerticalAlignment="Bottom" Margin="0,0,0,1"/>
+            <TextBlock Text="{Binding DepartureFr}" d:Text="3" FontSize="13" FontWeight="{Binding ArrivalBold, Converter={StaticResource BoolBold}}" VerticalAlignment="Bottom" Margin="0,0,0,1"/>
         </StackPanel>
     </Grid>
 </UserControl>

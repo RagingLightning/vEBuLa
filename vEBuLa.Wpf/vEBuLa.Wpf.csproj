@@ -9,6 +9,7 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+		<None Remove="phone.png" />
 		<None Remove="serilog.json" />
 	</ItemGroup>
 
@@ -25,6 +26,10 @@
 
 	<ItemGroup>
 		<ProjectReference Include="..\vEBuLa.Api\vEBuLa.csproj" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Resource Include="phone.png" />
 	</ItemGroup>
 
 </Project>

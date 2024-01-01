@@ -10,6 +10,8 @@ public class EbulaEntryVM : BaseVM {
     MainBold = entry.LocationNameBold;
     SecondaryLabel = entry.LocationNotes;
     SecondaryBold = entry.LocationNotesBold;
+    ArrivalBold = entry.LocationNameBold || entry.LocationNotesBold;
+    DepartureBold = entry.LocationNameBold || entry.LocationNotesBold;
 
     SpeedLimit = entry.SpeedLimit > 0 ? entry.SpeedLimit : prev?.SpeedLimit ?? 0;
     SpeedLimitDisplay = SpeedLimit != (prev?.SpeedLimit ?? 0);
@@ -18,14 +20,11 @@ public class EbulaEntryVM : BaseVM {
       case EbulaSymbol.WEICHENBEREICH:
         YMarker = true; break;
       case EbulaSymbol.ZUGFUNK:
-        throw new NotImplementedException("TODO: Zugfunk-Marker");
-        break;
+        PhoneMarker = true; break;
       case EbulaSymbol.BERMSWEG_KURZ:
-        throw new NotImplementedException("TODO: Bremsweg-Marker");
-        break;
+        TriangleMarker = true; break;
       case EbulaSymbol.STUMPFGLEIS:
-        throw new NotImplementedException("TODO: Stumpfgleis-Marker");
-        break;
+        TMarker = true; break;
     }
 
     switch (entry.GradientMark) {
@@ -206,6 +205,39 @@ public class EbulaEntryVM : BaseVM {
     }
   }
 
+  private bool _phoneMarker = false;
+  public bool PhoneMarker {
+    get {
+      return _phoneMarker;
+    }
+    set {
+      _phoneMarker = value;
+      OnPropertyChanged(nameof(PhoneMarker));
+    }
+  }
+
+  private bool _triangleMarker = false;
+  public bool TriangleMarker {
+    get {
+      return _triangleMarker;
+    }
+    set {
+      _triangleMarker = value;
+      OnPropertyChanged(nameof(TriangleMarker));
+    }
+  }
+
+  private bool _tMarker = false;
+  public bool TMarker {
+    get {
+      return _tMarker;
+    }
+    set {
+      _tMarker = value;
+      OnPropertyChanged(nameof(TMarker));
+    }
+  }
+
   private string _mainLabel = string.Empty;
   public string MainLabel {
     get {
@@ -254,6 +286,17 @@ public class EbulaEntryVM : BaseVM {
 
   #region Column 4 - Arrival
 
+  private bool _arrivalBold;
+  public bool ArrivalBold {
+    get {
+      return _arrivalBold;
+    }
+    set {
+      _arrivalBold = value;
+      OnPropertyChanged(nameof(ArrivalBold));
+    }
+  }
+
   private TimeSpan? _arrival = null;
   public TimeSpan? Arrival {
     get {
@@ -276,6 +319,17 @@ public class EbulaEntryVM : BaseVM {
   #endregion
 
   #region Column 5 - Departure
+
+  private bool _departureBold;
+  public bool DepartureBold {
+    get {
+      return _departureBold;
+    }
+    set {
+      _departureBold = value;
+      OnPropertyChanged(nameof(DepartureBold));
+    }
+  }
 
   private TimeSpan? _departure = null;
   public TimeSpan? Departure {
