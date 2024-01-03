@@ -19,7 +19,7 @@ public partial class App : Application {
   [LibraryImport("Kernel32")]
   private static partial void FreeConsole();
 
-  private readonly IHost? _host;
+  internal static IHost? AppHost { get; private set; }
   private readonly IConfigurationRoot? _serilogConfig;
 
   public App() {
@@ -39,7 +39,7 @@ public partial class App : Application {
 
     Log.Information("Application initialization");
     try {
-      _host = Host.CreateDefaultBuilder()
+      AppHost = Host.CreateDefaultBuilder()
             .UseSerilog()
             .Build();
     }
@@ -52,8 +52,8 @@ public partial class App : Application {
     Log.Information("Application startup");
     try {
       base.OnStartup(e);
-      if (_host is null) throw new Exception(".NET hosting failed to initialize");
-      _host.Start();
+      if (AppHost is null) throw new Exception(".NET hosting failed to initialize");
+      AppHost.Start();
 
       var MainWindow = new MainWindow() {
         DataContext = new EbulaVM(new Ebula())
@@ -67,13 +67,13 @@ public partial class App : Application {
 
 
   protected override void OnExit(ExitEventArgs e) {
-    _host?.Dispose();
+    AppHost?.Dispose();
 
     base.OnExit(e);
   }
 
   private void OnUnhandledException(object sender, UnhandledExceptionEventArgs e) {
-    _host?.Dispose();
+    AppHost?.Dispose();
     Log.Fatal((Exception) e.ExceptionObject, "An unhandled exception occurred");
   }
 }

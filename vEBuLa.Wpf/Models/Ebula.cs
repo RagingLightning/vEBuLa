@@ -2,6 +2,8 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
+using System.Text.Json.Nodes;
 
 namespace vEBuLa.Models;
 public class Ebula {
@@ -24,24 +26,5 @@ public class Ebula {
     Entries.Add(new EbulaEntry { Location = 50500, TunnelStart = true, LocationName = "Herchener Tunnel", Symbol = EbulaSymbol.STUMPFGLEIS });
     Entries.Add(new EbulaEntry { Location = 50500, SpeedLimit = 120, Symbol = EbulaSymbol.BERMSWEG_KURZ });
     Entries.Add(new EbulaEntry { Location = 50900, TunnelEnd = true, Symbol = EbulaSymbol.ZUGFUNK });
-  }
-
-  public bool Load(string fileName) {
-    try {
-      List<EbulaEntry>? entries = JsonConvert.DeserializeObject<List<EbulaEntry>>(File.ReadAllText(fileName), new JsonSerializerSettings { DefaultValueHandling = DefaultValueHandling.IgnoreAndPopulate });
-      if (entries is null) return false;
-      Entries.Clear();
-      Entries.AddRange(entries);
-      return true;
-    }
-    catch (Exception) {
-      return false;
-    }
-  }
-
-  public bool Save(string fileName) {
-    string json = JsonConvert.SerializeObject(Entries, Formatting.None, new JsonSerializerSettings { DefaultValueHandling = DefaultValueHandling.IgnoreAndPopulate });
-    File.WriteAllText(fileName, json);
-    return true;
   }
 }
