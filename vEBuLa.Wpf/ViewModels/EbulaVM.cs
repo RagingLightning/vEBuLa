@@ -5,20 +5,16 @@ using vEBuLa.Models;
 
 namespace vEBuLa.ViewModels;
 internal class EbulaVM : BaseVM {
+  public Ebula Model { get; private set; }
 
   public EbulaVM(Ebula ebula) {
-    Screen = new EbulaScreenVM();
-
-    EbulaEntryVM? ebulaEntry = null;
-    foreach (var entry in ebula.Entries) {
-      ebulaEntry = new EbulaEntryVM(entry, new TimeSpan(0, 0, 0), ebulaEntry);
-      Screen.Entries.Add(ebulaEntry);
-    }
+    Model = ebula;
+    Screen = new EbulaScreenVM(this);
 
     Screen.PropertyChanged += Screen_NavigateCommandChanged;
-    Screen.UpdateList();
 
-    ToggleScreenCommand = new ToggleScreenC(this);
+    ToggleScreenCommand = new ToggleScreenC(Screen);
+    ToggleEditCommand = new ToggleEditModeC(Screen);
   }
 
   // Propagate change of Navigation command
@@ -41,34 +37,12 @@ internal class EbulaVM : BaseVM {
   }
 
   #region Commands
-  private BaseC _toggleScreenCommand;
-  public BaseC ToggleScreenCommand {
-    get {
-      return _toggleScreenCommand;
-    }
-    set {
-      _toggleScreenCommand = value;
-      OnPropertyChanged(nameof(ToggleScreenCommand));
-    }
-  }
+
+  public BaseC ToggleEditCommand { get; }
+
+  public BaseC ToggleScreenCommand { get; }
 
   public BaseC NavigateCommand => Screen.NavigateCommand; //managed by the screen instance
-  #endregion
-
-  #region Other
-
-  private bool _active = true;
-  public bool Active {
-    get {
-      return _active;
-    }
-    set {
-      _active = value;
-      OnPropertyChanged(nameof(Active));
-    }
-  }
-
-
   #endregion
 
   #endregion

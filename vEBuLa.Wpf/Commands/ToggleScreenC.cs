@@ -1,15 +1,19 @@
-﻿using vEBuLa.ViewModels;
+﻿using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using vEBuLa.ViewModels;
 
 namespace vEBuLa.Commands;
 
-class ToggleScreenC : BaseC {
-  private readonly EbulaVM ebulaVm;
+internal class ToggleScreenC : BaseC {
+  private ILogger<ToggleScreenC>? Logger => App.AppHost?.Services.GetRequiredService<ILogger<ToggleScreenC>>();
+  private readonly EbulaScreenVM Screen;
 
-  public ToggleScreenC(EbulaVM ebulaVm) {
-    this.ebulaVm = ebulaVm;
-  }
+  public ToggleScreenC(EbulaScreenVM screen) { Screen = screen; }
 
   public override void Execute(object? parameter) {
-    ebulaVm.Active = !ebulaVm.Active;
+    Screen.Active = !Screen.Active;
+
+    if (Screen.Active) Logger?.LogInformation("Screen activated");
+    else Logger?.LogInformation("Screen deactivated");
   }
 }

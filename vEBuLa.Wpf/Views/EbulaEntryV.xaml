@@ -19,7 +19,7 @@
         <PathGeometry x:Key="TriangleMarker" Figures="M0,0 L22,0 L11,11 Z"/>
         <PathGeometry x:Key="TMarker" Figures="M0,0 L0,20 M0,10 L25,10"/>
     </UserControl.Resources>
-    <Grid>
+    <Grid Background="White">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="3*"/>
             <ColumnDefinition Width="22"/>

@@ -13,6 +13,9 @@ namespace vEBuLa;
 /// Interaction logic for App.xaml
 /// </summary>
 public partial class App : Application {
+  [DllImport("Kernel32")]
+  public static extern void AllocConsole();
+
   [LibraryImport("Kernel32")]
   private static partial void AttachConsole();
 
@@ -23,7 +26,8 @@ public partial class App : Application {
   private readonly IConfigurationRoot? _serilogConfig;
 
   public App() {
-    AttachConsole();
+    //AttachConsole();
+    AllocConsole();
 
     IConfigurationBuilder configBuilder = new ConfigurationBuilder();
 #pragma warning disable CS8604 // Mögliches Nullverweisargument.

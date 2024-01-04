@@ -10,8 +10,25 @@
              d:DesignHeight="600" d:DesignWidth="800" d:DataContext="{d:DesignInstance vm:EbulaScreenVM}">
     <UserControl.Resources>
         <conv:NullHideConverter x:Key="NullHide"/>
+        <BooleanToVisibilityConverter x:Key="BoolVis"/>
+        <ContextMenu x:Key="EditMenu">
+            <MenuItem Header="Add Entry above" Command="{Binding DataContext.AddEntryCommand, RelativeSource={RelativeSource AncestorType=local:EbulaScreenV}}" CommandParameter="{Binding .}"/>
+            <Separator Visibility="{Binding TrueEntry, Converter={StaticResource BoolVis}}"/>
+            <MenuItem Visibility="{Binding TrueEntry, Converter={StaticResource BoolVis}}" Header="Edit Entry" Command="{Binding DataContext.EditEntryCommand, RelativeSource={RelativeSource AncestorType=local:EbulaScreenV}}" CommandParameter="{Binding .}"/>
+            <MenuItem Visibility="{Binding TrueEntry, Converter={StaticResource BoolVis}}" Header="Remove Entry" Command="{Binding DataContext.RemoveEntryCommand, RelativeSource={RelativeSource AncestorType=local:EbulaScreenV}}" CommandParameter="{Binding .}"/>
+        </ContextMenu>
+        <Style x:Key="EbulaEntryStyle" TargetType="local:EbulaEntryV">
+            <Setter Property="ContextMenu" Value="{DynamicResource EditMenu}"/>
+            <Style.Triggers>
+                <Trigger Property="TabIndex" Value="0">
+                    <Trigger.Setters>
+                        <Setter Property="ContextMenu" Value="{x:Null}"/>
+                    </Trigger.Setters>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
         <DataTemplate x:Key="ListItemTemplate">
-            <local:EbulaEntryV/>
+            <local:EbulaEntryV Style="{StaticResource EbulaEntryStyle}" TabIndex="{Binding DataContext.EditMode, RelativeSource={RelativeSource AncestorType=local:EbulaScreenV}}"/>
         </DataTemplate>
         <Style x:Key="ListContainerStyle" TargetType="ListViewItem">
             <Setter Property="Padding" Value="0"/>
@@ -21,9 +38,9 @@
                 <Setter.Value>
                     <ControlTemplate TargetType="{x:Type ListViewItem}">
                         <Grid>
-                            <Rectangle Fill="{TemplateBinding BorderBrush}" Height="2" VerticalAlignment="Top"/>
+                            <Rectangle Fill="{TemplateBinding BorderBrush}" Height="2" VerticalAlignment="Top" Panel.ZIndex="5"/>
                             <ContentPresenter />
-                            <Rectangle Fill="{TemplateBinding BorderBrush}" Height="2" VerticalAlignment="Bottom"/>
+                            <Rectangle Fill="{TemplateBinding BorderBrush}" Height="2" VerticalAlignment="Bottom" Panel.ZIndex="5"/>
                         </Grid>
                     </ControlTemplate>
                 </Setter.Value>
@@ -42,9 +59,6 @@
             <Setter Property="ItemTemplate" Value="{StaticResource ListItemTemplate}"/>
             <Setter Property="ScrollViewer.VerticalScrollBarVisibility" Value="Disabled"/>
             <Setter Property="ScrollViewer.HorizontalScrollBarVisibility" Value="Disabled"/>
-        </Style>
-        <Style TargetType="ListViewItem">
-            
         </Style>
     </UserControl.Resources>
     <DockPanel Background="White">
@@ -116,6 +130,6 @@
         <Rectangle DockPanel.Dock="Bottom" Height="30" Fill="Wheat"/>
         <Rectangle DockPanel.Dock="Bottom" Height="3" Fill="Black"/>
 
-        <ListView ItemsSource="{Binding ActiveEntries}" Style="{StaticResource ListStyle}" BorderBrush="{Binding RowHighlight}" d:ItemsSource="{d:SampleData ItemCount=15}"/>
+        <ListView ItemsSource="{Binding ActiveEntries}" Style="{StaticResource ListStyle}" BorderBrush="{Binding RowHighlight}" d:ItemsSource="{d:SampleData ItemCount=15}" SelectedItem="{Binding SelectedEntry, UpdateSourceTrigger=PropertyChanged}"/>
     </DockPanel>
 </UserControl>

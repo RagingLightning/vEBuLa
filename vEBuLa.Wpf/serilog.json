@@ -30,10 +30,16 @@
           "outputTemplate": "[{Timestamp:G} {Level:u3}] {Message:lj}     <s:{SourceContext}>{NewLine}{Exception}"
         }
       },
+      "DebugSink": {
+        "Name": "Debug",
+        "Args": {
+          "outputTemplate": "[{Timestamp:G} {Level:u3}] {Message:lj}     <s:{SourceContext}>{NewLine}{Exception}"
+        }
+      },
       "ClefSink": {
         "Name": "File",
         "Args": {
-          "path": "%temp%/TS3CallsignHelper/",
+          "path": "d:/temp/",
           "formatter": "Serilog.Formatting.Compact.CompactJsonFormatter, Serilog.Formatting.Compact"
         }
       }

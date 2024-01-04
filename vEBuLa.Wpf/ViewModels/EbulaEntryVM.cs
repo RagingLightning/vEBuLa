@@ -1,9 +1,20 @@
 ﻿using System;
+using vEBuLa.Commands;
 using vEBuLa.Models;
 
 namespace vEBuLa.ViewModels;
 public class EbulaEntryVM : BaseVM {
+  public EbulaEntry? Model { get; private set; }
+  public static EbulaEntryVM EditEntry = new();
+
+  private EbulaEntryVM() {
+    Model = null;
+    TrueEntry = false;
+    MainLabel = "--Start--";
+  }
   public EbulaEntryVM(EbulaEntry entry, TimeSpan serviceStart, EbulaEntryVM? prev) {
+    Model = entry;
+    if (prev == EditEntry) prev = null;
     Location = entry.Location;
 
     MainLabel = entry.LocationName;
@@ -41,6 +52,22 @@ public class EbulaEntryVM : BaseVM {
     TunnelEnd = entry.TunnelEnd;
     TunnelMid = TunnelEnd || prev is null ? false : prev.TunnelMid || prev.TunnelStart;
   }
+
+
+  #region Properties
+
+  #region Edit Mode
+  private bool _trueEntry = true;
+  public bool TrueEntry {
+    get {
+      return _trueEntry;
+    }
+    set {
+      _trueEntry = value;
+      OnPropertyChanged(nameof(TrueEntry));
+    }
+  }
+  #endregion
 
   #region Column 1 - Speeds
   public bool SpeedColumn2 => SpeedLimit < 40;
@@ -345,6 +372,8 @@ public class EbulaEntryVM : BaseVM {
   public string DepartureHr => Departure?.Hours.ToString("00") ?? string.Empty;
   public string DepartureMn => Departure?.Minutes.ToString("00") ?? string.Empty;
   public string DepartureFr => (Departure?.Seconds / 6)?.ToString("0") ?? string.Empty;
+
+  #endregion
 
   #endregion
 }

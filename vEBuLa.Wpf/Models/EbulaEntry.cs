@@ -1,8 +1,10 @@
-﻿using System;
+﻿using Newtonsoft.Json.Linq;
+using System;
 using System.ComponentModel;
 
 namespace vEBuLa.Models;
 public class EbulaEntry {
+
   public int SpeedLimit { get; set; } = 0;
   public bool SpeedSigned { get; set; } = true;
   public int Location { get; set; } = 0;

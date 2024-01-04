@@ -1,0 +1,30 @@
+{
+	"Name": "Test",
+	"Stations": {
+		"ccc0bf75-734d-4fc6-8fb4-189c111de000": { "Name": "Start" },
+		"ccc0bf75-734d-4fc6-8fb4-189c111de001": { "Name": "End" }
+	},
+	"Segments": {
+		"ccc0bf75-734d-4fc6-8fb4-189c111de000": {
+			"Origin": "ccc0bf75-734d-4fc6-8fb4-189c111de000",
+			"Destination": "ccc0bf75-734d-4fc6-8fb4-189c111de001",
+			"Entries": [
+				{ "Location": 39300, "TunnelEnd": true, "SpeedLimit": 100 },
+				{ "Location": 39600, "LocationName": "Bksig", "Symbol": 3 },
+				{ "Location": 40000, "SpeedLimit": 120 },
+				{ "Location": 41600, "LocationName": "Esig", "LocationNotes": "E60"},
+				{ "Location": 43000, "LocationName": "Eitorf", "LocationNameBold": true, "Arrival": "06:58:18", "Departure": "06:59:00" },
+				{ "Location": 43200, "LocationName": "Asig" },
+				{ "Location": 43400, "Symbol": 3 },
+				{ "Location": 48000, "SpeedLimit": 100 },
+				{ "Location": 49000, "LocationName": "Esig" },
+				{ "Location": 49800, "LocationName": "Herchen", "LocationNameBold": true, "Arrival": "07:03:18", "Departure": "07:04:00" },
+				{ "Location": 50000, "LocationName": "Asig", "LocationNotes": "A60" },
+				{ "Location": 50200, "Symbol": 3 },
+				{ "Location": 50500, "TunnelStart": true, "LocationName": "Herchener Tunnel", "Symbol": 4 },
+				{ "Location": 50500, "SpeedLimit": 120, "Symbol": 2 },
+				{ "Location": 50900, "TunnelEnd": true, "Symbol": 1 },
+			]
+		}
+	}
+}
