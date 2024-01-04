@@ -30,6 +30,12 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <Compile Update="Dialogs\EditLocationDialog.xaml.cs">
+	    <SubType>Code</SubType>
+	  </Compile>
+	</ItemGroup>
+
+	<ItemGroup>
 	  <None Update="ebula.json">
 	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	  </None>

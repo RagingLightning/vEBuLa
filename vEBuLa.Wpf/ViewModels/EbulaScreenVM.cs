@@ -31,7 +31,7 @@ internal class EbulaScreenVM : ScreenBaseVM {
     if (EditMode) Entries.Add(EbulaEntryVM.EditEntry);
     EbulaEntryVM? ebulaEntry = null;
     foreach (var entry in Ebula.Model.Entries) {
-      ebulaEntry = new EbulaEntryVM(entry, new TimeSpan(0, 0, 0), ebulaEntry);
+      ebulaEntry = new EbulaEntryVM(entry, new TimeSpan(0, 0, 0), ebulaEntry, this);
       Entries.Add(ebulaEntry);
     }
     UpdateList();

@@ -1,19 +1,27 @@
 ﻿using System;
+using System.Windows.Media;
 using vEBuLa.Commands;
 using vEBuLa.Models;
 
 namespace vEBuLa.ViewModels;
-public class EbulaEntryVM : BaseVM {
+internal class EbulaEntryVM : BaseVM {
   public EbulaEntry? Model { get; private set; }
   public static EbulaEntryVM EditEntry = new();
+
+  public EbulaScreenVM? Screen { get; }
 
   private EbulaEntryVM() {
     Model = null;
     TrueEntry = false;
     MainLabel = "--Start--";
   }
-  public EbulaEntryVM(EbulaEntry entry, TimeSpan serviceStart, EbulaEntryVM? prev) {
+  public EbulaEntryVM(EbulaEntry entry, TimeSpan serviceStart, EbulaEntryVM? prev, EbulaScreenVM screen) {
     Model = entry;
+    Screen = screen;
+
+    EditSpeedCommand = EditEbulaEntrySpeedC.INSTANCE;
+    EditLocationCommand = EditEbulaEntryLocationC.INSTANCE;
+
     if (prev == EditEntry) prev = null;
     Location = entry.Location;
 
@@ -26,6 +34,7 @@ public class EbulaEntryVM : BaseVM {
 
     SpeedLimit = entry.SpeedLimit > 0 ? entry.SpeedLimit : prev?.SpeedLimit ?? 0;
     SpeedLimitDisplay = SpeedLimit != (prev?.SpeedLimit ?? 0);
+    SpeedSigned = entry.SpeedSigned;
 
     switch (entry.Symbol) {
       case EbulaSymbol.WEICHENBEREICH:
@@ -38,11 +47,7 @@ public class EbulaEntryVM : BaseVM {
         TMarker = true; break;
     }
 
-    switch (entry.GradientMark) {
-      case Models.Gradient.ABOVE_30: Gradient = 3; break;
-      case Models.Gradient.BELOW_30: Gradient = 2; break;
-      case Models.Gradient.BELOW_20: Gradient = 1; break;
-    }
+    Gradient = entry.GradientMark;
 
     if (entry.Arrival is TimeSpan) Arrival = serviceStart.Add(entry.Arrival.Value);
 
@@ -67,6 +72,11 @@ public class EbulaEntryVM : BaseVM {
       OnPropertyChanged(nameof(TrueEntry));
     }
   }
+
+  #region Commands
+  public BaseC EditSpeedCommand { get; }
+  public BaseC EditLocationCommand { get; }
+  #endregion
   #endregion
 
   #region Column 1 - Speeds
@@ -111,6 +121,22 @@ public class EbulaEntryVM : BaseVM {
 
   public string SpeedLimitText => SpeedLimitDisplay ? Math.Max(SpeedLimit, 160).ToString() : string.Empty;
 
+  private bool _speedSigned;
+  public bool SpeedSigned {
+    get {
+      return _speedSigned;
+    }
+    set {
+      _speedSigned = value;
+      OnPropertyChanged(nameof(SpeedSigned));
+      OnPropertyChanged(nameof(SpeedColor));
+      OnPropertyChanged(nameof(SpeedBackground));
+    }
+  }
+
+  public Brush SpeedColor => _speedSigned ? Brushes.Black : Brushes.White;
+  public Brush SpeedBackground => _speedSigned ? Brushes.White : Brushes.Black;
+
   #endregion
 
   #region Column 2 - Location
@@ -140,12 +166,12 @@ public class EbulaEntryVM : BaseVM {
   public string LocationInt => (Location / 1000).ToString();
   public string LocationFrac => (Location % 1000 / 100).ToString();
 
-  public bool ZigZag1 => Gradient > 0;
-  public bool ZigZag2 => Gradient > 1;
-  public bool ZigZag3 => Gradient > 2;
+  public bool ZigZag1 => Gradient > Gradient.BELOW_10;
+  public bool ZigZag2 => Gradient > Gradient.BELOW_20;
+  public bool ZigZag3 => Gradient > Gradient.BELOW_30;
 
-  private int _gradient = 0;
-  public int Gradient {
+  private Gradient _gradient = 0;
+  public Gradient Gradient {
     get {
       return _gradient;
     }

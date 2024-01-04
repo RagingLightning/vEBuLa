@@ -18,6 +18,20 @@
         <PathGeometry x:Key="YMarker" Figures="M2,0 L7,0 L11,11 L15,0 L20,0 L16,11 L22,11 L22,14 L14,14 L14,17 L22,17 L22,20 L14,20 L14,24 L8,24 L8,20 L0,20 L0,17 L8,17 L8,14 L0,14 L0,11 L6,11 Z"/>
         <PathGeometry x:Key="TriangleMarker" Figures="M0,0 L22,0 L11,11 Z"/>
         <PathGeometry x:Key="TMarker" Figures="M0,0 L0,20 M0,10 L25,10"/>
+        <Style x:Key="EditBtn" TargetType="Button">
+            <Setter Property="IsEnabled" Value="{Binding Screen.EditMode}"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Grid>
+                            <Rectangle Fill="Transparent"/>
+                            <ContentPresenter/>
+                        </Grid>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
     </UserControl.Resources>
     <Grid Background="White">
         <Grid.ColumnDefinitions>
@@ -49,7 +63,10 @@
             <Rectangle DockPanel.Dock="Left" Fill="Black" Width="9" Visibility="{Binding SpeedColumn12, Converter={StaticResource BoolHide}}"/>
             <Rectangle DockPanel.Dock="Left" Fill="Black" Width="9" Visibility="{Binding SpeedColumn14, Converter={StaticResource BoolHide}}"/>
             <Rectangle DockPanel.Dock="Left" Fill="Black" Width="9" Visibility="{Binding SpeedColumn16, Converter={StaticResource BoolHide}}"/>
-            <TextBlock DockPanel.Dock="Right" Text="{Binding SpeedLimit}" d:Text="160" FontSize="20" TextAlignment="Right" FontWeight="Bold" VerticalAlignment="Center" Visibility="{Binding SpeedLimitDisplay, Converter={StaticResource BoolHide}}"/>
+            <Button Style="{DynamicResource EditBtn}" DockPanel.Dock="Right" Command="{Binding EditSpeedCommand}" CommandParameter="{Binding .}">
+                <TextBlock Text="{Binding SpeedLimit}" d:Text="160" FontSize="20" TextAlignment="Right" FontWeight="Bold" VerticalAlignment="Center" Visibility="{Binding SpeedLimitDisplay, Converter={StaticResource BoolHide}}" HorizontalAlignment="Right" Foreground="{Binding SpeedColor}" Background="{Binding SpeedBackground}"/>
+            </Button>
+
         </DockPanel>
 
         <Rectangle Grid.Column="1" Fill="Black" Width="11" Height="3" VerticalAlignment="Bottom" HorizontalAlignment="Left" Visibility="{Binding SpeedLimitDisplay, Converter={StaticResource BoolHide}}"/>
@@ -61,11 +78,13 @@
             <Path DockPanel.Dock="Right" Data="{StaticResource ZigZag}" Stroke="Black" Visibility="{Binding ZigZag1, Converter={StaticResource BoolHide}}" Margin="-2,0,0,0" Height="31" VerticalAlignment="Center"/>
             <Path DockPanel.Dock="Right" Data="{StaticResource ZigZag}" Stroke="Black" Visibility="{Binding ZigZag2, Converter={StaticResource BoolHide}}" Margin="-2,0,0,0" Height="31" VerticalAlignment="Center"/>
             <Path DockPanel.Dock="Right" Data="{StaticResource ZigZag}" Stroke="Black" Visibility="{Binding ZigZag3, Converter={StaticResource BoolHide}}" Height="31" VerticalAlignment="Center"/>
-            <StackPanel DockPanel.Dock="Left" Orientation="Horizontal" VerticalAlignment="Center">
-                <TextBlock Text="{Binding LocationInt}" d:Text="287" FontSize="20" VerticalAlignment="Center"/>
-                <TextBlock Text="," FontSize="15" VerticalAlignment="Bottom"/>
-                <TextBlock Text="{Binding LocationFrac}" d:Text="3" FontSize="15" VerticalAlignment="Bottom"/>
-            </StackPanel>
+            <Button Style="{DynamicResource EditBtn}" DockPanel.Dock="Left" Command="{Binding EditLocationCommand}" CommandParameter="{Binding .}">
+                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                    <TextBlock Text="{Binding LocationInt}" d:Text="287" FontSize="20" VerticalAlignment="Center"/>
+                    <TextBlock Text="," FontSize="15" VerticalAlignment="Bottom"/>
+                    <TextBlock Text="{Binding LocationFrac}" d:Text="3" FontSize="15" VerticalAlignment="Bottom"/>
+                </StackPanel>
+            </Button>
         </DockPanel>
 
         <Rectangle Grid.Column="3" Width="3" Height="2" Fill="Black" Visibility="{Binding KilometerBreak, Converter={StaticResource BoolHide}}" VerticalAlignment="Bottom" HorizontalAlignment="Left"/>

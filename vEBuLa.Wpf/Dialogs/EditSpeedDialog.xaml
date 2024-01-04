@@ -1,0 +1,26 @@
+﻿<Window x:Class="vEBuLa.Dialogs.EditSpeedDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:vEBuLa.Dialogs"
+        mc:Ignorable="d"
+        Title="EditSpeedDialog" Height="100" Width="150"
+        WindowStartupLocation="Manual" WindowStyle="None" ResizeMode="NoResize" KeyDown="Window_KeyDown">
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition/>
+            <RowDefinition/>
+            <RowDefinition/>
+        </Grid.RowDefinitions>
+
+        <TextBlock Grid.Row="0" Grid.Column="0" Text="Change Speed" TextAlignment="Center" VerticalAlignment="Center" FontSize="22"/>
+
+        <TextBox x:Name="txtSpeed" Grid.Row="1" Grid.Column="0" FontSize="22"/>
+
+        <CheckBox x:Name="cbxSigned" Grid.Row="2" Grid.Column="0" Content="Signed" FontSize="22" VerticalAlignment="Center" VerticalContentAlignment="Center" HorizontalAlignment="Center"/>
+    </Grid>
+</Window>

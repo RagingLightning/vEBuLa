@@ -1,0 +1,32 @@
+﻿<Window x:Class="vEBuLa.Dialogs.EditLocationDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:vEBuLa.Dialogs"
+        mc:Ignorable="d"
+        Title="EditLocationDialog" Height="100" Width="170"
+        WindowStartupLocation="Manual" WindowStyle="None" ResizeMode="NoResize" KeyDown="Window_KeyDown">
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition/>
+            <ColumnDefinition/>
+            <ColumnDefinition/>
+            <ColumnDefinition/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition/>
+            <RowDefinition/>
+            <RowDefinition/>
+        </Grid.RowDefinitions>
+
+        <TextBlock Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="4" Text="Change Location" TextAlignment="Center" VerticalAlignment="Center" FontSize="22"/>
+
+        <TextBox x:Name="txtLocation" Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="4" FontSize="22"/>
+
+        <RadioButton GroupName="gradient" x:Name="rbtGradient0" Grid.Row="2" Grid.Column="0" Content="0" FontSize="22" VerticalAlignment="Center" VerticalContentAlignment="Center" HorizontalAlignment="Center"/>
+        <RadioButton GroupName="gradient" x:Name="rbtGradient1" Grid.Row="2" Grid.Column="1" Content="1" FontSize="22" VerticalAlignment="Center" VerticalContentAlignment="Center" HorizontalAlignment="Center"/>
+        <RadioButton GroupName="gradient" x:Name="rbtGradient2" Grid.Row="2" Grid.Column="2" Content="2" FontSize="22" VerticalAlignment="Center" VerticalContentAlignment="Center" HorizontalAlignment="Center"/>
+        <RadioButton GroupName="gradient" x:Name="rbtGradient3" Grid.Row="2" Grid.Column="3" Content="3" FontSize="22" VerticalAlignment="Center" VerticalContentAlignment="Center" HorizontalAlignment="Center"/>
+    </Grid>
+</Window>
