@@ -6,7 +6,8 @@
         xmlns:local="clr-namespace:vEBuLa.Dialogs"
         mc:Ignorable="d"
         Title="EditLocationDialog" Height="100" Width="170"
-        WindowStartupLocation="Manual" WindowStyle="None" ResizeMode="NoResize" KeyDown="Window_KeyDown">
+        WindowStartupLocation="Manual" WindowStyle="None" ResizeMode="NoResize" KeyDown="Window_KeyDown"
+				FocusManager.FocusedElement="{Binding ElementName=txtLocation}">
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition/>

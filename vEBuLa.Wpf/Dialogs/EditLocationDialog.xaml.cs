@@ -19,18 +19,16 @@ public partial class EditLocationDialog : Window {
     Left = startupLocation.X;
     Top = startupLocation.Y;
     
-    txtLocation.Focus();
     txtLocation.SelectAll();
   }
 
   private void Window_KeyDown(object sender, KeyEventArgs e) {
     if (e.Key != Key.Enter && e.Key != Key.Escape) return;
-    DialogResult = e.Key == Key.Enter;
     Location = txtLocation.Text == string.Empty ? 0 : int.Parse(txtLocation.Text);
     if (rbtGradient0.IsChecked == true) Gradient = Gradient.BELOW_10;
     else if (rbtGradient1.IsChecked == true) Gradient = Gradient.BELOW_20;
     else if (rbtGradient2.IsChecked == true) Gradient = Gradient.BELOW_30;
     else Gradient = Gradient.ABOVE_30;
-    Close();
+    DialogResult = e.Key == Key.Enter;
   }
 }

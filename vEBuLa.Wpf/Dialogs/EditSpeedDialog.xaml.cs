@@ -15,15 +15,13 @@ public partial class EditSpeedDialog : Window {
     Left = startupLocation.X;
     Top = startupLocation.Y;
 
-    txtSpeed.Focus();
     txtSpeed.SelectAll();
   }
 
   private void Window_KeyDown(object sender, KeyEventArgs e) {
     if (e.Key != Key.Enter && e.Key != Key.Escape) return;
-    DialogResult = e.Key == Key.Enter;
     Speed = txtSpeed.Text == string.Empty ? 0 : int.Parse(txtSpeed.Text);
     Signed = cbxSigned.IsChecked == true;
-    Close();
+    DialogResult = e.Key == Key.Enter;
   }
 }
