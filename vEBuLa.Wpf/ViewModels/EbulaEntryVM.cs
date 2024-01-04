@@ -21,6 +21,11 @@ internal class EbulaEntryVM : BaseVM {
 
     EditSpeedCommand = EditEbulaEntrySpeedC.INSTANCE;
     EditLocationCommand = EditEbulaEntryLocationC.INSTANCE;
+    EditTunnelCommand = EditEbulaEntryTunnelC.INSTANCE;
+    EditSymbolCommand = EditEbulaEntrySymbolC.INSTANCE;
+    EditStationCommand = EditEbulaEntryStationC.INSTANCE;
+    EditArrivalCommand = EditEbulaEntryTimeC.ARRIVAL;
+    EditDepartureCommand = EditEbulaEntryTimeC.DEPARTURE;
 
     if (prev == EditEntry) prev = null;
     Location = entry.Location;
@@ -76,6 +81,11 @@ internal class EbulaEntryVM : BaseVM {
   #region Commands
   public BaseC EditSpeedCommand { get; }
   public BaseC EditLocationCommand { get; }
+  public BaseC EditTunnelCommand { get; }
+  public BaseC EditSymbolCommand { get; }
+  public BaseC EditStationCommand { get; }
+  public BaseC EditArrivalCommand { get; }
+  public BaseC EditDepartureCommand { get; }
   #endregion
   #endregion
 

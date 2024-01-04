@@ -5,10 +5,10 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:vEBuLa.Dialogs"
         mc:Ignorable="d"
-        Title="EditSpeedDialog" Height="100" Width="150"
+        Title="EditSpeedDialog" Height="100" Width="150" Topmost="True" ShowInTaskbar="False"
         WindowStartupLocation="Manual" WindowStyle="None" ResizeMode="NoResize" KeyDown="Window_KeyDown"
 				FocusManager.FocusedElement="{Binding ElementName=txtSpeed}">
-    <Grid>
+    <Grid Margin="5">
         <Grid.ColumnDefinitions>
             <ColumnDefinition/>
         </Grid.ColumnDefinitions>

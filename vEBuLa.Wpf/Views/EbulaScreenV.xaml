@@ -14,7 +14,6 @@
         <ContextMenu x:Key="EditMenu">
             <MenuItem Header="Add Entry above" Command="{Binding DataContext.AddEntryCommand, RelativeSource={RelativeSource AncestorType=local:EbulaScreenV}}" CommandParameter="{Binding .}"/>
             <Separator Visibility="{Binding TrueEntry, Converter={StaticResource BoolVis}}"/>
-            <MenuItem Visibility="{Binding TrueEntry, Converter={StaticResource BoolVis}}" Header="Edit Entry" Command="{Binding DataContext.EditEntryCommand, RelativeSource={RelativeSource AncestorType=local:EbulaScreenV}}" CommandParameter="{Binding .}"/>
             <MenuItem Visibility="{Binding TrueEntry, Converter={StaticResource BoolVis}}" Header="Remove Entry" Command="{Binding DataContext.RemoveEntryCommand, RelativeSource={RelativeSource AncestorType=local:EbulaScreenV}}" CommandParameter="{Binding .}"/>
         </ContextMenu>
         <Style x:Key="EbulaEntryStyle" TargetType="local:EbulaEntryV">
