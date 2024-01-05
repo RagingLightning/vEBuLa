@@ -1,16 +1,14 @@
-﻿using System;
-using System.Printing;
-using System.Windows.Data;
+﻿using Microsoft.Extensions.Logging;
+using System;
 using System.Windows.Media;
 using vEBuLa.Commands;
 using vEBuLa.Models;
 
 namespace vEBuLa.ViewModels;
 internal class EbulaEntryVM : BaseVM {
+  private ILogger<EbulaEntryVM>? Logger => App.GetService<ILogger<EbulaEntryVM>>();
   public EbulaEntry Model { get; }
   public EbulaScreenVM? Screen { get; }
-
-  protected EbulaEntryVM() { }
 
   public EbulaEntryVM(EbulaEntry entry, TimeSpan serviceStart, EbulaEntryVM? prev, EbulaScreenVM screen) {
     Model = entry;

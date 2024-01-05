@@ -8,12 +8,10 @@ using vEBuLa.Extensions;
 
 namespace vEBuLa.ViewModels;
 internal class EbulaScreenVM : ScreenBaseVM {
-  private readonly ILogger<EbulaScreenVM>? Logger;
+  private ILogger<EbulaEntryVM>? Logger => App.GetService<ILogger<EbulaEntryVM>>();
   private readonly EbulaVM Ebula;
 
   public EbulaScreenVM(EbulaVM ebula) {
-    Logger = App.GetService<ILogger<EbulaScreenVM>>();
-
     Ebula = ebula;
     NavigateCommand = new NavigateDefaultScreenC(this);
     AddEntryCommand = new AddEbulaEntryC(ebula);
@@ -24,20 +22,37 @@ internal class EbulaScreenVM : ScreenBaseVM {
   }
 
   public void UpdateEntries() {
+    Logger?.LogDebug("Updating EbulaScreen entries, with EditMode={EditMode}", EditMode);
     Entries.Clear();
     EbulaEntryVM? ebulaEntry = null;
-    if (EditMode) Entries.Add(new EbulaMarkerEntryVM(this,Ebula.Model.Segments[0], EbulaMarkerType.PRE));
-    Entries.AddRange(Ebula.Model.Segments[0].PreEntries.Select(e => ebulaEntry = new EbulaEntryVM(e, Ebula.Model.ServiceStartTime, ebulaEntry, this)));
-    foreach (var segment in Ebula.Model.Segments) {
-      if (EditMode) Entries.Add(new EbulaMarkerEntryVM(this,segment, EbulaMarkerType.MAIN));
-      Entries.AddRange(segment.Entries.Select(e => ebulaEntry = new EbulaEntryVM(e, Ebula.Model.ServiceStartTime, ebulaEntry, this)));
+    if (EditMode) {
+      var preMarker = new EbulaMarkerEntryVM(this, Ebula.Model.Segments[0], EbulaMarkerType.PRE);
+      Entries.Add(preMarker);
+      Logger?.LogTrace("Added EbulaMarker {Marker} for Segment {Segment} Pre stage; Count={EntryCount}", preMarker, Ebula.Model.Segments[0], Entries.Count);
     }
-    if (EditMode) Entries.Add(new EbulaMarkerEntryVM(this, Ebula.Model.Segments[^1], EbulaMarkerType.POST));
+    Entries.AddRange(Ebula.Model.Segments[0].PreEntries.Select(e => ebulaEntry = new EbulaEntryVM(e, Ebula.Model.ServiceStartTime, ebulaEntry, this)));
+    Logger?.LogTrace("Added {AddCount} EbulaEntries from Segment {Segment} Pre stage; Count={EntryCount}", Ebula.Model.Segments[0].Entries.Count, Ebula.Model.Segments[0], Entries.Count);
+    foreach (var segment in Ebula.Model.Segments) {
+      if (EditMode) {
+        var mainMarker = new EbulaMarkerEntryVM(this, segment, EbulaMarkerType.MAIN);
+        Entries.Add(mainMarker);
+        Logger?.LogTrace("Added EbulaMarker {Marker} for Segment {Segment} Main stage; Count={EntryCount}", mainMarker, segment, Entries.Count);
+      }
+      Entries.AddRange(segment.Entries.Select(e => ebulaEntry = new EbulaEntryVM(e, Ebula.Model.ServiceStartTime, ebulaEntry, this)));
+      Logger?.LogTrace("Added {AddCount} EbulaEntries from Segment {Segment} Main stage; Count={EntryCount}", segment.Entries.Count, segment, Entries.Count);
+    }
+    if (EditMode) {
+      var postMarker = new EbulaMarkerEntryVM(this, Ebula.Model.Segments[^1], EbulaMarkerType.POST);
+      Entries.Add(postMarker);
+      Logger?.LogTrace("Added EbulaMarker {Marker} for Segment {Segment} Post stage; Count={EntryCount}", postMarker, Ebula.Model.Segments[^1], Entries.Count);
+    }
     Entries.AddRange(Ebula.Model.Segments[^1].PostEntries.Select(e => ebulaEntry = new EbulaEntryVM(e, Ebula.Model.ServiceStartTime, ebulaEntry, this)));
+    Logger?.LogTrace("Added {AddCount} EbulaEntries from Segment {Segment} Post stage; Count={EntryCount}", Ebula.Model.Segments[^1].Entries.Count, Ebula.Model.Segments[^1], Entries.Count);
     UpdateList();
   }
 
   public void UpdateList() {
+    Logger?.LogDebug("Updating EbulaScreen display list, starting at index {StartIndex}", StartEntry);
     ActiveEntries.Clear();
     ActiveEntries.AddRange(Entries.Skip(StartEntry).Take(15).Reverse());
   }

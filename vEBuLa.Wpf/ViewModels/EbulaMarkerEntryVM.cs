@@ -1,12 +1,17 @@
-﻿using vEBuLa.Commands;
+﻿using Microsoft.Extensions.Logging;
+using vEBuLa.Commands;
 using vEBuLa.Models;
 
 namespace vEBuLa.ViewModels;
 internal class EbulaMarkerEntryVM : BaseVM {
+  private ILogger<EbulaEntryVM>? Logger => App.GetService<ILogger<EbulaEntryVM>>();
   public EbulaSegment Segment { get; }
   public EbulaScreenVM Screen { get; }
   public EbulaMarkerType MarkerType { get; }
   public override bool Equals(object? obj) => obj is EbulaMarkerEntryVM marker && marker.Segment == Segment && marker.MarkerType == MarkerType;
+  public override int GetHashCode() => Segment.GetHashCode();
+  public static bool operator ==(EbulaMarkerEntryVM a, EbulaMarkerEntryVM b) => a.Equals(b);
+  public static bool operator !=(EbulaMarkerEntryVM a, EbulaMarkerEntryVM b) => !a.Equals(b);
 
   public EbulaMarkerEntryVM(EbulaScreenVM screen, EbulaSegment segment, EbulaMarkerType type) {
     Screen = screen;
@@ -39,16 +44,15 @@ internal class EbulaMarkerEntryVM : BaseVM {
         EditSegmentLocationCommand = EditSegmentStationC.DESTINATION;
         LocationName = Segment.Destination.Station?.Name ?? "null";
         break;
-
     }
   }
 
   #region Properties
 
   public BaseC EditSegmentDurationCommand { get; }
-  public BaseC EditSegmentOriginCommand { get; }
-  public BaseC EditSegmentDestinationCommand { get; }
-  public BaseC EditSegmentLocationCommand { get; }
+  public BaseC? EditSegmentOriginCommand { get; }
+  public BaseC? EditSegmentDestinationCommand { get; }
+  public BaseC? EditSegmentLocationCommand { get; }
 
   public string MarkerTypeName { get; }
   public bool IsMain { get; }

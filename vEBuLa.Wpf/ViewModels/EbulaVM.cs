@@ -1,10 +1,12 @@
-﻿using System;
+﻿using Microsoft.Extensions.Logging;
+using System;
 using System.ComponentModel;
 using vEBuLa.Commands;
 using vEBuLa.Models;
 
 namespace vEBuLa.ViewModels;
 internal class EbulaVM : BaseVM {
+  private ILogger<EbulaEntryVM>? Logger => App.GetService<ILogger<EbulaEntryVM>>();
   public Ebula Model { get; private set; }
 
   public EbulaVM(Ebula ebula) {

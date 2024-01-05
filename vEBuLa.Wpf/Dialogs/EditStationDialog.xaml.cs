@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Extensions.Logging;
+using System;
 using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Controls;
@@ -10,6 +11,7 @@ namespace vEBuLa.Dialogs;
 /// Interaktionslogik für EditSpeedDialog.xaml
 /// </summary>
 public partial class EditStationDialog : Window {
+  private ILogger<EditStationDialog>? Logger => App.GetService<ILogger<EditStationDialog>>();
   public static string StationName { get; private set; } = string.Empty;
   public EditStationDialog(string stationName, Vector startupLocation) {
     InitializeComponent();
@@ -20,6 +22,7 @@ public partial class EditStationDialog : Window {
     Top = startupLocation.Y;
 
     txtName.SelectAll();
+    Logger?.LogDebug("New Dialog created");
 
   }
 
@@ -28,6 +31,7 @@ public partial class EditStationDialog : Window {
 
     StationName = txtName.Text;
 
+    Logger?.LogDebug("Dialog dismissed, success: {DialogSuccess}", e.Key == Key.Enter);
     DialogResult = e.Key == Key.Enter;
   }
 
