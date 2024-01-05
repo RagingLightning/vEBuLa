@@ -12,11 +12,11 @@ internal class EditEbulaEntryLocationC : BaseC {
     if (entry.Screen is null) return;
 
     var mainWindow = Application.Current.MainWindow;
-    var dialog = new EditLocationDialog(entry.Location, entry.Gradient, mainWindow.PointToScreen(Mouse.GetPosition(mainWindow))-new Point(75,50));
+    var dialog = new EditEntryLocationDialog(entry.Location, entry.Gradient, mainWindow.PointToScreen(Mouse.GetPosition(mainWindow))-new Point(75,50));
 
     if (dialog.ShowDialog() == false) return;
-    entry.Model.Location = EditLocationDialog.Location;
-    entry.Model.GradientMark = EditLocationDialog.Gradient;
+    entry.Model.Location = EditEntryLocationDialog.Location;
+    entry.Model.GradientMark = EditEntryLocationDialog.Gradient;
 
     entry.Screen.UpdateEntries();
   }

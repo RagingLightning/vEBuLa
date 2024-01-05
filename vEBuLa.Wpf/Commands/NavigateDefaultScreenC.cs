@@ -14,7 +14,7 @@ internal class NavigateDefaultScreenC : NavigateScreenC {
   }
 
   protected override void Accept() {
-    var targetEntry = Screen.Entries.Skip(Screen.StartEntry + 1).First(e => e.Arrival is not null || e.Departure is not null);
+    var targetEntry = Screen.Entries.Skip(Screen.StartEntry + 1).First(e =>  e is EbulaEntryVM entry && (entry.Arrival is not null || entry.Departure is not null));
     Screen.StartEntry = Screen.Entries.IndexOf(targetEntry);
   }
 

@@ -16,7 +16,7 @@
             <Separator Visibility="{Binding TrueEntry, Converter={StaticResource BoolVis}}"/>
             <MenuItem Visibility="{Binding TrueEntry, Converter={StaticResource BoolVis}}" Header="Remove Entry" Command="{Binding DataContext.RemoveEntryCommand, RelativeSource={RelativeSource AncestorType=local:EbulaScreenV}}" CommandParameter="{Binding .}"/>
         </ContextMenu>
-        <Style x:Key="EbulaEntryStyle" TargetType="local:EbulaEntryV">
+        <Style x:Key="EbulaEntryStyle" TargetType="UserControl">
             <Setter Property="ContextMenu" Value="{DynamicResource EditMenu}"/>
             <Style.Triggers>
                 <Trigger Property="TabIndex" Value="0">
@@ -26,8 +26,11 @@
                 </Trigger>
             </Style.Triggers>
         </Style>
-        <DataTemplate x:Key="ListItemTemplate">
+        <DataTemplate DataType="{x:Type vm:EbulaEntryVM}">
             <local:EbulaEntryV Style="{StaticResource EbulaEntryStyle}" TabIndex="{Binding DataContext.EditMode, RelativeSource={RelativeSource AncestorType=local:EbulaScreenV}}"/>
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type vm:EbulaMarkerEntryVM}">
+            <local:EbulaMarkerEntryV Style="{StaticResource EbulaEntryStyle}" TabIndex="1"/>
         </DataTemplate>
         <Style x:Key="ListContainerStyle" TargetType="ListViewItem">
             <Setter Property="Padding" Value="0"/>
@@ -55,7 +58,6 @@
             <Setter Property="BorderThickness" Value="0"/>
             <Setter Property="Padding" Value="-1"/>
             <Setter Property="ItemContainerStyle" Value="{StaticResource ListContainerStyle}"/>
-            <Setter Property="ItemTemplate" Value="{StaticResource ListItemTemplate}"/>
             <Setter Property="ScrollViewer.VerticalScrollBarVisibility" Value="Disabled"/>
             <Setter Property="ScrollViewer.HorizontalScrollBarVisibility" Value="Disabled"/>
         </Style>

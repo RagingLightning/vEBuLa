@@ -6,9 +6,9 @@ namespace vEBuLa.Dialogs;
 /// <summary>
 /// Interaktionslogik für EditSpeedDialog.xaml
 /// </summary>
-public partial class EditSymbolDialog : Window {
-  public static EbulaSymbol Symbol;
-  public EditSymbolDialog(EbulaSymbol ebulaSymbol, Vector startupLocation) {
+public partial class EditEntrySymbolDialog : Window {
+  public static EbulaSymbol Symbol { get; private set; } = EbulaSymbol.NONE;
+  public EditEntrySymbolDialog(EbulaSymbol ebulaSymbol, Vector startupLocation) {
     InitializeComponent();
     Symbol = ebulaSymbol;
 

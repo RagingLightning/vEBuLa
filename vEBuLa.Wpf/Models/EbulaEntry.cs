@@ -4,6 +4,9 @@ using System.ComponentModel;
 
 namespace vEBuLa.Models;
 public class EbulaEntry {
+  public static EbulaEntry PreMarker(EbulaSegment segment) => new EbulaEntry{ SpeedLimit = -1, LocationName = $"-- PRE {segment.Origin} --" };
+  public static readonly EbulaEntry StartMarker = new EbulaEntry { SpeedLimit = -1, LocationName = "-- START --" };
+  public static readonly EbulaEntry PostMarker = new EbulaEntry { SpeedLimit = -1, LocationName = "-- POST --" };
 
   public int SpeedLimit { get; set; } = 0;
   public bool SpeedSigned { get; set; } = true;

@@ -17,10 +17,10 @@ internal class EditEbulaEntrySymbolC : BaseC {
     if (entry.Screen is null) return;
 
     var mainWindow = Application.Current.MainWindow;
-    var dialog = new EditSymbolDialog(entry.Model.Symbol, mainWindow.PointToScreen(Mouse.GetPosition(mainWindow))-new Point(75,50));
+    var dialog = new EditEntrySymbolDialog(entry.Model.Symbol, mainWindow.PointToScreen(Mouse.GetPosition(mainWindow))-new Point(75,50));
 
     if (dialog.ShowDialog() == false) return;
-    entry.Model.Symbol = EditSymbolDialog.Symbol;
+    entry.Model.Symbol = EditEntrySymbolDialog.Symbol;
 
     entry.Screen.UpdateEntries();
   }

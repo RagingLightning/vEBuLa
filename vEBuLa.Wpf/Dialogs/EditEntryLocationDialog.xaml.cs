@@ -6,10 +6,10 @@ namespace vEBuLa.Dialogs;
 /// <summary>
 /// Interaktionslogik für EditSpeedDialog.xaml
 /// </summary>
-public partial class EditLocationDialog : Window {
-  public static int Location = 0;
-  public static Gradient Gradient = 0;
-  public EditLocationDialog(int location, Gradient gradient, Vector startupLocation) {
+public partial class EditEntryLocationDialog : Window {
+  public static int Location { get; private set; } = 0;
+  public static Gradient Gradient { get; private set; } = 0;
+  public EditEntryLocationDialog(int location, Gradient gradient, Vector startupLocation) {
     InitializeComponent();
     txtLocation.Text = location.ToString();
     if (gradient == Gradient.BELOW_10) rbtGradient0.IsChecked = true;

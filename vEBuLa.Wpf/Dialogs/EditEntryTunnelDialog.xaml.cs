@@ -6,10 +6,10 @@ namespace vEBuLa.Dialogs;
 /// <summary>
 /// Interaktionslogik für EditSpeedDialog.xaml
 /// </summary>
-public partial class EditTunnelDialog : Window {
-  public static bool TunnelStart = false;
-  public static bool TunnelEnd = false;
-  public EditTunnelDialog(bool tunnelStart, bool tunnelEnd, Vector startupLocation) {
+public partial class EditEntryTunnelDialog : Window {
+  public static bool TunnelStart { get; private set; } = false;
+  public static bool TunnelEnd { get; private set; } = false;
+  public EditEntryTunnelDialog(bool tunnelStart, bool tunnelEnd, Vector startupLocation) {
     InitializeComponent();
     TunnelStart = tunnelStart;
     TunnelEnd = tunnelEnd;

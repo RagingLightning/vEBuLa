@@ -1,9 +1,11 @@
 ﻿using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Serilog;
 using System;
 using System.Runtime.InteropServices;
 using System.Windows;
+using System.Windows.Navigation;
 using vEBuLa.Extensions;
 using vEBuLa.Models;
 using vEBuLa.ViewModels;
@@ -24,6 +26,8 @@ public partial class App : Application {
 
   internal static IHost? AppHost { get; private set; }
   private readonly IConfigurationRoot? _serilogConfig;
+
+  internal static T? GetService<T>() where T : notnull => AppHost is null ? default : AppHost.Services.GetService<T>();
 
   public App() {
     //AttachConsole();

@@ -9,11 +9,16 @@ namespace vEBuLa.Dialogs;
 /// Interaktionslogik für EditSpeedDialog.xaml
 /// </summary>
 public partial class EditTimeSpanDialog : Window {
-  public static TimeSpan? Time = null;
-  public EditTimeSpanDialog(TimeSpan? timeSpan, bool isDeparture, Vector startupLocation) {
+  public static TimeSpan? Time { get; private set; } = null;
+  public EditTimeSpanDialog(TimeSpan? timeSpan, TimeSpanDialogType type, Vector startupLocation) {
     InitializeComponent();
 
-    Header.Text = isDeparture ? "Change Departure" : "Change Arrival";
+    Header.Text = type switch {
+      TimeSpanDialogType.ARRIVAL => "Change Arrival",
+      TimeSpanDialogType.DEPARTURE => "Change Departure",
+      TimeSpanDialogType.DURATION => "Change Duration",
+      _ => "Change Time"
+    };
 
     Time = timeSpan ?? new TimeSpan();
     txtHour.Text = Time?.Hours.ToString();
@@ -41,4 +46,10 @@ public partial class EditTimeSpanDialog : Window {
   private void Focus(object sender, RoutedEventArgs e) {
     if (sender is TextBox box) box.SelectAll();
   }
+}
+
+public enum TimeSpanDialogType {
+  ARRIVAL,
+  DEPARTURE,
+  DURATION
 }

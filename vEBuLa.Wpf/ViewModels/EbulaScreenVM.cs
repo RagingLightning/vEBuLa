@@ -1,22 +1,19 @@
-﻿using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
-using Newtonsoft.Json.Linq;
+﻿using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.ObjectModel;
 using System.Linq;
-using System.Windows;
-using System.Windows.Controls;
 using System.Windows.Media;
 using vEBuLa.Commands;
 using vEBuLa.Extensions;
-using vEBuLa.Models;
 
 namespace vEBuLa.ViewModels;
 internal class EbulaScreenVM : ScreenBaseVM {
-  private ILogger<EbulaScreenVM>? Logger => App.AppHost?.Services.GetRequiredService<ILogger<EbulaScreenVM>>();
+  private readonly ILogger<EbulaScreenVM>? Logger;
   private readonly EbulaVM Ebula;
 
   public EbulaScreenVM(EbulaVM ebula) {
+    Logger = App.GetService<ILogger<EbulaScreenVM>>();
+
     Ebula = ebula;
     NavigateCommand = new NavigateDefaultScreenC(this);
     AddEntryCommand = new AddEbulaEntryC(ebula);
@@ -28,12 +25,15 @@ internal class EbulaScreenVM : ScreenBaseVM {
 
   public void UpdateEntries() {
     Entries.Clear();
-    if (EditMode) Entries.Add(EbulaEntryVM.EditEntry);
     EbulaEntryVM? ebulaEntry = null;
-    foreach (var entry in Ebula.Model.Entries) {
-      ebulaEntry = new EbulaEntryVM(entry, new TimeSpan(0, 0, 0), ebulaEntry, this);
-      Entries.Add(ebulaEntry);
+    if (EditMode) Entries.Add(new EbulaMarkerEntryVM(this,Ebula.Model.Segments[0], EbulaMarkerType.PRE));
+    Entries.AddRange(Ebula.Model.Segments[0].PreEntries.Select(e => ebulaEntry = new EbulaEntryVM(e, Ebula.Model.ServiceStartTime, ebulaEntry, this)));
+    foreach (var segment in Ebula.Model.Segments) {
+      if (EditMode) Entries.Add(new EbulaMarkerEntryVM(this,segment, EbulaMarkerType.MAIN));
+      Entries.AddRange(segment.Entries.Select(e => ebulaEntry = new EbulaEntryVM(e, Ebula.Model.ServiceStartTime, ebulaEntry, this)));
     }
+    if (EditMode) Entries.Add(new EbulaMarkerEntryVM(this, Ebula.Model.Segments[^1], EbulaMarkerType.POST));
+    Entries.AddRange(Ebula.Model.Segments[^1].PostEntries.Select(e => ebulaEntry = new EbulaEntryVM(e, Ebula.Model.ServiceStartTime, ebulaEntry, this)));
     UpdateList();
   }
 
@@ -42,24 +42,13 @@ internal class EbulaScreenVM : ScreenBaseVM {
     ActiveEntries.AddRange(Entries.Skip(StartEntry).Take(15).Reverse());
   }
 
-  private void EntrySelected(EbulaEntryVM entry) {
-  }
-
   private bool _editMode = false;
   public bool EditMode {
     get => _editMode;
     set {
       _editMode = value;
       RowHighlight = value ? new SolidColorBrush(Color.FromRgb(190, 190, 190)) : null;
-
-      if (value && Entries[0] != EbulaEntryVM.EditEntry) {
-        Entries.Insert(0, EbulaEntryVM.EditEntry);
-        StartEntry += StartEntry == 0 ? 0 : 1;
-      }
-      else if (!value && Entries[0] == EbulaEntryVM.EditEntry) {
-        Entries.RemoveAt(0);
-        StartEntry -= StartEntry == 0 ? 0 : 1;
-      }
+      UpdateEntries();
     }
   }
 
@@ -67,19 +56,6 @@ internal class EbulaScreenVM : ScreenBaseVM {
   #region Properties
 
   #region Edit Mode
-  private EbulaEntryVM? _selectedEntry;
-  public EbulaEntryVM? SelectedEntry {
-    get {
-      return _selectedEntry;
-    }
-    set {
-      _selectedEntry = value;
-      if (EditMode && value is not null) EntrySelected(value);
-      else _selectedEntry = null;
-      OnPropertyChanged(nameof(SelectedEntry));
-    }
-  }
-
   public BaseC AddEntryCommand { get; }
   public BaseC EditEntryCommand { get; }
   public BaseC RemoveEntryCommand { get; }
@@ -162,16 +138,16 @@ internal class EbulaScreenVM : ScreenBaseVM {
   #endregion
 
   private int _currentEntry = 0;
-  private EbulaEntryVM? _currentEntryVM;
+  private BaseVM? _currentEntryVM;
   public int CurrentEntry {
     get { return _currentEntry; }
     set {
-      if (_currentEntryVM is not null)
-        _currentEntryVM.IsCurrent = false;
+      if (_currentEntryVM is EbulaEntryVM oldEntry)
+        oldEntry.IsCurrent = false;
       _currentEntry = value > 0 && value < Entries.Count ? value : 0;
       _currentEntryVM = value > 0 && value < Entries.Count ? Entries[value] : null;
-      if (_currentEntryVM is not null)
-        _currentEntryVM.IsCurrent = true;
+      if (_currentEntryVM is EbulaEntryVM newEntry)
+        newEntry.IsCurrent = true;
     }
   }
 
@@ -185,8 +161,8 @@ internal class EbulaScreenVM : ScreenBaseVM {
     }
   }
 
-  public ObservableCollection<EbulaEntryVM> ActiveEntries { get; } = new();
-  public ObservableCollection<EbulaEntryVM> Entries { get; } = new();
+  public ObservableCollection<BaseVM> ActiveEntries { get; } = new();
+  public ObservableCollection<BaseVM> Entries { get; } = new();
 
   private Brush? _rowHighlight = null;
   public Brush? RowHighlight {

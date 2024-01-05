@@ -49,7 +49,7 @@ public class EbulaConfig {
         Logger?.LogWarning("Segment {SegmentJson} failed to parse", jSegment);
         continue;
       }
-      var segment = new EbulaSegment(Guid.Parse(jSegment.Key), (JObject) jSegment.Value);
+      var segment = new EbulaSegment(this, Guid.Parse(jSegment.Key), (JObject) jSegment.Value);
       if (Segments.TryGetValue(segment.Id, out var seg)) {
         Logger?.LogWarning("Segment {Segment} shares ID {SegmentId} with {ExistingSegment}", segment, segment.Id, seg);
         continue;

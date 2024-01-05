@@ -10,6 +10,11 @@ public class EbulaStation {
     Name = jStation.Value<string>(nameof(Name));
   }
 
+  public EbulaStation(Guid id, string name) {
+    Id = id;
+    Name = name;
+  }
+
   [JsonIgnore]
   public Guid Id { get; } = Guid.Empty;
   public string Name { get; set; } = string.Empty;

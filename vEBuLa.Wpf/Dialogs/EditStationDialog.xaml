@@ -5,32 +5,22 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:vEBuLa.Dialogs"
         mc:Ignorable="d"
-        Title="EditLocationDialog" Height="100" Width="200" Topmost="True" ShowInTaskbar="False"
+        Title="EditLocationDialog" Height="66" Width="160" Topmost="True" ShowInTaskbar="False"
         WindowStartupLocation="Manual" WindowStyle="None" ResizeMode="NoResize" KeyDown="Window_KeyDown"
-				FocusManager.FocusedElement="{Binding ElementName=txtMain}">
+        FocusManager.FocusedElement="{Binding ElementName=txtName}">
     <Grid Margin="5">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="Auto"/>
             <ColumnDefinition/>
-            <ColumnDefinition/>
-            <ColumnDefinition/>
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition/>
-            <RowDefinition/>
             <RowDefinition/>
             <RowDefinition/>
         </Grid.RowDefinitions>
 
-        <TextBlock Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="4" Text="Change Station" TextAlignment="Center" VerticalAlignment="Center" FontSize="22"/>
+        <TextBlock x:Name="Header" Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3" d:Text="Change Station" TextAlignment="Center" VerticalAlignment="Center" FontSize="22"/>
 
-        <Label Grid.Row="1" Content="Main: " FontSize="11" Margin="-4"/>
-        <CheckBox x:Name="cbxMain" Grid.Row="2" Content="Bold" FontSize="11" VerticalAlignment="Center" VerticalContentAlignment="Center"/>
-        <TextBox x:Name="txtMain" Grid.Row="1" Grid.RowSpan="2" Grid.Column="1" Grid.ColumnSpan="3" FontSize="22"/>
-        
-        <Label Grid.Row="3" Content="Second: " FontSize="11" Margin="-4"/>
-        <CheckBox x:Name="cbxSecond" Grid.Row="4" Content="Bold" FontSize="11" VerticalAlignment="Center" VerticalContentAlignment="Center"/>
-        <TextBox x:Name="txtSecond" Grid.Row="3" Grid.RowSpan="2" Grid.Column="1" Grid.ColumnSpan="3" FontSize="22"/>
+        <Label Content="Name: " Grid.Row="1" Grid.Column="0" VerticalAlignment="Center"/>
+        <TextBox x:Name="txtName" Grid.Row="1" Grid.Column="1" FocusManager.GotFocus="Focus" Margin="5"/>
     </Grid>
 </Window>

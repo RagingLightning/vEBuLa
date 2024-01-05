@@ -17,11 +17,11 @@ internal class EditEbulaEntrySpeedC : BaseC {
     if (entry.Screen is null) return;
 
     var mainWindow = Application.Current.MainWindow;
-    var dialog = new EditSpeedDialog(entry.SpeedLimit, entry.SpeedSigned, mainWindow.PointToScreen(Mouse.GetPosition(mainWindow))-new Point(75,50));
+    var dialog = new EditEntrySpeedDialog(entry.SpeedLimit, entry.SpeedSigned, mainWindow.PointToScreen(Mouse.GetPosition(mainWindow))-new Point(75,50));
 
     if (dialog.ShowDialog() == false) return;
-    entry.Model.SpeedLimit = EditSpeedDialog.Speed;
-    entry.Model.SpeedSigned = EditSpeedDialog.Signed;
+    entry.Model.SpeedLimit = EditEntrySpeedDialog.Speed;
+    entry.Model.SpeedSigned = EditEntrySpeedDialog.Signed;
 
     entry.Screen.UpdateEntries();
   }

@@ -1,20 +1,17 @@
 ﻿using System;
+using System.Printing;
+using System.Windows.Data;
 using System.Windows.Media;
 using vEBuLa.Commands;
 using vEBuLa.Models;
 
 namespace vEBuLa.ViewModels;
 internal class EbulaEntryVM : BaseVM {
-  public EbulaEntry? Model { get; private set; }
-  public static EbulaEntryVM EditEntry = new();
-
+  public EbulaEntry Model { get; }
   public EbulaScreenVM? Screen { get; }
 
-  private EbulaEntryVM() {
-    Model = null;
-    TrueEntry = false;
-    MainLabel = "--Start--";
-  }
+  protected EbulaEntryVM() { }
+
   public EbulaEntryVM(EbulaEntry entry, TimeSpan serviceStart, EbulaEntryVM? prev, EbulaScreenVM screen) {
     Model = entry;
     Screen = screen;
@@ -27,7 +24,6 @@ internal class EbulaEntryVM : BaseVM {
     EditArrivalCommand = EditEbulaEntryTimeC.ARRIVAL;
     EditDepartureCommand = EditEbulaEntryTimeC.DEPARTURE;
 
-    if (prev == EditEntry) prev = null;
     Location = entry.Location;
 
     MainLabel = entry.LocationName;
@@ -67,16 +63,6 @@ internal class EbulaEntryVM : BaseVM {
   #region Properties
 
   #region Edit Mode
-  private bool _trueEntry = true;
-  public bool TrueEntry {
-    get {
-      return _trueEntry;
-    }
-    set {
-      _trueEntry = value;
-      OnPropertyChanged(nameof(TrueEntry));
-    }
-  }
 
   #region Commands
   public BaseC EditSpeedCommand { get; }
@@ -90,7 +76,7 @@ internal class EbulaEntryVM : BaseVM {
   #endregion
 
   #region Column 1 - Speeds
-  public bool SpeedColumn2 => SpeedLimit < 40;
+  public bool SpeedColumn2 => SpeedLimit > 0 && SpeedLimit < 40;
   public bool SpeedColumn4 => SpeedLimit > 39 && SpeedLimit < 60;
   public bool SpeedColumn6 => SpeedLimit > 59 && SpeedLimit < 80;
   public bool SpeedColumn8 => SpeedLimit > 79 && SpeedLimit < 100;

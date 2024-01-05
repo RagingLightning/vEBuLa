@@ -5,10 +5,10 @@ namespace vEBuLa.Dialogs;
 /// <summary>
 /// Interaktionslogik für EditSpeedDialog.xaml
 /// </summary>
-public partial class EditSpeedDialog : Window {
-  public static int Speed = 0;
-  public static bool Signed = true;
-  public EditSpeedDialog(int speed, bool signed, Vector startupLocation) {
+public partial class EditEntrySpeedDialog : Window {
+  public static int Speed { get; private set; } = 0;
+  public static bool Signed { get; private set; } = true;
+  public EditEntrySpeedDialog(int speed, bool signed, Vector startupLocation) {
     InitializeComponent();
     txtSpeed.Text = speed.ToString();
     cbxSigned.IsChecked = signed;

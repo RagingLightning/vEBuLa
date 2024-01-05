@@ -12,13 +12,13 @@ internal class EditEbulaEntryStationC : BaseC {
     if (entry.Screen is null) return;
 
     var mainWindow = Application.Current.MainWindow;
-    var dialog = new EditStationDialog(entry.MainLabel, entry.SecondaryLabel, entry.MainBold, entry.SecondaryBold, mainWindow.PointToScreen(Mouse.GetPosition(mainWindow))-new Point(75,50));
+    var dialog = new EditEntryNameDialog(entry.MainLabel, entry.SecondaryLabel, entry.MainBold, entry.SecondaryBold, mainWindow.PointToScreen(Mouse.GetPosition(mainWindow))-new Point(75,50));
 
     if (dialog.ShowDialog() == false) return;
-    entry.Model.LocationName = EditStationDialog.Name;
-    entry.Model.LocationNotes = EditStationDialog.Description;
-    entry.Model.LocationNameBold = EditStationDialog.NameBold;
-    entry.Model.LocationNotesBold = EditStationDialog.DescriptionBold;
+    entry.Model.LocationName = EditEntryNameDialog.EntryName;
+    entry.Model.LocationNotes = EditEntryNameDialog.Description;
+    entry.Model.LocationNameBold = EditEntryNameDialog.NameBold;
+    entry.Model.LocationNotesBold = EditEntryNameDialog.DescriptionBold;
 
     entry.Screen.UpdateEntries();
   }

@@ -12,11 +12,10 @@ internal class EditEbulaEntryTimeC : BaseC {
   public EditEbulaEntryTimeC(bool isDeparture) { IsDeparture = isDeparture; }
   public override void Execute(object? parameter) {
     if (parameter is not EbulaEntryVM entry) return;
-    if (entry.Model is null) return;
     if (entry.Screen is null) return;
 
     var mainWindow = Application.Current.MainWindow;
-    var dialog = new EditTimeSpanDialog(IsDeparture ? entry.Departure : entry.Arrival, IsDeparture, mainWindow.PointToScreen(Mouse.GetPosition(mainWindow))-new Point(75,50));
+    var dialog = new EditTimeSpanDialog(IsDeparture ? entry.Departure : entry.Arrival, IsDeparture ? TimeSpanDialogType.DEPARTURE : TimeSpanDialogType.ARRIVAL, mainWindow.PointToScreen(Mouse.GetPosition(mainWindow))-new Point(75,50));
 
     if (dialog.ShowDialog() == false) return;
     if (IsDeparture) entry.Model.Departure = EditTimeSpanDialog.Time;

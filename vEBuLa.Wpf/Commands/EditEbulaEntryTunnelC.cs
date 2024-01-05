@@ -17,11 +17,11 @@ internal class EditEbulaEntryTunnelC : BaseC {
     if (entry.Screen is null) return;
 
     var mainWindow = Application.Current.MainWindow;
-    var dialog = new EditTunnelDialog(entry.TunnelStart, entry.TunnelEnd, mainWindow.PointToScreen(Mouse.GetPosition(mainWindow))-new Point(75,50));
+    var dialog = new EditEntryTunnelDialog(entry.TunnelStart, entry.TunnelEnd, mainWindow.PointToScreen(Mouse.GetPosition(mainWindow))-new Point(75,50));
 
     if (dialog.ShowDialog() == false) return;
-    entry.Model.TunnelStart = EditTunnelDialog.TunnelStart;
-    entry.Model.TunnelEnd = EditTunnelDialog.TunnelEnd;
+    entry.Model.TunnelStart = EditEntryTunnelDialog.TunnelStart;
+    entry.Model.TunnelEnd = EditEntryTunnelDialog.TunnelEnd;
 
     entry.Screen.UpdateEntries();
   }
