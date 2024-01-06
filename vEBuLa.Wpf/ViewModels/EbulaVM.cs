@@ -7,16 +7,15 @@ using vEBuLa.Models;
 namespace vEBuLa.ViewModels;
 internal class EbulaVM : BaseVM {
   private ILogger<EbulaEntryVM>? Logger => App.GetService<ILogger<EbulaEntryVM>>();
-  public Ebula Model { get; private set; }
+  public Ebula Model { get; set; }
 
-  public EbulaVM(Ebula ebula) {
-    Model = ebula;
-    Screen = new EbulaScreenVM(this);
+  public EbulaVM() {
+    Model = new Ebula(null);
+    Screen = new StorageConfigScreenVM(this);
+    ToggleScreenCommand = new ToggleScreenC(this);
+    ToggleEditCommand = new ToggleEditModeC(this);
 
     Screen.PropertyChanged += Screen_NavigateCommandChanged;
-
-    ToggleScreenCommand = new ToggleScreenC(Screen);
-    ToggleEditCommand = new ToggleEditModeC(Screen);
   }
 
   // Propagate change of Navigation command
@@ -27,16 +26,44 @@ internal class EbulaVM : BaseVM {
 
   #region Properties
 
-  private EbulaScreenVM _screen;
-  public EbulaScreenVM Screen {
+  private ScreenBaseVM _screen;
+  public ScreenBaseVM Screen {
     get {
       return _screen;
     }
-    private set {
+    set {
+      if (_screen is not null)
+        _screen.PropertyChanged -= Screen_NavigateCommandChanged;
       _screen = value;
+      value.PropertyChanged += Screen_NavigateCommandChanged;
       OnPropertyChanged(nameof(Screen));
+      OnPropertyChanged(nameof(NavigateCommand));
     }
   }
+
+  private bool _active;
+  public bool Active {
+    get {
+      return _active;
+    }
+    set {
+      _active = value;
+      OnPropertyChanged(nameof(Active));
+    }
+  }
+
+  private bool _editMode;
+  public bool EditMode {
+    get {
+      return _editMode;
+    }
+    set {
+      _editMode = value;
+      OnPropertyChanged(nameof(EditMode));
+      OnPropertyChanged(nameof(NormalMode));
+    }
+  }
+  public bool NormalMode => !EditMode;
 
   #region Commands
 

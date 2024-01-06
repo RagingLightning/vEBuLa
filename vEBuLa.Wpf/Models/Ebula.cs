@@ -2,18 +2,23 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text.Json.Nodes;
+using System.Security.Cryptography;
+using System.Security.Policy;
 
 namespace vEBuLa.Models;
-public class Ebula {
-  public EbulaConfig Config { get; }
+internal class Ebula {
+  public EbulaConfig? Config { get; }
   public List<EbulaSegment> Segments { get; } = new();
+  public TimeSpan ServiceStartTime { get; private set; } = TimeSpan.Zero;
 
-  public TimeSpan ServiceStartTime { get; } = new(0, 0, 0);
+  public Ebula(string? configPath) {
+    if (configPath is null) Config = new EbulaConfig();
+    else Config = new EbulaConfig(File.ReadAllText(configPath));
+  }
 
-  public Ebula() {
-    Config = new EbulaConfig(File.ReadAllText("ebula.json"));
-    Segments.Add(Config.Segments.First().Value);
+  internal void SetActiveSegments(IEnumerable<EbulaSegment> segments, TimeSpan departure) {
+    ServiceStartTime = departure;
+    Segments.Clear();
+    Segments.AddRange(segments);
   }
 }

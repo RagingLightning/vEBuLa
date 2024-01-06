@@ -13,6 +13,7 @@ internal class RemoveEbulaEntryC : BaseC {
 
   public override void Execute(object? parameter) {
     if (parameter is not EbulaEntryVM entry) return;
+    if (Ebula.Screen is not EbulaScreenVM ebulaScreen) return;
     Logger?.LogInformation("Removing entry {EbulaEntry}", entry);
 
     var index = Ebula.Model.Segments.Select(s => s.FindEntry(entry.Model)).FirstOrDefault(p => p is not null);
@@ -23,6 +24,6 @@ internal class RemoveEbulaEntryC : BaseC {
 
     index.Value.List.Remove(entry.Model);
 
-    Ebula.Screen.UpdateEntries();
+    ebulaScreen.UpdateEntries();
   }
 }

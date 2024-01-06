@@ -20,15 +20,15 @@ internal class AddEbulaEntryC : BaseC {
       Logger?.LogDebug("{MarkerEntry} is marker of type {MarkerType}", marker, marker.MarkerType);
       if (marker.MarkerType == EbulaMarkerType.PRE) {
         Logger?.LogTrace("Inserting new entry {NewEntry} in PreEntries of segment {Segment} at index {Index}", newEntry, marker.Segment, 0);
-        marker.Segment.PreEntries.Insert(0, newEntry);
+        marker.Segment.Model.PreEntries.Insert(0, newEntry);
       }
       else if (marker.MarkerType == EbulaMarkerType.MAIN) {
         Logger?.LogTrace("Inserting new entry {NewEntry} in Entries of segment {Segment} at index {Index}", newEntry, marker.Segment, 0);
-        marker.Segment.Entries.Insert(0, newEntry);
+        marker.Segment.Model.Entries.Insert(0, newEntry);
       }
       else if (marker.MarkerType == EbulaMarkerType.POST) {
         Logger?.LogTrace("Inserting new entry {NewEntry} in PostEntries of segment {Segment} at index {Index}", newEntry, marker.Segment, 0);
-        marker.Segment.PostEntries.Insert(0, newEntry);
+        marker.Segment.Model.PostEntries.Insert(0, newEntry);
       }
     }
     else if (parameter is EbulaEntryVM entry) {
@@ -42,7 +42,5 @@ internal class AddEbulaEntryC : BaseC {
       index.Value.List.Insert(index.Value.Index, newEntry);
     }
     else return;
-
-    Ebula.Screen.EditEntryCommand.Execute(newEntry);
   }
 }

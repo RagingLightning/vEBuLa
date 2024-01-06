@@ -3,7 +3,7 @@ using System;
 using System.ComponentModel;
 
 namespace vEBuLa.Models;
-public class EbulaEntry {
+internal class EbulaEntry {
   public static EbulaEntry PreMarker(EbulaSegment segment) => new EbulaEntry{ SpeedLimit = -1, LocationName = $"-- PRE {segment.Origin} --" };
   public static readonly EbulaEntry StartMarker = new EbulaEntry { SpeedLimit = -1, LocationName = "-- START --" };
   public static readonly EbulaEntry PostMarker = new EbulaEntry { SpeedLimit = -1, LocationName = "-- POST --" };

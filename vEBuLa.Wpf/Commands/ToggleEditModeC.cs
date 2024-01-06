@@ -10,12 +10,12 @@ using vEBuLa.ViewModels;
 namespace vEBuLa.Commands;
 internal class ToggleEditModeC : BaseC {
   private ILogger<ToggleEditModeC>? Logger => App.AppHost?.Services.GetRequiredService<ILogger<ToggleEditModeC>>();
-  private readonly EbulaScreenVM Screen;
-  public ToggleEditModeC(EbulaScreenVM screen) { Screen = screen; }
+  private readonly EbulaVM Ebula;
+  public ToggleEditModeC(EbulaVM ebula) { Ebula = ebula; }
   public override void Execute(object? parameter) {
-    Screen.EditMode = !Screen.EditMode;
+    Ebula.EditMode = !Ebula.EditMode;
 
-    if (Screen.EditMode) Logger?.LogInformation("Edit Mode activated");
+    if (Ebula.EditMode) Logger?.LogInformation("Edit Mode activated");
     else Logger?.LogInformation("Edit Mode deactivated");
   }
 }

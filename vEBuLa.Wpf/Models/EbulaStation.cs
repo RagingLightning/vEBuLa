@@ -5,6 +5,8 @@ using System;
 namespace vEBuLa.Models;
 
 public class EbulaStation {
+  public override string ToString() => $"{Name}|{Id,6}";
+
   public EbulaStation(Guid id, JObject jStation) {
     Id = id;
     Name = jStation.Value<string>(nameof(Name));

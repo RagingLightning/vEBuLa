@@ -8,9 +8,15 @@
              xmlns:conv="clr-namespace:vEBuLa.XamlConverter"
              xmlns:com="clr-namespace:vEBuLa.Commands"
              mc:Ignorable="d" 
-             d:DesignHeight="750" d:DesignWidth="950" d:DataContext="{d:DesignInstance Type=vm:EbulaVM}">
+             d:DesignHeight="750" d:DesignWidth="950" d:DataContext="{d:DesignInstance vm:EbulaVM}">
     <UserControl.Resources>
         <conv:BoolHideConverter x:Key="BoolHide"/>
+        <DataTemplate DataType="{x:Type vm:EbulaScreenVM}">
+            <local:EbulaScreenV/>
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type vm:StorageConfigScreenVM}">
+            <local:StorageConfigScreenV/>
+        </DataTemplate>
         <Style x:Key="EbulaButton" TargetType="Button">
             <Setter Property="HorizontalAlignment" Value="Center"/>
             <Setter Property="VerticalAlignment" Value="Center"/>
@@ -128,7 +134,7 @@
         <Button Grid.Column="10" Grid.Row="7" Style="{StaticResource EbulaButton}"/>
         <!--#endregion-->
 
-        <local:EbulaScreenV Grid.Column="1" Grid.ColumnSpan="10" Grid.Row="1" Grid.RowSpan="6" Width="800" Height="600" HorizontalAlignment="Center" VerticalAlignment="Center" Panel.ZIndex="5" Visibility="{Binding Active, Converter={StaticResource BoolHide}}" DataContext="{Binding Screen}"/>
+        <ContentControl Content="{Binding Screen}" Grid.Column="1" Grid.ColumnSpan="10" Grid.Row="1" Grid.RowSpan="6" Width="800" Height="600" HorizontalAlignment="Center" VerticalAlignment="Center" Panel.ZIndex="5" Visibility="{Binding Active, Converter={StaticResource BoolHide}}"/>
         <Rectangle Grid.Column="1" Grid.ColumnSpan="10" Grid.Row="1" Grid.RowSpan="6" Fill="#222" Panel.ZIndex="1"/>
     </Grid>
 </UserControl>

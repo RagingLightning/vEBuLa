@@ -4,18 +4,18 @@ using System;
 using System.Collections.Generic;
 
 namespace vEBuLa.Models;
-public class EbulaSegment {
-  private readonly ILogger<EbulaSegment>? logger;
+internal class EbulaSegment {
+  private readonly ILogger<EbulaSegment>? Logger;
   public override string ToString() => $"{Id,6}: {Origin.Station?.Name,6} > {Destination.Station?.Name,6}";
 
   public EbulaSegment(EbulaConfig existingConfig, Guid id, JObject jSegment) {
-    logger = App.GetService<ILogger<EbulaSegment>>();
+    Logger = App.GetService<ILogger<EbulaSegment>>();
     Id = id;
     if (Guid.TryParse(jSegment.Value<string>(nameof(Origin)), out var originKey)) {
       if (existingConfig.Stations.TryGetValue(originKey, out var origin))
         Origin = (originKey, origin);
       else {
-        logger?.LogWarning("No Origin Station with Id {StationId} found!", originKey);
+        Logger?.LogWarning("No Origin Station with Id {StationId} found!", originKey);
         Origin = (originKey, null);
       }
     }
@@ -24,44 +24,50 @@ public class EbulaSegment {
       if (existingConfig.Stations.TryGetValue(destinationKey, out var destination))
         Destination = (destinationKey, destination);
       else {
-        logger?.LogWarning("No Destination Station with Id {StationId} found!", destinationKey);
+        Logger?.LogWarning("No Destination Station with Id {StationId} found!", destinationKey);
         Origin = (destinationKey, null);
       }
     }
 
     Duration = jSegment.Value<TimeSpan>(nameof(Duration));
+    Name = jSegment.Value<string>(nameof(Name)) ?? string.Empty;
 
     if (jSegment.Value<JArray>(nameof(PreEntries)) is JArray jPreEntries) {
-      logger?.LogDebug("Parsing PreEntries from {EntryJsonArray}", jPreEntries);
+      Logger?.LogDebug("Parsing PreEntries from {EntryJsonArray}", jPreEntries);
       ParseEntries(PreEntries, jPreEntries);
     }
     else
-      logger?.LogWarning("Segment contains no PreEntries");
+      Logger?.LogWarning("Segment {Segment} contains no PreEntries", this);
 
     if (jSegment.Value<JArray>(nameof(Entries)) is JArray jEntries) {
-      logger?.LogDebug("Parsing Entries from {EntryJsonArray}", jEntries);
+      Logger?.LogDebug("Parsing Entries from {EntryJsonArray}", jEntries);
       ParseEntries(Entries, jEntries);
     }
     else
-      logger?.LogWarning("Segment contains no Entries");
+      Logger?.LogWarning("Segment {Segment} contains no Entries", this);
 
     if (jSegment.Value<JArray>(nameof(PostEntries)) is JArray jPostEntries) {
-      logger?.LogDebug("Parsing PostEntries from {EntryJsonArray}", jPostEntries);
+      Logger?.LogDebug("Parsing PostEntries from {EntryJsonArray}", jPostEntries);
       ParseEntries(PostEntries, jPostEntries);
     }
     else
-      logger?.LogWarning("Segment contains no PostEntries");
+      Logger?.LogWarning("Segment {Segment} contains no PostEntries", this);
 
 
+  }
+
+  public EbulaSegment(EbulaConfig existingConfig, Guid id, string name) {
+    Id = id;
+    Name = name;
   }
 
   private void ParseEntries(List<EbulaEntry> list, JArray jArray) {
     foreach (var jEntry in jArray) {
       if (jEntry.ToObject<EbulaEntry>() is not EbulaEntry entry) {
-        logger?.LogWarning("Entry {EntryJson} failed to parse", jEntry);
+        Logger?.LogWarning("Entry {EntryJson} failed to parse", jEntry);
         continue;
       }
-      logger?.LogTrace("Entry {Entry} parsed successfully", entry);
+      Logger?.LogTrace("Entry {Entry} parsed successfully", entry);
       list.Add(entry);
     }
   }
@@ -77,9 +83,10 @@ public class EbulaSegment {
   }
 
   public Guid Id { get; } = Guid.Empty;
+  public string Name { get; set; } = string.Empty;
   public (Guid Key, EbulaStation? Station) Origin { get; set; } = (Guid.Empty, null);
   public (Guid Key, EbulaStation? Station) Destination { get; set; } = (Guid.Empty, null);
-  public TimeSpan Duration = new TimeSpan(0, 0, 0);
+  public TimeSpan Duration { get; set; } = new TimeSpan(0, 0, 0);
   public List<EbulaEntry> PreEntries { get; } = new();
   public List<EbulaEntry> Entries { get; } = new();
   public List<EbulaEntry> PostEntries { get; } = new();

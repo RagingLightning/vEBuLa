@@ -1,7 +1,19 @@
 ﻿using vEBuLa.Commands;
 
 namespace vEBuLa.ViewModels;
-public abstract class ScreenBaseVM : BaseVM {
+internal abstract class ScreenBaseVM : BaseVM {
+  public EbulaVM Ebula { get; }
+
+  protected ScreenBaseVM(EbulaVM ebula) {
+    Ebula = ebula;
+    Ebula.PropertyChanged += Ebula_PropertyChanged;
+  }
+
+  private void Ebula_PropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e) {
+    if (sender != Ebula) return;
+    if (e.PropertyName == nameof(Ebula.EditMode)) OnPropertyChanged(nameof(EditMode));
+  }
+
   #region Properties
   #region Commands
   private BaseC _navigateCommand;
@@ -15,5 +27,8 @@ public abstract class ScreenBaseVM : BaseVM {
     }
   }
   #endregion
+
+  public bool EditMode => Ebula.EditMode;
+
   #endregion
 }

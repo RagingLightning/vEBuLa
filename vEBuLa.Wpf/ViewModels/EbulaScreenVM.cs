@@ -9,13 +9,10 @@ using vEBuLa.Extensions;
 namespace vEBuLa.ViewModels;
 internal class EbulaScreenVM : ScreenBaseVM {
   private ILogger<EbulaEntryVM>? Logger => App.GetService<ILogger<EbulaEntryVM>>();
-  private readonly EbulaVM Ebula;
 
-  public EbulaScreenVM(EbulaVM ebula) {
-    Ebula = ebula;
+  public EbulaScreenVM(EbulaVM ebula) : base(ebula) {
     NavigateCommand = new NavigateDefaultScreenC(this);
     AddEntryCommand = new AddEbulaEntryC(ebula);
-    EditEntryCommand = new EditEbulaEntryC(this);
     RemoveEntryCommand = new RemoveEbulaEntryC(ebula);
 
     UpdateEntries();
@@ -25,12 +22,13 @@ internal class EbulaScreenVM : ScreenBaseVM {
     Logger?.LogDebug("Updating EbulaScreen entries, with EditMode={EditMode}", EditMode);
     Entries.Clear();
     EbulaEntryVM? ebulaEntry = null;
+    TimeSpan departureOffset = TimeSpan.Zero;
     if (EditMode) {
       var preMarker = new EbulaMarkerEntryVM(this, Ebula.Model.Segments[0], EbulaMarkerType.PRE);
       Entries.Add(preMarker);
       Logger?.LogTrace("Added EbulaMarker {Marker} for Segment {Segment} Pre stage; Count={EntryCount}", preMarker, Ebula.Model.Segments[0], Entries.Count);
     }
-    Entries.AddRange(Ebula.Model.Segments[0].PreEntries.Select(e => ebulaEntry = new EbulaEntryVM(e, Ebula.Model.ServiceStartTime, ebulaEntry, this)));
+    Entries.AddRange(Ebula.Model.Segments[0].PreEntries.Select(e => ebulaEntry = new EbulaEntryVM(e, Ebula.Model.ServiceStartTime + departureOffset, ebulaEntry, this)));
     Logger?.LogTrace("Added {AddCount} EbulaEntries from Segment {Segment} Pre stage; Count={EntryCount}", Ebula.Model.Segments[0].Entries.Count, Ebula.Model.Segments[0], Entries.Count);
     foreach (var segment in Ebula.Model.Segments) {
       if (EditMode) {
@@ -38,7 +36,8 @@ internal class EbulaScreenVM : ScreenBaseVM {
         Entries.Add(mainMarker);
         Logger?.LogTrace("Added EbulaMarker {Marker} for Segment {Segment} Main stage; Count={EntryCount}", mainMarker, segment, Entries.Count);
       }
-      Entries.AddRange(segment.Entries.Select(e => ebulaEntry = new EbulaEntryVM(e, Ebula.Model.ServiceStartTime, ebulaEntry, this)));
+      Entries.AddRange(segment.Entries.Select(e => ebulaEntry = new EbulaEntryVM(e, Ebula.Model.ServiceStartTime + departureOffset, ebulaEntry, this)));
+      departureOffset += segment.Duration;
       Logger?.LogTrace("Added {AddCount} EbulaEntries from Segment {Segment} Main stage; Count={EntryCount}", segment.Entries.Count, segment, Entries.Count);
     }
     if (EditMode) {
@@ -46,7 +45,7 @@ internal class EbulaScreenVM : ScreenBaseVM {
       Entries.Add(postMarker);
       Logger?.LogTrace("Added EbulaMarker {Marker} for Segment {Segment} Post stage; Count={EntryCount}", postMarker, Ebula.Model.Segments[^1], Entries.Count);
     }
-    Entries.AddRange(Ebula.Model.Segments[^1].PostEntries.Select(e => ebulaEntry = new EbulaEntryVM(e, Ebula.Model.ServiceStartTime, ebulaEntry, this)));
+    Entries.AddRange(Ebula.Model.Segments[^1].PostEntries.Select(e => ebulaEntry = new EbulaEntryVM(e, Ebula.Model.ServiceStartTime + departureOffset, ebulaEntry, this)));
     Logger?.LogTrace("Added {AddCount} EbulaEntries from Segment {Segment} Post stage; Count={EntryCount}", Ebula.Model.Segments[^1].Entries.Count, Ebula.Model.Segments[^1], Entries.Count);
     UpdateList();
   }
@@ -57,22 +56,10 @@ internal class EbulaScreenVM : ScreenBaseVM {
     ActiveEntries.AddRange(Entries.Skip(StartEntry).Take(15).Reverse());
   }
 
-  private bool _editMode = false;
-  public bool EditMode {
-    get => _editMode;
-    set {
-      _editMode = value;
-      RowHighlight = value ? new SolidColorBrush(Color.FromRgb(190, 190, 190)) : null;
-      UpdateEntries();
-    }
-  }
-
-
   #region Properties
 
   #region Edit Mode
   public BaseC AddEntryCommand { get; }
-  public BaseC EditEntryCommand { get; }
   public BaseC RemoveEntryCommand { get; }
   #endregion
 
@@ -302,21 +289,6 @@ internal class EbulaScreenVM : ScreenBaseVM {
     }
   }
 
-
-  #endregion
-
-  #region Other
-
-  private bool _active = true;
-  public bool Active {
-    get {
-      return _active;
-    }
-    set {
-      _active = value;
-      OnPropertyChanged(nameof(Active));
-    }
-  }
 
   #endregion
   #endregion

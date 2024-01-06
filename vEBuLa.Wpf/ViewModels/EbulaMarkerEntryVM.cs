@@ -5,7 +5,7 @@ using vEBuLa.Models;
 namespace vEBuLa.ViewModels;
 internal class EbulaMarkerEntryVM : BaseVM {
   private ILogger<EbulaEntryVM>? Logger => App.GetService<ILogger<EbulaEntryVM>>();
-  public EbulaSegment Segment { get; }
+  public EbulaSegmentVM Segment { get; }
   public EbulaScreenVM Screen { get; }
   public EbulaMarkerType MarkerType { get; }
   public override bool Equals(object? obj) => obj is EbulaMarkerEntryVM marker && marker.Segment == Segment && marker.MarkerType == MarkerType;
@@ -15,7 +15,7 @@ internal class EbulaMarkerEntryVM : BaseVM {
 
   public EbulaMarkerEntryVM(EbulaScreenVM screen, EbulaSegment segment, EbulaMarkerType type) {
     Screen = screen;
-    Segment = segment;
+    Segment = segment.ToVM();
     MarkerType = type;
 
     EditSegmentDurationCommand = EditSegmentDurationC.INSTANCE;

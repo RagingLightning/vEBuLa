@@ -6,28 +6,34 @@ using System.Collections.Generic;
 using System.Linq;
 
 namespace vEBuLa.Models;
-public class EbulaConfig {
+internal class EbulaConfig {
   private ILogger<EbulaConfig>? Logger => App.AppHost?.Services.GetRequiredService<ILogger<EbulaConfig>>();
 
-  public override string ToString() => $"{Name}: {Stations.Count}/{Segments.Count}";
+  public override string ToString() => $"{Name} ({Stations.Count}/{Segments.Count})";
   public string Name { get; private set; } = string.Empty;
   public Dictionary<Guid, EbulaStation> Stations { get; private set; } = new();
   public Dictionary<Guid, EbulaSegment> Segments { get; private set; } = new();
+  public Dictionary<Guid, EbulaRoute> Routes { get; private set; } = new();
 
   public EbulaConfig() { }
 
   public EbulaConfig(string jsonData) {
     var jConfig = JObject.Parse(jsonData);
     Name = jConfig.Value<string>(nameof(Name)) ?? "noname";
-    var jStations = jConfig.Value<JObject>("Stations");
+    var jStations = jConfig.Value<JObject>(nameof(Stations));
     if (jStations is null) {
       Logger?.LogError("Config {Config} contains no Station entries", this);
       return;
     }
-    var jSegments = jConfig.Value<JObject>("Segments");
+    var jSegments = jConfig.Value<JObject>(nameof(Segments));
     if (jSegments is null) {
       Logger?.LogError("Config {Config} contains no Segment entries", this);
       return;
+    }
+    var jRoutes = jConfig.Value<JObject>(nameof(Routes));
+    if (jRoutes is null) {
+      Logger?.LogWarning("Config {Config} contains no Route entries", this);
+      jRoutes = new JObject();
     }
 
     foreach (var jStation in jStations) {
@@ -57,5 +63,40 @@ public class EbulaConfig {
       Logger?.LogDebug("Adding Segment {Segment} to config", segment);
       Segments[segment.Id] = segment;
     }
+
+    foreach (var jRoute in jRoutes) {
+      if (jRoute.Value is not JObject) {
+        Logger?.LogWarning("Route {RouteJson} failed to parse", jRoute);
+        continue;
+      }
+      var route = new EbulaRoute(this, Guid.Parse(jRoute.Key), (JObject) jRoute.Value);
+      if (Segments.TryGetValue(route.Id, out var rte)) {
+        Logger?.LogWarning("Route {Route} shares ID {RouteId} with {ExistingRoute}", route, route.Id, rte);
+        continue;
+      }
+      Logger?.LogDebug("Adding Route {Route} to config", route);
+      Routes[route.Id] = route;
+    }
+  }
+
+  public IEnumerable<EbulaSegment> FindSegments(EbulaStation origin) {
+    return Segments.Values.Where(s => s.Origin.Station == origin);
+  }
+
+  public EbulaStation AddStation(string name) {
+    var id = Guid.NewGuid();
+    while (Stations.ContainsKey(id)) id = Guid.NewGuid();
+    var station = new EbulaStation(id, name);
+    Stations.Add(id, station);
+    return station;
+  }
+
+  internal EbulaSegment AddSegment(string name, EbulaStation? origin) {
+    var id = Guid.NewGuid();
+    while (Segments.ContainsKey(id)) id = Guid.NewGuid();
+    var segment = new EbulaSegment(this, id, name);
+    if (origin is not null) segment.Origin = (origin.Id, origin);
+    Segments.Add(id, segment);
+    return segment;
   }
 }

@@ -18,7 +18,7 @@ internal class EditSegmentStationC : BaseC {
     Logger?.LogInformation("Starting {EditType} edit for EbulaSegment {EbulaSegment}", IsDestination ? "Destination Name" : "Origin Name", entry.Segment);
 
     var mainWindow = Application.Current.MainWindow;
-    var dialog = new EditStationDialog(IsDestination ? entry.Segment.Destination.Station?.Name ?? "null" : entry.Segment.Origin.Station?.Name ?? "null", mainWindow.PointToScreen(Mouse.GetPosition(mainWindow)) - new Point(75, 50));
+    var dialog = new EditStationDialog("Change Station", IsDestination ? entry.Segment.Destination.Station?.Name ?? "null" : entry.Segment.Origin.Station?.Name ?? "null", mainWindow.PointToScreen(Mouse.GetPosition(mainWindow)) - new Point(75, 50));
 
     if (dialog.ShowDialog() == false) {
       Logger?.LogDebug("{EditType} edit aborted by user", IsDestination ? "Destination Name" : "Origin Name");

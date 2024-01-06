@@ -13,10 +13,11 @@ namespace vEBuLa.Dialogs;
 public partial class EditStationDialog : Window {
   private ILogger<EditStationDialog>? Logger => App.GetService<ILogger<EditStationDialog>>();
   public static string StationName { get; private set; } = string.Empty;
-  public EditStationDialog(string stationName, Vector startupLocation) {
+  public EditStationDialog(string header, string stationName, Vector startupLocation) {
     InitializeComponent();
 
     StationName = stationName;
+    Header.Text = header;
     txtName.Text = stationName;
     Left = startupLocation.X;
     Top = startupLocation.Y;

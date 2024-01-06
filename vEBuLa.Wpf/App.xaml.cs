@@ -64,7 +64,7 @@ public partial class App : Application {
       AppHost.Start();
 
       var MainWindow = new MainWindow() {
-        DataContext = new EbulaVM(new Ebula())
+        DataContext = new EbulaVM()
       };
       MainWindow.Show();
     }

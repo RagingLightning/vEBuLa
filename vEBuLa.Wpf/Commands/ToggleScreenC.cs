@@ -6,14 +6,14 @@ namespace vEBuLa.Commands;
 
 internal class ToggleScreenC : BaseC {
   private ILogger<ToggleScreenC>? Logger => App.AppHost?.Services.GetRequiredService<ILogger<ToggleScreenC>>();
-  private readonly EbulaScreenVM Screen;
+  private readonly EbulaVM Ebula;
 
-  public ToggleScreenC(EbulaScreenVM screen) { Screen = screen; }
+  public ToggleScreenC(EbulaVM ebula) { Ebula = ebula; }
 
   public override void Execute(object? parameter) {
-    Screen.Active = !Screen.Active;
+    Ebula.Active = !Ebula.Active;
 
-    if (Screen.Active) Logger?.LogInformation("Screen activated");
+    if (Ebula.Active) Logger?.LogInformation("Screen activated");
     else Logger?.LogInformation("Screen deactivated");
   }
 }
