@@ -14,8 +14,9 @@ internal partial class StorageConfigScreenVM : ScreenBaseVM {
 
   public StorageConfigScreenVM(EbulaVM ebula) : base(ebula) {
     ToggleRouteModeCommand = new ToggleCustomRouteC(this);
+    SaveRouteCommand = new SaveCustomRouteC(this);
     LoadConfigCommand = new LoadEbulaConfigC(this);
-    //SaveConfigCommand;
+    SaveConfigCommand = new SaveEbulaConfigC(this);
 
     AddOriginCommand = AddConfigStationC.ORIGIN;
     EditOriginCommand = EditConfigEntryC.ORIGIN;
@@ -39,7 +40,14 @@ internal partial class StorageConfigScreenVM : ScreenBaseVM {
       return new EbulaScreenVM(ebula);
     });
 
+    Ebula.PropertyChanged += Ebula_PropertyChanged;
+
     LoadConfig();
+  }
+
+  private void Ebula_PropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e) {
+    if (sender != Ebula) return;
+    if (e.PropertyName == nameof(Ebula.EditMode)) OnPropertyChanged(nameof(ShowSave));
   }
 
   public void LoadConfig() {
@@ -56,6 +64,7 @@ internal partial class StorageConfigScreenVM : ScreenBaseVM {
 
   #region Properties
   public BaseC ToggleRouteModeCommand { get; }
+  public BaseC SaveRouteCommand { get; }
   public BaseC LoadConfigCommand { get; }
   public BaseC SaveConfigCommand { get; }
   public BaseC AddOriginCommand { get; }
@@ -69,6 +78,8 @@ internal partial class StorageConfigScreenVM : ScreenBaseVM {
   public BaseC RemoveDestinationCommand { get; }
 
   public BaseC StartEbulaCommand { get; }
+
+  public bool ShowSave => EditMode && UsingCustom;
 
   private string _configName = string.Empty;
   public string ConfigName {
@@ -90,6 +101,7 @@ internal partial class StorageConfigScreenVM : ScreenBaseVM {
       _usingRoutes = value;
       OnPropertyChanged(nameof(UsingRoutes));
       OnPropertyChanged(nameof(UsingCustom));
+      OnPropertyChanged(nameof(ShowSave));
     }
   }
   public bool UsingCustom {
@@ -100,6 +112,7 @@ internal partial class StorageConfigScreenVM : ScreenBaseVM {
       _usingRoutes = !value;
       OnPropertyChanged(nameof(UsingRoutes));
       OnPropertyChanged(nameof(UsingCustom));
+      OnPropertyChanged(nameof(ShowSave));
     }
   }
 
@@ -116,6 +129,17 @@ internal partial class StorageConfigScreenVM : ScreenBaseVM {
       if (value is not null)
         RouteOverview.AddRange(value.GenerateOverview());
       OnPropertyChanged(nameof(SelectedRoute));
+    }
+  }
+
+  private string _status = string.Empty;
+  public string Status {
+    get {
+      return _status;
+    }
+    set {
+      _status = value;
+      OnPropertyChanged(nameof(Status));
     }
   }
 

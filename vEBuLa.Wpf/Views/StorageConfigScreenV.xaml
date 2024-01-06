@@ -10,6 +10,7 @@
              x:Name="StorageConfigScreen"
              Height="600" Width="800" Background="#222" d:DataContext="{d:DesignInstance vm:StorageConfigScreenVM}">
     <UserControl.Resources>
+        <BooleanToVisibilityConverter x:Key="BoolVis"/>
         <conv:BoolHideConverter x:Key="BoolHide"/>
         <conv:NullHideConverter x:Key="NullHide"/>
         <conv:BoolNumConverter x:Key="BoolNum"/>
@@ -66,19 +67,16 @@
                     <Setter Property="TextAlignment" Value="Center" />
                 </Style>
             </DataTemplate.Resources>
-            <StackPanel>
+            <StackPanel Width="{TemplateBinding ActualWidth}">
                 <DockPanel>
-                    <TextBlock DockPanel.Dock="Right" Text="{Binding DurationText}" d:Text="00:32:30"/>
+                    <TextBlock DockPanel.Dock="Right" Text="{Binding Duration}" d:Text="00:32:30"/>
                     <Rectangle DockPanel.Dock="Right" Width="2" Fill="#666" Margin="5,0"/>
                     <TextBlock DockPanel.Dock="Right" Text="{Binding StationCount}" d:Text="13"/>
                     <Rectangle DockPanel.Dock="Right" Width="2" Fill="#666" Margin="5,0"/>
                     <TextBlock DockPanel.Dock="Right" Text="{Binding Name}" d:Text="Hbf-Melsungen S-Bahn" ToolTip="{Binding Description}"/>
                 </DockPanel>
                 <Rectangle Height="2" Fill="#666"/>
-                <DockPanel>
-                    <Button DockPanel.Dock="Right" Content="USE"/>
-                    <TextBlock Text="{Binding RouteOverview}" d:Text="Hbf S - Achim - Donau - Melsungen"/>
-                </DockPanel>
+                <TextBlock Text="{Binding RouteOverview}" d:Text="Hbf S - Achim - Donau - Melsungen"/>
                 <Rectangle Height="5" Fill="#666"/>
             </StackPanel>
         </DataTemplate>
@@ -91,7 +89,7 @@
                     <Setter Property="TextAlignment" Value="Center" />
                 </Style>
             </DataTemplate.Resources>
-            <Grid>
+            <Grid Width="{TemplateBinding ActualWidth}">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="2*"/>
                     <ColumnDefinition/>
@@ -144,13 +142,13 @@
                     </Style.Triggers>
                 </Style>
             </DataTemplate.Resources>
-            <Grid>
+            <Grid Width="{TemplateBinding ActualWidth}">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="2*"/>
                     <ColumnDefinition Width="20"/>
                     <ColumnDefinition Width="20"/>
                     <ColumnDefinition Width="20"/>
-                    <ColumnDefinition/>
+                    <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="2*"/>
                     <ColumnDefinition Width="20"/>
                     <ColumnDefinition Width="20"/>
@@ -189,7 +187,7 @@
                         </DataTemplate>
                     </ComboBox.ItemTemplate>
                 </ComboBox>
-                <TextBlock Grid.Column="9" Text="{Binding DestinationText}" d:Text="München Pasing" Visibility="{Binding Destination, Converter={StaticResource NullHide}}" Grid.ColumnSpan="{Binding DataContext.EditMode, ElementName=StorageConfigScreen, Converter={StaticResource BoolNum}, ConverterParameter=1|4}"/>
+                <TextBlock Grid.Column="9" Text="{Binding DestinationText}" d:Text="München Pasing" FontSize="12" Visibility="{Binding Destination, Converter={StaticResource NullHide}}" Grid.ColumnSpan="{Binding DataContext.EditMode, ElementName=StorageConfigScreen, Converter={StaticResource BoolNum}, ConverterParameter=1|4}"/>
                 <Button Grid.Column="10" Content="+" Command="{Binding DataContext.AddDestinationCommand, ElementName=StorageConfigScreen}" CommandParameter="{Binding .}" Visibility="{Binding DataContext.EditMode, ElementName=StorageConfigScreen, Converter={StaticResource BoolHide}}"/>
                 <Button Grid.Column="11" Content="E" Command="{Binding DataContext.EditDestinationCommand, ElementName=StorageConfigScreen}" CommandParameter="{Binding .}" Visibility="{Binding DataContext.EditMode, ElementName=StorageConfigScreen, Converter={StaticResource BoolHide}}"/>
                 <Button Grid.Column="12" Content="-" Command="{Binding DataContext.RemoveDestinationCommand, ElementName=StorageConfigScreen}" CommandParameter="{Binding .}" Visibility="{Binding DataContext.EditMode, ElementName=StorageConfigScreen, Converter={StaticResource BoolHide}}"/>
@@ -209,8 +207,8 @@
         
         <DockPanel Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2">
             <Button DockPanel.Dock="Left" Content="Load" Command="{Binding LoadConfigCommand}"/>
-            <Button DockPanel.Dock="Left" Content="Save"/>
-            <Button DockPanel.Dock="Right" Content="Exit"/>
+            <Button DockPanel.Dock="Left" Content="Save" Command="{Binding SaveConfigCommand}"/>
+            <Button DockPanel.Dock="Right" Content="New" Command="{Binding LoadConfigCommand}" CommandParameter="new"/>
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition/>
@@ -224,17 +222,17 @@
             </Grid>
         </DockPanel>
 
-        <DockPanel Grid.Row="1" Grid.Column="0" Visibility="{Binding UsingRoutes, Converter={StaticResource BoolHide}}" d:Visibility="Hidden">
+        <DockPanel Grid.Row="1" Grid.Column="0" Visibility="{Binding UsingRoutes, Converter={StaticResource BoolHide}}" d:Visibility="Visible">
             <TextBlock DockPanel.Dock="Top" Text="Available Routes"/>
-            <ListView ItemsSource="{Binding Routes}" d:ItemsSource="{d:SampleData}" ItemTemplate="{StaticResource RouteTemplate}"/>
+            <ListView ItemsSource="{Binding Routes}" SelectedItem="{Binding SelectedRoute}" d:ItemsSource="{d:SampleData}" ItemTemplate="{StaticResource RouteTemplate}"/>
         </DockPanel>
 
-        <DockPanel Grid.Row="1" Grid.Column="1" Visibility="{Binding UsingRoutes, Converter={StaticResource BoolHide}}" d:Visibility="Hidden">
+        <DockPanel Grid.Row="1" Grid.Column="1" Visibility="{Binding UsingRoutes, Converter={StaticResource BoolHide}}" d:Visibility="Visible">
             <TextBlock DockPanel.Dock="Top" Text="Selected Route"/>
             <ListView ItemsSource="{Binding RouteOverview}" d:ItemsSource="{d:SampleData}" ItemTemplate="{StaticResource OverviewTemplate}"/>
         </DockPanel>
 
-        <DockPanel Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Visibility="{Binding UsingCustom, Converter={StaticResource BoolHide}}" d:Visibility="Visible">
+        <DockPanel Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Visibility="{Binding UsingCustom, Converter={StaticResource BoolHide}}" d:Visibility="Hidden">
             <TextBlock DockPanel.Dock="Top" Text="Setup Custom Route"/>
             <Grid DockPanel.Dock="Top" Background="#333">
                 <Grid.ColumnDefinitions>
@@ -256,6 +254,7 @@
 
         <DockPanel Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2">
             <Button DockPanel.Dock="Right" Content="Start" Command="{Binding StartEbulaCommand}"/>
+            <Button DockPanel.Dock="Right" Content="Save as route" Command="{Binding SaveRouteCommand}" Visibility="{Binding ShowSave, Converter={StaticResource BoolVis}}"/>
             <TextBox DockPanel.Dock="Right" Text="{Binding DepartureText, UpdateSourceTrigger=PropertyChanged}" TextAlignment="Center" d:Text="00:00:00" Width="100"/>
             <TextBlock DockPanel.Dock="Right" Text="Departure Time: " VerticalAlignment="Center"/>
             <TextBlock Text="{Binding AdditionalInfo}" VerticalAlignment="Center"/>

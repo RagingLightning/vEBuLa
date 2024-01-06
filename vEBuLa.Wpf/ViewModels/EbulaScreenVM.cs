@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Windows.Media;
@@ -15,9 +16,19 @@ internal class EbulaScreenVM : ScreenBaseVM {
     AddEntryCommand = new AddEbulaEntryC(ebula);
     RemoveEntryCommand = new RemoveEbulaEntryC(ebula);
 
-    ebula.ButtonStCommand = new SwitchScreenC(ebula, () => new StorageConfigScreenVM(ebula));
+    ebula.ButtonStCommand = new SwitchScreenC(ebula, () => {
+      ebula.PropertyChanged -= Ebula_PropertyChanged;
+      return new StorageConfigScreenVM(ebula);
+    });
+
+    ebula.PropertyChanged += Ebula_PropertyChanged;
 
     UpdateEntries();
+  }
+
+  private void Ebula_PropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e) {
+    if (sender != Ebula) return;
+    if (e.PropertyName == nameof(Ebula.EditMode)) UpdateEntries();
   }
 
   public void UpdateEntries() {
@@ -49,6 +60,8 @@ internal class EbulaScreenVM : ScreenBaseVM {
     }
     Entries.AddRange(Ebula.Model.Segments[^1].PostEntries.Select(e => ebulaEntry = new EbulaEntryVM(e, Ebula.Model.ServiceStartTime + departureOffset, ebulaEntry, this)));
     Logger?.LogTrace("Added {AddCount} EbulaEntries from Segment {Segment} Post stage; Count={EntryCount}", Ebula.Model.Segments[^1].Entries.Count, Ebula.Model.Segments[^1], Entries.Count);
+    if (!EditMode)
+      CurrentEntry = 0;
     UpdateList();
   }
 
@@ -146,12 +159,15 @@ internal class EbulaScreenVM : ScreenBaseVM {
   public int CurrentEntry {
     get { return _currentEntry; }
     set {
-      if (_currentEntryVM is EbulaEntryVM oldEntry)
-        oldEntry.IsCurrent = false;
-      _currentEntry = value > 0 && value < Entries.Count ? value : 0;
-      _currentEntryVM = value > 0 && value < Entries.Count ? Entries[value] : null;
-      if (_currentEntryVM is EbulaEntryVM newEntry)
-        newEntry.IsCurrent = true;
+      if (value < 0 || value >= Entries.Count) return;
+      if (Entries[value] is not EbulaEntryVM now) return;
+      if (_currentEntryVM is EbulaEntryVM was) was.IsCurrent = false;
+      _currentEntry = value;
+      _currentEntryVM = now;
+      now.IsCurrent = true;
+
+      if (CurrentEntry < StartEntry) StartEntry = CurrentEntry;
+      if (CurrentEntry > StartEntry+7) StartEntry = CurrentEntry-7;
     }
   }
 
@@ -162,6 +178,7 @@ internal class EbulaScreenVM : ScreenBaseVM {
     set {
       _startEntry = Math.Clamp(value, 0, Math.Max(Entries.Count - 15, 0));
       UpdateList();
+      OnPropertyChanged(nameof(StartEntry));
     }
   }
 

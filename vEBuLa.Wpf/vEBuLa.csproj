@@ -30,6 +30,9 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <Compile Update="Dialogs\EditSavedRouteDialog.xaml.cs">
+	    <SubType>Code</SubType>
+	  </Compile>
 	  <Compile Update="Dialogs\EditStationDialog.xaml.cs">
 	    <SubType>Code</SubType>
 	  </Compile>

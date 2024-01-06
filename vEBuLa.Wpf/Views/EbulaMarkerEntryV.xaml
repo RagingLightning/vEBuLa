@@ -54,14 +54,14 @@
                 <TextBlock Text="{Binding DestinationName}" d:Text="Dresden Neustadt" FontSize="15" VerticalAlignment="Center" HorizontalAlignment="Right"/>
             </Button>
             <Button Style="{StaticResource EditBtn}" HorizontalAlignment="Center" MinWidth="100" Command="{Binding EditSegmentLocationCommand}" CommandParameter="{Binding .}" IsHitTestVisible="{Binding IsPrePost}">
-                <TextBlock Text="{Binding LocationName}" FontSize="20" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                <TextBlock Text="{Binding LocationName}" FontSize="20" Margin="-2" VerticalAlignment="Center" HorizontalAlignment="Center"/>
             </Button>
         </Grid>
 
         <TextBlock Grid.Column="8" Grid.ColumnSpan="2" Text="Duration: " FontSize="20" VerticalAlignment="Center" TextAlignment="Center"/>
 
         <Button Style="{StaticResource EditBtn}" Grid.Column="10" Command="{Binding EditSegmentDurationCommand}" CommandParameter="{Binding .}">
-            <TextBlock Text="{Binding Duration}" d:Text="07:30:18" FontSize="20" VerticalAlignment="Center" TextAlignment="Center" Margin="0,0,0,-1"/>
+            <TextBlock Text="{Binding DurationText}" d:Text="07:30:18" FontSize="20" VerticalAlignment="Center" TextAlignment="Center" Margin="0,0,0,-1"/>
         </Button>
     </Grid>
 </UserControl>

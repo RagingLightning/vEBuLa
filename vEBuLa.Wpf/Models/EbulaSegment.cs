@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
@@ -29,25 +30,29 @@ internal class EbulaSegment {
       }
     }
 
-    Duration = jSegment.Value<TimeSpan>(nameof(Duration));
+    if (TimeSpan.TryParse(jSegment.Value<string>(nameof(Duration)), out var duration)) {
+      Duration = duration;
+    }
+    else
+      Logger?.LogWarning("Failed to parse segment duration {Duration}", jSegment.Value<string>(nameof(Duration)));
     Name = jSegment.Value<string>(nameof(Name)) ?? string.Empty;
 
     if (jSegment.Value<JArray>(nameof(PreEntries)) is JArray jPreEntries) {
-      Logger?.LogDebug("Parsing PreEntries from {EntryJsonArray}", jPreEntries);
+      Logger?.LogDebug("Parsing PreEntries for {Segment}", this);
       ParseEntries(PreEntries, jPreEntries);
     }
     else
       Logger?.LogWarning("Segment {Segment} contains no PreEntries", this);
 
     if (jSegment.Value<JArray>(nameof(Entries)) is JArray jEntries) {
-      Logger?.LogDebug("Parsing Entries from {EntryJsonArray}", jEntries);
+      Logger?.LogDebug("Parsing Entries for {Segment}", this);
       ParseEntries(Entries, jEntries);
     }
     else
       Logger?.LogWarning("Segment {Segment} contains no Entries", this);
 
     if (jSegment.Value<JArray>(nameof(PostEntries)) is JArray jPostEntries) {
-      Logger?.LogDebug("Parsing PostEntries from {EntryJsonArray}", jPostEntries);
+      Logger?.LogDebug("Parsing PostEntries for {Segment}", this);
       ParseEntries(PostEntries, jPostEntries);
     }
     else
@@ -76,16 +81,18 @@ internal class EbulaSegment {
     if (Entries.Contains(entry))
       return (Entries, Entries.IndexOf(entry));
     if (PreEntries.Contains(entry))
-      return (PreEntries, Entries.IndexOf(entry));
+      return (PreEntries, PreEntries.IndexOf(entry));
     if (PostEntries.Contains(entry))
       return (PostEntries, PostEntries.IndexOf(entry));
     return null;
   }
 
-  public Guid Id { get; } = Guid.Empty;
+  [JsonIgnore] public Guid Id { get; } = Guid.Empty;
   public string Name { get; set; } = string.Empty;
-  public (Guid Key, EbulaStation? Station) Origin { get; set; } = (Guid.Empty, null);
-  public (Guid Key, EbulaStation? Station) Destination { get; set; } = (Guid.Empty, null);
+  [JsonProperty(nameof(Origin))] private Guid OriginId => Origin.Key;
+  [JsonIgnore] public (Guid Key, EbulaStation? Station) Origin { get; set; } = (Guid.Empty, null);
+  [JsonProperty(nameof(Destination))] private Guid DestinationId => Destination.Key;
+  [JsonIgnore] public (Guid Key, EbulaStation? Station) Destination { get; set; } = (Guid.Empty, null);
   public TimeSpan Duration { get; set; } = new TimeSpan(0, 0, 0);
   public List<EbulaEntry> PreEntries { get; } = new();
   public List<EbulaEntry> Entries { get; } = new();

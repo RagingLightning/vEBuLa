@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using Microsoft.Win32;
 using System;
 using vEBuLa.Models;
@@ -14,6 +15,12 @@ internal class LoadEbulaConfigC : BaseC {
   }
 
   public override void Execute(object? parameter) {
+    if (parameter is string s && s == "new") {
+      Logger?.LogInformation("Unloading config");
+      Screen.Ebula.Model = new Ebula(null);
+      Screen.LoadConfig();
+      return;
+    }
     var dialog = new OpenFileDialog {
       FileName = "vEBuLa",
       DefaultExt = ".json",
@@ -25,11 +32,12 @@ internal class LoadEbulaConfigC : BaseC {
     try {
       Screen.Ebula.Model = new Ebula(dialog.FileName);
     } catch (Exception ex) {
+      Screen.Status = "FAILED TO LOAD CONFIG!";
       Logger?.LogError(ex, "Failed to load Config from {FileName}", dialog.FileName);
     }
 
-    if (Screen.Ebula.Model is not null)
-      Screen.LoadConfig();
+    Screen.Status = "";
+    Screen.LoadConfig();
 
   }
 }

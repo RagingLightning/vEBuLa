@@ -31,6 +31,7 @@ internal class AddEbulaEntryC : BaseC {
         marker.Segment.Model.PostEntries.Insert(0, newEntry);
       }
 
+      marker.Screen.StartEntry += 1;
       marker.Screen.UpdateEntries();
     }
     else if (parameter is EbulaEntryVM entry) {
@@ -41,8 +42,9 @@ internal class AddEbulaEntryC : BaseC {
         return;
       }
       Logger?.LogTrace("Inserting new entry {NewEntry} in {Entries} at index {Index}", newEntry, index.Value.List, index.Value.Index);
-      index.Value.List.Insert(index.Value.Index, newEntry);
+      index.Value.List.Insert(index.Value.Index+1, newEntry);
 
+      entry.Screen.StartEntry += 1;
       entry.Screen.UpdateEntries();
     }
     else return;

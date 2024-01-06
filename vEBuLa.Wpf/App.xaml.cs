@@ -63,10 +63,14 @@ public partial class App : Application {
       if (AppHost is null) throw new Exception(".NET hosting failed to initialize");
       AppHost.Start();
 
+      var Ebula = new EbulaVM();
+
       var MainWindow = new MainWindow() {
-        DataContext = new EbulaVM()
+        DataContext = Ebula
       };
       MainWindow.Show();
+
+      Ebula.SetHotkeys();
     }
     catch (Exception ex) {
       Log.Fatal(ex, "An exception occurred during application startup");

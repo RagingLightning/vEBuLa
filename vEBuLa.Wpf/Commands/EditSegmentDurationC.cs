@@ -23,8 +23,7 @@ internal class EditSegmentDurationC : BaseC {
     }
     if (EditTimeSpanDialog.Time is null) return;
 
-    entry.Segment.Duration = (TimeSpan) EditTimeSpanDialog.Time;
-    entry.Duration = entry.Segment.Duration.ToString("hh':'mm':'ss");
+    entry.Duration = (TimeSpan) EditTimeSpanDialog.Time;
 
 
     Logger?.LogInformation("{EditType} edit on EbulaSegment {EbulaSegment} complete", "Duration", entry.Segment);

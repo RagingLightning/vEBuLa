@@ -1,9 +1,13 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Xml.Linq;
+using vEBuLa.ViewModels;
 
 namespace vEBuLa.Models;
 internal class EbulaConfig {
@@ -91,12 +95,40 @@ internal class EbulaConfig {
     return station;
   }
 
-  internal EbulaSegment AddSegment(string name, EbulaStation? origin) {
+  public EbulaSegment AddSegment(string name, EbulaStation? origin) {
     var id = Guid.NewGuid();
     while (Segments.ContainsKey(id)) id = Guid.NewGuid();
     var segment = new EbulaSegment(this, id, name);
     if (origin is not null) segment.Origin = (origin.Id, origin);
     Segments.Add(id, segment);
     return segment;
+  }
+
+  public EbulaRoute AddRoute(IEnumerable<EbulaSegment> segments, string routeName, string description, int stations, TimeSpan duration, string routeDesc) {
+    var id = Guid.NewGuid();
+    while (Routes.ContainsKey(id)) id = Guid.NewGuid();
+    var route = new EbulaRoute(id, segments, routeName, description, stations, duration, routeDesc);
+    Routes.Add(id, route);
+    return route;
+  }
+
+  internal void Save(string fileName) {
+    JObject jConfig = new JObject();
+    jConfig[nameof(Name)] = Name;
+
+    var jStations = new JObject();
+    foreach (var station in Stations) jStations[station.Key.ToString()] = JObject.FromObject(station.Value);
+    jConfig[nameof(Stations)] = jStations;
+
+    var jSegments = new JObject();
+    foreach (var segment in Segments) jSegments[segment.Key.ToString()] = JObject.FromObject(segment.Value);
+    jConfig[nameof(Segments)] = jSegments;
+
+    var jRoutes = new JObject();
+    foreach (var route in Routes) jRoutes[route.Key.ToString()] = JObject.FromObject(route.Value);
+    jConfig[nameof(Routes)] = jRoutes;
+
+    var jsonString = JsonConvert.SerializeObject(jConfig, Formatting.Indented);
+    File.WriteAllText(fileName, jsonString);
   }
 }

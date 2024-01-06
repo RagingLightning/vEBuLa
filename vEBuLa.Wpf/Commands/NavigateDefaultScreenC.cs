@@ -12,31 +12,39 @@ internal class NavigateDefaultScreenC : NavigateScreenC {
   public override void Cancel() {
     Logger?.LogTrace("Ebula Navigation: {Button} - {Action}", "Cancel", "Reset Start entry");
     Screen.StartEntry = 0;
+    Screen.CurrentEntry = 0;
   }
 
   protected override void Accept() {
     Logger?.LogTrace("Ebula Navigation: {Button} - {Action}", "Enter", "Jump to next Departure");
-    var targetEntry = Screen.Entries.Skip(Screen.StartEntry + 1).First(e =>  e is EbulaEntryVM entry && (entry.Arrival is not null || entry.Departure is not null));
-    Screen.StartEntry = Screen.Entries.IndexOf(targetEntry);
+    var index = Screen.EditMode ? Screen.StartEntry : Screen.CurrentEntry;
+    var targetEntry = Screen.Entries.Skip(index).First(e =>  e is EbulaEntryVM entry && (entry.Arrival is not null || entry.Departure is not null));
+
+    if (Screen.EditMode) Screen.StartEntry = Screen.Entries.IndexOf(targetEntry);
+    else Screen.CurrentEntry = Screen.Entries.IndexOf(targetEntry);
   }
 
   protected override void MoveDown() {
     Logger?.LogTrace("Ebula Navigation: {Button} - {Action}", "Down", "Move back one entry");
-    Screen.StartEntry -= 1;
+    if (Screen.EditMode) Screen.StartEntry -= 1;
+    else Screen.CurrentEntry -= 1;
   }
 
   protected override void MoveLeft() {
     Logger?.LogTrace("Ebula Navigation: {Button} - {Action}", "Left", "Move back one page");
-    Screen.StartEntry -= 15;
+    if (Screen.EditMode) Screen.StartEntry -= 15;
+    else Screen.CurrentEntry -= 15;
   }
 
   protected override void MoveRight() {
     Logger?.LogTrace("Ebula Navigation: {Button} - {Action}", "Right", "Move forward one page");
-    Screen.StartEntry += 15;
+    if (Screen.EditMode) Screen.StartEntry += 15;
+    else Screen.CurrentEntry += 15;
   }
 
   protected override void MoveUp() {
     Logger?.LogTrace("Ebula Navigation: {Button} - {Action}", "Up", "Move forward one entry");
-    Screen.StartEntry += 1;
+    if (Screen.EditMode) Screen.StartEntry += 1;
+    else Screen.CurrentEntry += 1;
   }
 }

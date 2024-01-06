@@ -8,11 +8,13 @@ namespace vEBuLa.ViewModels;
 internal class EbulaEntryVM : BaseVM {
   private ILogger<EbulaEntryVM>? Logger => App.GetService<ILogger<EbulaEntryVM>>();
   public EbulaEntry Model { get; }
-  public EbulaScreenVM? Screen { get; }
+  public EbulaScreenVM Screen { get; }
 
   public EbulaEntryVM(EbulaEntry entry, TimeSpan serviceStart, EbulaEntryVM? prev, EbulaScreenVM screen) {
     Model = entry;
     Screen = screen;
+
+    Screen.PropertyChanged += Screen_PropertyChanged;
 
     EditSpeedCommand = EditEbulaEntrySpeedC.INSTANCE;
     EditLocationCommand = EditEbulaEntryLocationC.INSTANCE;
@@ -23,6 +25,7 @@ internal class EbulaEntryVM : BaseVM {
     EditDepartureCommand = EditEbulaEntryTimeC.DEPARTURE;
 
     Location = entry.Location;
+    KilometerBreak = entry.KilometerBreak;
 
     MainLabel = entry.LocationName;
     MainBold = entry.LocationNameBold;
@@ -55,6 +58,17 @@ internal class EbulaEntryVM : BaseVM {
     TunnelStart = entry.TunnelStart;
     TunnelEnd = entry.TunnelEnd;
     TunnelMid = TunnelEnd || prev is null ? false : prev.TunnelMid || prev.TunnelStart;
+  }
+
+  private void Screen_PropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e) {
+    if (sender is EbulaScreenVM s && s != Screen) {
+      s.PropertyChanged -= Screen_PropertyChanged;
+      return;
+    }
+    if (e.PropertyName == nameof(Screen.StartEntry)) {
+      _forceSpeedDisplay = Screen.ActiveEntries[^1] == this;
+      OnPropertyChanged(nameof(SpeedLimitText));
+    }
   }
 
 
@@ -102,10 +116,11 @@ internal class EbulaEntryVM : BaseVM {
     }
   }
 
+  private bool _forceSpeedDisplay = false;
   private bool _speedLimitDisplay;
   public bool SpeedLimitDisplay {
     get {
-      return _speedLimitDisplay;
+      return _speedLimitDisplay || _forceSpeedDisplay;
     }
     set {
       _speedLimitDisplay = value;

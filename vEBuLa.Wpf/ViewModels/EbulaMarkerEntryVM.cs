@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
+using System;
 using vEBuLa.Commands;
 using vEBuLa.Models;
 
@@ -25,6 +26,7 @@ internal class EbulaMarkerEntryVM : BaseVM {
         IsMain = false;
         IsPrePost = true;
         MarkerTypeName = "PRE";
+        EntryCount = segment.PreEntries.Count;
         EditSegmentLocationCommand = EditSegmentStationC.ORIGIN;
         LocationName = Segment.Origin.Station?.Name ?? "null";
         break;
@@ -32,6 +34,7 @@ internal class EbulaMarkerEntryVM : BaseVM {
         IsMain = true;
         IsPrePost = false;
         MarkerTypeName = "MAIN";
+        EntryCount = segment.Entries.Count;
         EditSegmentOriginCommand = EditSegmentStationC.ORIGIN;
         EditSegmentDestinationCommand = EditSegmentStationC.DESTINATION;
         OriginName = Segment.Origin.Station?.Name ?? "null";
@@ -41,6 +44,7 @@ internal class EbulaMarkerEntryVM : BaseVM {
         IsMain = false;
         IsPrePost = true;
         MarkerTypeName = "POST";
+        EntryCount = segment.PostEntries.Count;
         EditSegmentLocationCommand = EditSegmentStationC.DESTINATION;
         LocationName = Segment.Destination.Station?.Name ?? "null";
         break;
@@ -102,16 +106,19 @@ internal class EbulaMarkerEntryVM : BaseVM {
     }
   }
 
-  private string _duration;
-  public string Duration {
+  private TimeSpan _duration;
+  public TimeSpan Duration {
     get {
       return _duration;
     }
     set {
       _duration = value;
       OnPropertyChanged(nameof(Duration));
+      OnPropertyChanged(nameof(DurationText));
     }
   }
+
+  public string DurationText => Duration.ToString("hh':'mm':'ss");
 
   #endregion
 

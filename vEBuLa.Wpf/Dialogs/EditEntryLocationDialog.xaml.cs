@@ -13,9 +13,12 @@ public partial class EditEntryLocationDialog : Window {
   private ILogger<EditEntryLocationDialog>? Logger => App.GetService<ILogger<EditEntryLocationDialog>>();
   public static int Location { get; private set; } = 0;
   public static Gradient Gradient { get; private set; } = 0;
-  public EditEntryLocationDialog(int location, Gradient gradient, Vector startupLocation) {
+  public static bool KilometerBreak { get; private set; } = false;
+
+  public EditEntryLocationDialog(int location, bool kilometerBreak, Gradient gradient, Vector startupLocation) {
     InitializeComponent();
     txtLocation.Text = location.ToString();
+    cbxBreak.IsChecked = kilometerBreak;
     if (gradient == Gradient.BELOW_10) rbtGradient0.IsChecked = true;
     else if (gradient == Gradient.BELOW_20) rbtGradient1.IsChecked = true;
     else if (gradient == Gradient.BELOW_30) rbtGradient2.IsChecked = true;
@@ -32,6 +35,7 @@ public partial class EditEntryLocationDialog : Window {
     if (e.Key != Key.Enter && e.Key != Key.Escape) return;
     try {
       Location = txtLocation.Text == string.Empty ? 0 : int.Parse(txtLocation.Text);
+      KilometerBreak = cbxBreak.IsChecked == true;
       if (rbtGradient0.IsChecked == true) Gradient = Gradient.BELOW_10;
       else if (rbtGradient1.IsChecked == true) Gradient = Gradient.BELOW_20;
       else if (rbtGradient2.IsChecked == true) Gradient = Gradient.BELOW_30;

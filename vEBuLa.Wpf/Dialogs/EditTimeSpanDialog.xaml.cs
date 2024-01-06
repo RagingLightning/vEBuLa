@@ -22,10 +22,10 @@ public partial class EditTimeSpanDialog : Window {
       _ => "Change Time"
     };
 
-    Time = timeSpan ?? new TimeSpan();
-    txtHour.Text = Time?.Hours.ToString();
-    txtMinute.Text = Time?.Minutes.ToString();
-    txtSecond.Text = Time?.Seconds.ToString();
+    Time = timeSpan;
+    txtHour.Text = Time?.Hours.ToString() ?? string.Empty;
+    txtMinute.Text = Time?.Minutes.ToString() ?? string.Empty;
+    txtSecond.Text = Time?.Seconds.ToString() ?? string.Empty;
 
     Left = startupLocation.X;
     Top = startupLocation.Y;
@@ -37,11 +37,11 @@ public partial class EditTimeSpanDialog : Window {
   private void Window_KeyDown(object sender, KeyEventArgs e) {
     if (e.Key != Key.Enter && e.Key != Key.Escape) return;
     try {
-      var hour = txtHour.Text == "" ? 0 : int.Parse(txtHour.Text);
-      var minute = txtMinute.Text == "" ? 0 : int.Parse(txtMinute.Text);
-      var second = txtSecond.Text == "" ? 0 : int.Parse(txtSecond.Text);
+      var hour = txtHour.Text == string.Empty ? -1 : int.Parse(txtHour.Text);
+      var minute = txtMinute.Text == string.Empty ? -1 : int.Parse(txtMinute.Text);
+      var second = txtSecond.Text == string.Empty ? -1 : int.Parse(txtSecond.Text);
 
-      Time = hour > 0 || minute > 0 || second > 0 ? new TimeSpan(hour, minute, second) : null;
+      Time = hour > -1 && minute > -1 && second > -1 ? new TimeSpan(hour, minute, second) : null;
       Logger?.LogDebug("Dialog dismissed, success: {DialogSuccess}", e.Key == Key.Enter);
 
       DialogResult = e.Key == Key.Enter;

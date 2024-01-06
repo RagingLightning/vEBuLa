@@ -15,7 +15,7 @@ internal class EditEbulaEntryLocationC : BaseC {
     Logger?.LogInformation("Starting {EditType} edit for EbulaEntry {EbulaEntry}", "Location", entry.Model);
 
     var mainWindow = Application.Current.MainWindow;
-    var dialog = new EditEntryLocationDialog(entry.Location, entry.Gradient, mainWindow.PointToScreen(Mouse.GetPosition(mainWindow))-new Point(75,50));
+    var dialog = new EditEntryLocationDialog(entry.Location, entry.KilometerBreak, entry.Gradient, mainWindow.PointToScreen(Mouse.GetPosition(mainWindow))-new Point(75,50));
 
     if (dialog.ShowDialog() == false) {
       Logger?.LogDebug("{EditType} edit aborted by user", "Location");
@@ -23,6 +23,7 @@ internal class EditEbulaEntryLocationC : BaseC {
     }
     entry.Model.Location = EditEntryLocationDialog.Location;
     entry.Model.GradientMark = EditEntryLocationDialog.Gradient;
+    entry.Model.KilometerBreak = EditEntryLocationDialog.KilometerBreak;
 
     Logger?.LogInformation("{EditType} edit on EbulaEntry {EbulaEntry} complete", "Location", entry.Model);
 

@@ -8,6 +8,7 @@ namespace vEBuLa.ViewModels;
 internal class EbulaVM : BaseVM {
   private ILogger<EbulaEntryVM>? Logger => App.GetService<ILogger<EbulaEntryVM>>();
   public Ebula Model { get; set; }
+  public GlobalHotkeyHelper? Hotkeys { get; private set; }
 
   public EbulaVM() {
     Model = new Ebula(null);
@@ -16,6 +17,19 @@ internal class EbulaVM : BaseVM {
     ToggleEditCommand = new ToggleEditModeC(this);
 
     Screen.PropertyChanged += Screen_NavigateCommandChanged;
+  }
+
+  public void SetHotkeys() {
+    //https://learn.microsoft.com/en-us/windows/win32/inputdev/virtual-key-codes
+    Hotkeys = new GlobalHotkeyHelper();
+    Hotkeys.RegisterHotKey(() => NavigateCommand.Execute(NavAction.ACCEPT), 0x6B); // VK_ADD - Numpad Add
+    Hotkeys.RegisterHotKey(() => NavigateCommand.Execute(NavAction.MOVE_DOWN), 0x6F); // VK_DIVIDE - Numpad Div
+    Hotkeys.RegisterHotKey(() => NavigateCommand.Execute(NavAction.MOVE_UP), 0x6A); // VK_MULTIPLY - Numpad Mul
+    Hotkeys.RegisterHotKey(() => NavigateCommand.Execute(NavAction.MOVE_RIGHT), 0x6D); // VK_SUBTRACT - Numpad Sub
+  }
+
+  public void UnsetHotkeys() {
+    Hotkeys = null;
   }
 
   // Propagate change of Navigation command

@@ -6,7 +6,6 @@ namespace vEBuLa.Models;
 
 public class EbulaStation {
   public override string ToString() => $"{Name}|{Id,6}";
-
   public EbulaStation(Guid id, JObject jStation) {
     Id = id;
     Name = jStation.Value<string>(nameof(Name));
@@ -17,7 +16,6 @@ public class EbulaStation {
     Name = name;
   }
 
-  [JsonIgnore]
-  public Guid Id { get; } = Guid.Empty;
+  [JsonIgnore] public Guid Id { get; } = Guid.Empty;
   public string Name { get; set; } = string.Empty;
 }
