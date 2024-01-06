@@ -16,7 +16,7 @@ internal class StartRouteSelectionC : BaseC {
   }
 
   public override void Execute(object? parameter) {
-    if (Screen.UsingRoutes && Screen.CurrentRoute is EbulaRouteVM route) {
+    if (Screen.UsingRoutes && Screen.SelectedRoute is EbulaRouteVM route) {
       Screen.Ebula.Model.Segments.Clear();
       Screen.Ebula.Model.SetActiveSegments(route.Model.Segments, Screen.Departure);
     }

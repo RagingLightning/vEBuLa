@@ -15,6 +15,7 @@ internal partial class StorageConfigScreenVM : ScreenBaseVM {
   public StorageConfigScreenVM(EbulaVM ebula) : base(ebula) {
     ToggleRouteModeCommand = new ToggleCustomRouteC(this);
     LoadConfigCommand = new LoadEbulaConfigC(this);
+    //SaveConfigCommand;
 
     AddOriginCommand = AddConfigStationC.ORIGIN;
     EditOriginCommand = EditConfigEntryC.ORIGIN;
@@ -25,6 +26,18 @@ internal partial class StorageConfigScreenVM : ScreenBaseVM {
     AddDestinationCommand = AddConfigStationC.DESTINATION;
     EditDestinationCommand = EditConfigEntryC.DESTINATION;
     RemoveDestinationCommand = DeleteConfigStationC.DESTINATION;
+
+    StartEbulaCommand = new SwitchScreenC(ebula, () => {
+      Ebula.Model.Segments.Clear();
+      if (UsingRoutes) {
+        if (SelectedRoute is null) return null;
+        Ebula.Model.Segments.AddRange(SelectedRoute.Model.Segments);
+      } else {
+        if (CustomRoute.Where(e => e.SelectedSegment is not null).Count() == 0) return null;
+        Ebula.Model.Segments.AddRange(CustomRoute.Where(e => e.SelectedSegment is not null).Select(e => e.SelectedSegment.Model));
+      }
+      return new EbulaScreenVM(ebula);
+    });
 
     LoadConfig();
   }
@@ -54,6 +67,8 @@ internal partial class StorageConfigScreenVM : ScreenBaseVM {
   public BaseC AddDestinationCommand { get; }
   public BaseC EditDestinationCommand { get; }
   public BaseC RemoveDestinationCommand { get; }
+
+  public BaseC StartEbulaCommand { get; }
 
   private string _configName = string.Empty;
   public string ConfigName {
@@ -90,17 +105,17 @@ internal partial class StorageConfigScreenVM : ScreenBaseVM {
 
   public ObservableCollection<EbulaRouteVM> Routes { get; } = new();
 
-  private EbulaRouteVM? _currentRoute;
-  public EbulaRouteVM? CurrentRoute {
+  private EbulaRouteVM? _selectedRoute;
+  public EbulaRouteVM? SelectedRoute {
     get {
-      return _currentRoute;
+      return _selectedRoute;
     }
     set {
-      _currentRoute = value;
+      _selectedRoute = value;
       RouteOverview.Clear();
       if (value is not null)
         RouteOverview.AddRange(value.GenerateOverview());
-      OnPropertyChanged(nameof(CurrentRoute));
+      OnPropertyChanged(nameof(SelectedRoute));
     }
   }
 
@@ -125,7 +140,7 @@ internal partial class StorageConfigScreenVM : ScreenBaseVM {
     get => _departureText;
     set {
       _departureText = value;
-      if(Time().IsMatch(value) && TimeSpan.TryParse(value, out var t))
+      if (Time().IsMatch(value) && TimeSpan.TryParse(value, out var t))
         Departure = t;
     }
   }

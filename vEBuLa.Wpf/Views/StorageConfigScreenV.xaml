@@ -255,7 +255,7 @@
         </DockPanel>
 
         <DockPanel Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2">
-            <Button DockPanel.Dock="Right" Content="Start"/>
+            <Button DockPanel.Dock="Right" Content="Start" Command="{Binding StartEbulaCommand}"/>
             <TextBox DockPanel.Dock="Right" Text="{Binding DepartureText, UpdateSourceTrigger=PropertyChanged}" TextAlignment="Center" d:Text="00:00:00" Width="100"/>
             <TextBlock DockPanel.Dock="Right" Text="Departure Time: " VerticalAlignment="Center"/>
             <TextBlock Text="{Binding AdditionalInfo}" VerticalAlignment="Center"/>

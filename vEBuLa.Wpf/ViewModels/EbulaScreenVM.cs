@@ -15,6 +15,8 @@ internal class EbulaScreenVM : ScreenBaseVM {
     AddEntryCommand = new AddEbulaEntryC(ebula);
     RemoveEntryCommand = new RemoveEbulaEntryC(ebula);
 
+    ebula.ButtonStCommand = new SwitchScreenC(ebula, () => new StorageConfigScreenVM(ebula));
+
     UpdateEntries();
   }
 

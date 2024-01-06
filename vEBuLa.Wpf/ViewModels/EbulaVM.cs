@@ -68,10 +68,19 @@ internal class EbulaVM : BaseVM {
   #region Commands
 
   public BaseC ToggleEditCommand { get; }
-
   public BaseC ToggleScreenCommand { get; }
-
   public BaseC NavigateCommand => Screen.NavigateCommand; //managed by the screen instance
+
+  private BaseC _buttonStCommand;
+  public BaseC ButtonStCommand {
+    get {
+      return _buttonStCommand;
+    }
+    set {
+      _buttonStCommand = value;
+      OnPropertyChanged(nameof(ButtonStCommand));
+    }
+  }
   #endregion
 
   #endregion

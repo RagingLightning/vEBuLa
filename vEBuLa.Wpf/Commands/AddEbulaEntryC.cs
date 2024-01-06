@@ -5,7 +5,7 @@ using vEBuLa.ViewModels;
 
 namespace vEBuLa.Commands;
 internal class AddEbulaEntryC : BaseC {
-  private ILogger<EbulaEntryVM>? Logger => App.GetService<ILogger<EbulaEntryVM>>();
+  private ILogger<AddEbulaEntryC>? Logger => App.GetService<ILogger<AddEbulaEntryC>>();
   private readonly EbulaVM Ebula;
 
   internal AddEbulaEntryC(EbulaVM ebula) {
@@ -30,6 +30,8 @@ internal class AddEbulaEntryC : BaseC {
         Logger?.LogTrace("Inserting new entry {NewEntry} in PostEntries of segment {Segment} at index {Index}", newEntry, marker.Segment, 0);
         marker.Segment.Model.PostEntries.Insert(0, newEntry);
       }
+
+      marker.Screen.UpdateEntries();
     }
     else if (parameter is EbulaEntryVM entry) {
       Logger?.LogInformation("Adding new entry above {ExistingEntry}", entry);
@@ -40,6 +42,8 @@ internal class AddEbulaEntryC : BaseC {
       }
       Logger?.LogTrace("Inserting new entry {NewEntry} in {Entries} at index {Index}", newEntry, index.Value.List, index.Value.Index);
       index.Value.List.Insert(index.Value.Index, newEntry);
+
+      entry.Screen.UpdateEntries();
     }
     else return;
   }
