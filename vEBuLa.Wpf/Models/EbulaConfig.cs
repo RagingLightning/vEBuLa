@@ -7,23 +7,25 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Xml.Linq;
+using vEBuLa.Extensions;
 using vEBuLa.ViewModels;
 
 namespace vEBuLa.Models;
 internal class EbulaConfig {
   private ILogger<EbulaConfig>? Logger => App.AppHost?.Services.GetRequiredService<ILogger<EbulaConfig>>();
 
-  public override string ToString() => $"{Name} ({Stations.Count}/{Segments.Count})";
-  public string Name { get; private set; } = string.Empty;
+  public override string ToString() => $"{Name.Crop(30)} ({Stations.Count}/{Segments.Count}/{Routes.Count})";
+  public string Name { get; set; } = "Unnamed Configuration";
   public Dictionary<Guid, EbulaStation> Stations { get; private set; } = new();
   public Dictionary<Guid, EbulaSegment> Segments { get; private set; } = new();
   public Dictionary<Guid, EbulaRoute> Routes { get; private set; } = new();
 
-  public EbulaConfig() { }
+  public EbulaConfig() { Logger?.LogInformation("Using blank EBuLa Config"); }
 
-  public EbulaConfig(string jsonData) {
-    var jConfig = JObject.Parse(jsonData);
-    Name = jConfig.Value<string>(nameof(Name)) ?? "noname";
+  public EbulaConfig(string fileName) {
+    Logger?.LogInformation("Loading EBuLa Config from {ConfigFile}", fileName.BiCrop(10,30));
+    var jConfig = JObject.Parse(File.ReadAllText(fileName));
+    Name = jConfig.Value<string>(nameof(Name)) ?? "Unnamed Config";
     var jStations = jConfig.Value<JObject>(nameof(Stations));
     if (jStations is null) {
       Logger?.LogError("Config {Config} contains no Station entries", this);
@@ -81,6 +83,8 @@ internal class EbulaConfig {
       Logger?.LogDebug("Adding Route {Route} to config", route);
       Routes[route.Id] = route;
     }
+
+    Logger?.LogInformation("EBuLa Config {Config} fully loaded", this);
   }
 
   public IEnumerable<EbulaSegment> FindSegments(EbulaStation origin) {

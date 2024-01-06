@@ -30,5 +30,7 @@ internal abstract class ScreenBaseVM : BaseVM {
 
   public bool EditMode => Ebula.EditMode;
 
+  public bool NormalMode => Ebula.NormalMode;
+
   #endregion
 }

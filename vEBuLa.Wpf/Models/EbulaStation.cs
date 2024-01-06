@@ -1,11 +1,12 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
+using vEBuLa.Extensions;
 
 namespace vEBuLa.Models;
 
 public class EbulaStation {
-  public override string ToString() => $"{Name}|{Id,6}";
+  public override string ToString() => $"{Id.ToString().BiCrop(5,5)} | {Name.Crop(30)}";
   public EbulaStation(Guid id, JObject jStation) {
     Id = id;
     Name = jStation.Value<string>(nameof(Name));

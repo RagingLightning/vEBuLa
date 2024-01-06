@@ -1,22 +1,22 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using Microsoft.Extensions.Logging;
+using System;
 using System.Collections.ObjectModel;
 using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 using vEBuLa.Commands;
 using vEBuLa.Extensions;
 using vEBuLa.Models;
 
 namespace vEBuLa.ViewModels;
 internal partial class StorageConfigScreenVM : ScreenBaseVM {
+  private ILogger<StorageConfigScreenVM>? Logger => App.GetService<ILogger<StorageConfigScreenVM>>();
 
   public StorageConfigScreenVM(EbulaVM ebula) : base(ebula) {
     ToggleRouteModeCommand = new ToggleCustomRouteC(this);
-    SaveRouteCommand = new SaveCustomRouteC(this);
     LoadConfigCommand = new LoadEbulaConfigC(this);
     SaveConfigCommand = new SaveEbulaConfigC(this);
+
+    EditRouteCommand = new EditPredefinedRouteC(this);
 
     AddOriginCommand = AddConfigStationC.ORIGIN;
     EditOriginCommand = EditConfigEntryC.ORIGIN;
@@ -27,16 +27,25 @@ internal partial class StorageConfigScreenVM : ScreenBaseVM {
     AddDestinationCommand = AddConfigStationC.DESTINATION;
     EditDestinationCommand = EditConfigEntryC.DESTINATION;
     RemoveDestinationCommand = DeleteConfigStationC.DESTINATION;
+    SaveRouteCommand = new SaveCustomRouteC(this);
 
     StartEbulaCommand = new SwitchScreenC(ebula, () => {
+      Logger?.LogInformation("Switching to main EBuLa screen");
       Ebula.Model.Segments.Clear();
       if (UsingRoutes) {
-        if (SelectedRoute is null) return null;
+        if (SelectedRoute is null) {
+          Logger?.LogWarning("No Route is selected. Remaining on Setup screen");
+          return null;
+        }
         Ebula.Model.Segments.AddRange(SelectedRoute.Model.Segments);
       } else {
-        if (CustomRoute.Where(e => e.SelectedSegment is not null).Count() == 0) return null;
+        if (CustomRoute.Where(e => e.SelectedSegment is not null).Count() == 0) {
+          Logger?.LogWarning("Custom Route contains no Segments. Remaining on Setup screen.");
+          return null;
+        }
         Ebula.Model.Segments.AddRange(CustomRoute.Where(e => e.SelectedSegment is not null).Select(e => e.SelectedSegment.Model));
       }
+      Logger?.LogDebug("EBuLa instance starts with Segments {Segments}", Ebula.Model.Segments);
       return new EbulaScreenVM(ebula);
     });
 
@@ -47,15 +56,20 @@ internal partial class StorageConfigScreenVM : ScreenBaseVM {
 
   private void Ebula_PropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e) {
     if (sender != Ebula) return;
-    if (e.PropertyName == nameof(Ebula.EditMode)) OnPropertyChanged(nameof(ShowSave));
+    if (e.PropertyName == nameof(Ebula.EditMode)) {
+      OnPropertyChanged(nameof(ShowSave));
+      OnPropertyChanged(nameof(SelectedRoute));
+    }
   }
 
   public void LoadConfig() {
     if (Ebula.Model.Config is not EbulaConfig config) return;
+    Logger?.LogDebug("Loading UI values from EBuLa Config {Config}", Ebula.Model.Config);
     ConfigName = config.Name;
 
     Routes.Clear();
     Routes.AddRange(config.Routes.Values.Select(r => new EbulaRouteVM(this, r)));
+    RouteOverview.Clear();
 
     CustomRoute.Clear();
     CustomRoute.Add(new EbulaCustomEntryVM(this, config));
@@ -64,7 +78,7 @@ internal partial class StorageConfigScreenVM : ScreenBaseVM {
 
   #region Properties
   public BaseC ToggleRouteModeCommand { get; }
-  public BaseC SaveRouteCommand { get; }
+  public BaseC EditRouteCommand { get; }
   public BaseC LoadConfigCommand { get; }
   public BaseC SaveConfigCommand { get; }
   public BaseC AddOriginCommand { get; }
@@ -76,6 +90,7 @@ internal partial class StorageConfigScreenVM : ScreenBaseVM {
   public BaseC AddDestinationCommand { get; }
   public BaseC EditDestinationCommand { get; }
   public BaseC RemoveDestinationCommand { get; }
+  public BaseC SaveRouteCommand { get; }
 
   public BaseC StartEbulaCommand { get; }
 
@@ -84,10 +99,11 @@ internal partial class StorageConfigScreenVM : ScreenBaseVM {
   private string _configName = string.Empty;
   public string ConfigName {
     get {
-      return _configName;
+      return Ebula.Model.Config?.Name ?? string.Empty;
     }
     set {
-      _configName = value;
+      if (Ebula.Model.Config is not null)
+        Ebula.Model.Config.Name = value;
       OnPropertyChanged(nameof(ConfigName));
     }
   }
@@ -99,6 +115,8 @@ internal partial class StorageConfigScreenVM : ScreenBaseVM {
     }
     set {
       _usingRoutes = value;
+      if (value) Logger?.LogDebug("Switching to predefined route view");
+      else Logger?.LogDebug("Switching to custom route view");
       OnPropertyChanged(nameof(UsingRoutes));
       OnPropertyChanged(nameof(UsingCustom));
       OnPropertyChanged(nameof(ShowSave));
@@ -110,6 +128,8 @@ internal partial class StorageConfigScreenVM : ScreenBaseVM {
     }
     set {
       _usingRoutes = !value;
+      if (value) Logger?.LogDebug("Switching to custom route view");
+      else Logger?.LogDebug("Switching to predefined route view");
       OnPropertyChanged(nameof(UsingRoutes));
       OnPropertyChanged(nameof(UsingCustom));
       OnPropertyChanged(nameof(ShowSave));
@@ -121,13 +141,17 @@ internal partial class StorageConfigScreenVM : ScreenBaseVM {
   private EbulaRouteVM? _selectedRoute;
   public EbulaRouteVM? SelectedRoute {
     get {
-      return _selectedRoute;
+      return EditMode ? null : _selectedRoute;
     }
     set {
       _selectedRoute = value;
       RouteOverview.Clear();
-      if (value is not null)
+      if (value is not null) {
+        Logger?.LogInformation("Predefined Route {Route} selected", value);
         RouteOverview.AddRange(value.GenerateOverview());
+      }
+      if (EditMode)
+        EditRouteCommand.Execute(value);
       OnPropertyChanged(nameof(SelectedRoute));
     }
   }
@@ -164,8 +188,10 @@ internal partial class StorageConfigScreenVM : ScreenBaseVM {
     get => _departureText;
     set {
       _departureText = value;
-      if (Time().IsMatch(value) && TimeSpan.TryParse(value, out var t))
+      if (Time().IsMatch(value) && TimeSpan.TryParse(value, out var t)) {
+        Logger?.LogInformation("Departure time set to {DepartureTime}", t);
         Departure = t;
+      }
     }
   }
 

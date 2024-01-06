@@ -10,22 +10,21 @@ internal class EditEbulaEntrySymbolC : BaseC {
   public static readonly EditEbulaEntrySymbolC INSTANCE = new();
   public override void Execute(object? parameter) {
     if (parameter is not EbulaEntryVM entry) return;
-    if (entry.Model is null) return;
     if (entry.Screen is null) return;
-    Logger?.LogInformation("Starting {EditType} edit for EbulaEntry {EbulaEntry}", "Symbol", entry.Model);
+    Logger?.LogInformation("Starting {EditType} edit for EbulaEntry {EbulaEntry}", "Symbol", entry);
 
     var mainWindow = Application.Current.MainWindow;
-    var dialog = new EditEntrySymbolDialog(entry.Model.Symbol, mainWindow.PointToScreen(Mouse.GetPosition(mainWindow))-new Point(75,50));
+    var dialog = new EditEntrySymbolDialog(entry.Symbol, mainWindow.PointToScreen(Mouse.GetPosition(mainWindow))-new Point(75,50));
 
     if (dialog.ShowDialog() == false) {
 
       Logger?.LogDebug("{EditType} edit aborted by user", "Symbol");
       return;
     }
-    entry.Model.Symbol = EditEntrySymbolDialog.Symbol;
+    entry.Symbol = EditEntrySymbolDialog.Symbol;
 
 
-    Logger?.LogInformation("{EditType} edit on EbulaEntry {EbulaEntry} complete", "Symbol", entry.Model);
+    Logger?.LogInformation("{EditType} edit on EbulaEntry {EbulaEntry} complete", "Symbol", entry);
 
     entry.Screen.UpdateEntries();
   }

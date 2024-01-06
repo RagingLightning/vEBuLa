@@ -18,9 +18,12 @@ namespace vEBuLa.Dialogs;
 /// </summary>
 public partial class SimpleTextBoxPopup : Window {
   public static string Text { get; private set; } = string.Empty;
-  public SimpleTextBoxPopup(string text, Vector startupLocation) {
+
+  private bool Multiline = false;
+  public SimpleTextBoxPopup(string text, bool multiline, Vector startupLocation) {
     InitializeComponent();
     txt.Text = text;
+    txt.AcceptsReturn = multiline;
 
     Left = startupLocation.X;
     Top = startupLocation.Y;
@@ -29,6 +32,7 @@ public partial class SimpleTextBoxPopup : Window {
   }
 
   private void Window_KeyDown(object sender, KeyEventArgs e) {
+    if (Multiline && Keyboard.IsKeyUp(Key.LeftShift) && Keyboard.IsKeyUp(Key.LeftCtrl)) return;
     if (e.Key != Key.Enter && e.Key != Key.Escape) return;
     if (e.Key == Key.Enter)
       Text = txt.Text;

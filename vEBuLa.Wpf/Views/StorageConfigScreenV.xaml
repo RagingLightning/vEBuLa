@@ -69,11 +69,11 @@
             </DataTemplate.Resources>
             <StackPanel Width="{TemplateBinding ActualWidth}">
                 <DockPanel>
-                    <TextBlock DockPanel.Dock="Right" Text="{Binding Duration}" d:Text="00:32:30"/>
+                    <TextBlock DockPanel.Dock="Right" Text="{Binding DurationText}" d:Text="00:32:30"/>
                     <Rectangle DockPanel.Dock="Right" Width="2" Fill="#666" Margin="5,0"/>
                     <TextBlock DockPanel.Dock="Right" Text="{Binding StationCount}" d:Text="13"/>
                     <Rectangle DockPanel.Dock="Right" Width="2" Fill="#666" Margin="5,0"/>
-                    <TextBlock DockPanel.Dock="Right" Text="{Binding Name}" d:Text="Hbf-Melsungen S-Bahn" ToolTip="{Binding Description}"/>
+                    <TextBlock DockPanel.Dock="Right" Text="{Binding Name}" d:Text="Hbf-Melsungen S-Bahn" ToolTip="{Binding Description}" ToolTipService.InitialShowDelay="250"/>
                 </DockPanel>
                 <Rectangle Height="2" Fill="#666"/>
                 <TextBlock Text="{Binding RouteOverview}" d:Text="Hbf S - Achim - Donau - Melsungen"/>
@@ -218,7 +218,8 @@
                 </Grid.ColumnDefinitions>
                 <Button Grid.Column="0" Content="ROUTES" IsEnabled="{Binding UsingCustom}" Command="{Binding ToggleRouteModeCommand}"/>
                 <Button Grid.Column="1" Content="CUSTOM" IsEnabled="{Binding UsingRoutes}" Command="{Binding ToggleRouteModeCommand}"/>
-                <TextBlock Grid.Column="2" Text="{Binding ConfigName}" d:Text="Hauptstrecke München Augsburg" TextAlignment="Center" VerticalAlignment="Center"/>
+                <TextBlock Grid.Column="2" Text="{Binding ConfigName}" d:Text="Hauptstrecke München Augsburg" TextAlignment="Center" VerticalAlignment="Center" Visibility="{Binding NormalMode, Converter={StaticResource BoolHide}}"/>
+                <TextBox Grid.Column="2" Text="{Binding ConfigName, UpdateSourceTrigger=PropertyChanged}" d:Text="Hauptstrecke München Augsburg" TextAlignment="Center" VerticalAlignment="Center" Visibility="{Binding EditMode, Converter={StaticResource BoolHide}}"/>
             </Grid>
         </DockPanel>
 

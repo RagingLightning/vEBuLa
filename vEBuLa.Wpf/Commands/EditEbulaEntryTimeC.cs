@@ -15,7 +15,7 @@ internal class EditEbulaEntryTimeC : BaseC {
   public override void Execute(object? parameter) {
     if (parameter is not EbulaEntryVM entry) return;
     if (entry.Screen is null) return;
-    Logger?.LogInformation("Starting {EditType} edit for EbulaEntry {EbulaEntry}", IsDeparture ? "Departure Time" : "Arrival Time", entry.Model);
+    Logger?.LogInformation("Starting {EditType} edit for EbulaEntry {EbulaEntry}", IsDeparture ? "Departure Time" : "Arrival Time", entry);
 
     var mainWindow = Application.Current.MainWindow;
     var dialog = new EditTimeSpanDialog(IsDeparture ? entry.Departure : entry.Arrival, IsDeparture ? TimeSpanDialogType.DEPARTURE : TimeSpanDialogType.ARRIVAL, mainWindow.PointToScreen(Mouse.GetPosition(mainWindow))-new Point(75,50));
@@ -25,10 +25,10 @@ internal class EditEbulaEntryTimeC : BaseC {
       return;
     }
 
-    if (IsDeparture) entry.Model.Departure = EditTimeSpanDialog.Time;
-    else entry.Model.Arrival = EditTimeSpanDialog.Time;
+    if (IsDeparture) entry.Departure = EditTimeSpanDialog.Time;
+    else entry.Arrival = EditTimeSpanDialog.Time;
 
-    Logger?.LogInformation("{EditType} edit on EbulaEntry {EbulaEntry} complete", IsDeparture ? "Departure Time" : "Arrival Time", entry.Model);
+    Logger?.LogInformation("{EditType} edit on EbulaEntry {EbulaEntry} complete", IsDeparture ? "Departure Time" : "Arrival Time", entry);
 
     entry.Screen.UpdateEntries();
   }

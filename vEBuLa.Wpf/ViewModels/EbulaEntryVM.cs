@@ -10,9 +10,10 @@ internal class EbulaEntryVM : BaseVM {
   public EbulaEntry Model { get; }
   public EbulaScreenVM Screen { get; }
 
-  public EbulaEntryVM(EbulaEntry entry, TimeSpan serviceStart, EbulaEntryVM? prev, EbulaScreenVM screen) {
+  public EbulaEntryVM(EbulaEntry entry, TimeSpan offset, EbulaEntryVM? prev, EbulaScreenVM screen) {
     Model = entry;
     Screen = screen;
+    TimeOffset = offset;
 
     Screen.PropertyChanged += Screen_PropertyChanged;
 
@@ -24,40 +25,8 @@ internal class EbulaEntryVM : BaseVM {
     EditArrivalCommand = EditEbulaEntryTimeC.ARRIVAL;
     EditDepartureCommand = EditEbulaEntryTimeC.DEPARTURE;
 
-    Location = entry.Location;
-    KilometerBreak = entry.KilometerBreak;
-
-    MainLabel = entry.LocationName;
-    MainBold = entry.LocationNameBold;
-    SecondaryLabel = entry.LocationNotes;
-    SecondaryBold = entry.LocationNotesBold;
-    ArrivalBold = entry.LocationNameBold || entry.LocationNotesBold;
-    DepartureBold = entry.LocationNameBold || entry.LocationNotesBold;
-
-    SpeedLimit = entry.SpeedLimit > 0 ? entry.SpeedLimit : prev?.SpeedLimit ?? 0;
-    SpeedLimitDisplay = SpeedLimit != (prev?.SpeedLimit ?? 0);
-    SpeedSigned = entry.SpeedSigned;
-
-    switch (entry.Symbol) {
-      case EbulaSymbol.WEICHENBEREICH:
-        YMarker = true; break;
-      case EbulaSymbol.ZUGFUNK:
-        PhoneMarker = true; break;
-      case EbulaSymbol.BERMSWEG_KURZ:
-        TriangleMarker = true; break;
-      case EbulaSymbol.STUMPFGLEIS:
-        TMarker = true; break;
-    }
-
-    Gradient = entry.GradientMark;
-
-    if (entry.Arrival is TimeSpan) Arrival = serviceStart.Add(entry.Arrival.Value);
-
-    if (entry.Departure is TimeSpan) Departure = serviceStart.Add(entry.Departure.Value);
-
-    TunnelStart = entry.TunnelStart;
-    TunnelEnd = entry.TunnelEnd;
-    TunnelMid = TunnelEnd || prev is null ? false : prev.TunnelMid || prev.TunnelStart;
+    PrevSpeedLimit = prev?.SpeedLimit ?? 0;
+    PrevTunnel = prev is null ? false : prev.TunnelMid || prev.TunnelStart;
   }
 
   private void Screen_PropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e) {
@@ -66,7 +35,7 @@ internal class EbulaEntryVM : BaseVM {
       return;
     }
     if (e.PropertyName == nameof(Screen.StartEntry)) {
-      _forceSpeedDisplay = Screen.ActiveEntries[^1] == this;
+      ForceSpeedDisplay = Screen.ActiveEntries[^1] == this;
       OnPropertyChanged(nameof(SpeedLimitText));
     }
   }
@@ -97,13 +66,13 @@ internal class EbulaEntryVM : BaseVM {
   public bool SpeedColumn14 => SpeedLimit > 139 && SpeedLimit < 160;
   public bool SpeedColumn16 => SpeedLimit > 159;
 
-  private int _speedLimit = 0;
+  private int PrevSpeedLimit = 0;
   public int SpeedLimit {
     get {
-      return _speedLimit;
+      return Model.SpeedLimit == 0 ? PrevSpeedLimit : Model.SpeedLimit;
     }
     set {
-      _speedLimit = value;
+      Model.SpeedLimit = value;
       OnPropertyChanged(nameof(SpeedColumn2));
       OnPropertyChanged(nameof(SpeedColumn4));
       OnPropertyChanged(nameof(SpeedColumn6));
@@ -116,35 +85,24 @@ internal class EbulaEntryVM : BaseVM {
     }
   }
 
-  private bool _forceSpeedDisplay = false;
-  private bool _speedLimitDisplay;
-  public bool SpeedLimitDisplay {
-    get {
-      return _speedLimitDisplay || _forceSpeedDisplay;
-    }
-    set {
-      _speedLimitDisplay = value;
-      OnPropertyChanged(nameof(SpeedLimitText));
-    }
-  }
-
+  private bool ForceSpeedDisplay = false;
+  public bool SpeedLimitDisplay => Model.SpeedLimit > 0 || ForceSpeedDisplay;
   public string SpeedLimitText => SpeedLimitDisplay ? Math.Max(SpeedLimit, 160).ToString() : string.Empty;
 
-  private bool _speedSigned;
   public bool SpeedSigned {
     get {
-      return _speedSigned;
+      return Model.SpeedSigned;
     }
     set {
-      _speedSigned = value;
+      Model.SpeedSigned = value;
       OnPropertyChanged(nameof(SpeedSigned));
       OnPropertyChanged(nameof(SpeedColor));
       OnPropertyChanged(nameof(SpeedBackground));
     }
   }
 
-  public Brush SpeedColor => _speedSigned ? Brushes.Black : Brushes.White;
-  public Brush SpeedBackground => _speedSigned ? Brushes.White : Brushes.Black;
+  public Brush SpeedColor => SpeedSigned ? Brushes.Black : Brushes.White;
+  public Brush SpeedBackground => SpeedSigned ? Brushes.White : Brushes.Black;
 
   #endregion
 
@@ -160,13 +118,12 @@ internal class EbulaEntryVM : BaseVM {
     }
   }
 
-  private int _location;
   public int Location {
     get {
-      return _location;
+      return Model.Location;
     }
     set {
-      _location = value;
+      Model.Location = value;
       OnPropertyChanged(nameof(Location));
       OnPropertyChanged(nameof(LocationInt));
       OnPropertyChanged(nameof(LocationFrac));
@@ -179,13 +136,12 @@ internal class EbulaEntryVM : BaseVM {
   public bool ZigZag2 => Gradient > Gradient.BELOW_20;
   public bool ZigZag3 => Gradient > Gradient.BELOW_30;
 
-  private Gradient _gradient = 0;
   public Gradient Gradient {
     get {
-      return _gradient;
+      return Model.Gradient;
     }
     set {
-      _gradient = value;
+      Model.Gradient = value;
       OnPropertyChanged(nameof(Gradient));
       OnPropertyChanged(nameof(ZigZag1));
       OnPropertyChanged(nameof(ZigZag2));
@@ -193,13 +149,12 @@ internal class EbulaEntryVM : BaseVM {
     }
   }
 
-  private bool _kilometerBreak;
   public bool KilometerBreak {
     get {
-      return _kilometerBreak;
+      return Model.KilometerBreak;
     }
     set {
-      _kilometerBreak = value;
+      Model.KilometerBreak = value;
       OnPropertyChanged(nameof(KilometerBreak));
     }
   }
@@ -207,161 +162,109 @@ internal class EbulaEntryVM : BaseVM {
 
   #region Column 3 - Main
 
-  private bool _tunnelStart = false;
   public bool TunnelStart {
     get {
-      return _tunnelStart;
+      return Model.TunnelStart;
     }
     set {
-      if (value) {
-        TunnelMid = false;
-        TunnelEnd = false;
-      }
-      _tunnelStart = value;
+      Model.TunnelStart = value;
       OnPropertyChanged(nameof(TunnelStart));
-    }
-  }
-
-  private bool _tunnelMid = false;
-  public bool TunnelMid {
-    get {
-      return _tunnelMid;
-    }
-    set {
-      if (value) {
-        TunnelStart = false;
-        TunnelEnd = false;
-      }
-      _tunnelMid = value;
       OnPropertyChanged(nameof(TunnelMid));
     }
   }
 
-  private bool _tunnelEnd = false;
+  private bool PrevTunnel = false;
+  public bool TunnelMid => PrevTunnel && !TunnelEnd && !TunnelStart;
+
   public bool TunnelEnd {
     get {
-      return _tunnelEnd;
+      return Model.TunnelEnd;
     }
     set {
-      if (value) {
-        TunnelStart = false;
-        TunnelMid = false;
-      }
-      _tunnelEnd = value;
+      Model.TunnelEnd = value;
       OnPropertyChanged(nameof(TunnelEnd));
+      OnPropertyChanged(nameof(TunnelMid));
     }
   }
 
-  private bool _yMarker = false;
-  public bool YMarker {
-    get {
-      return _yMarker;
-    }
+  public EbulaSymbol Symbol {
+    get => Model.Symbol;
     set {
-      _yMarker = value;
+      Model.Symbol = value;
+      OnPropertyChanged(nameof(Symbol));
       OnPropertyChanged(nameof(YMarker));
-    }
-  }
-
-  private bool _phoneMarker = false;
-  public bool PhoneMarker {
-    get {
-      return _phoneMarker;
-    }
-    set {
-      _phoneMarker = value;
       OnPropertyChanged(nameof(PhoneMarker));
-    }
-  }
-
-  private bool _triangleMarker = false;
-  public bool TriangleMarker {
-    get {
-      return _triangleMarker;
-    }
-    set {
-      _triangleMarker = value;
       OnPropertyChanged(nameof(TriangleMarker));
-    }
-  }
-
-  private bool _tMarker = false;
-  public bool TMarker {
-    get {
-      return _tMarker;
-    }
-    set {
-      _tMarker = value;
       OnPropertyChanged(nameof(TMarker));
     }
   }
 
-  private string _mainLabel = string.Empty;
+  public bool YMarker => Symbol == EbulaSymbol.WEICHENBEREICH;
+
+  public bool PhoneMarker => Symbol == EbulaSymbol.ZUGFUNK;
+
+  public bool TriangleMarker => Symbol == EbulaSymbol.BERMSWEG_KURZ;
+
+  public bool TMarker => Symbol == EbulaSymbol.STUMPFGLEIS;
+
   public string MainLabel {
     get {
-      return _mainLabel;
+      return Model.LocationName;
     }
     set {
-      _mainLabel = value;
+      Model.LocationName = value;
       OnPropertyChanged(nameof(MainLabel));
     }
   }
 
-  private bool _mainBold = false;
   public bool MainBold {
     get {
-      return _mainBold;
+      return Model.LocationNameBold;
     }
     set {
-      _mainBold = value;
+      Model.LocationNameBold = value;
       OnPropertyChanged(nameof(MainBold));
+      OnPropertyChanged(nameof(ArrivalBold));
+      OnPropertyChanged(nameof(DepartureBold));
     }
   }
 
-  private string _secondaryLabel = string.Empty;
   public string SecondaryLabel {
     get {
-      return _secondaryLabel;
+      return Model.LocationNotes;
     }
     set {
-      _secondaryLabel = value;
+      Model.LocationNotes = value;
       OnPropertyChanged(nameof(SecondaryLabel));
     }
   }
 
-  private bool _secondaryBold = false;
   public bool SecondaryBold {
     get {
-      return _secondaryBold;
+      return Model.LocationNotesBold;
     }
     set {
-      _secondaryBold = value;
+      Model.LocationNotesBold = value;
       OnPropertyChanged(nameof(SecondaryBold));
+      OnPropertyChanged(nameof(ArrivalBold));
+      OnPropertyChanged(nameof(DepartureBold));
     }
   }
 
   #endregion
 
+  private readonly TimeSpan TimeOffset;
+
   #region Column 4 - Arrival
 
-  private bool _arrivalBold;
-  public bool ArrivalBold {
-    get {
-      return _arrivalBold;
-    }
-    set {
-      _arrivalBold = value;
-      OnPropertyChanged(nameof(ArrivalBold));
-    }
-  }
+  public bool ArrivalBold => MainBold || SecondaryBold;
 
-  private TimeSpan? _arrival = null;
   public TimeSpan? Arrival {
     get {
-      return _arrival;
+      return Model.Arrival?.Add(TimeOffset);
     }
     set {
-      _arrival = value;
+      Model.Arrival = value?.Subtract(TimeOffset);
       OnPropertyChanged(nameof(Arrival));
       OnPropertyChanged(nameof(HasArrival));
       OnPropertyChanged(nameof(ArrivalHr));
@@ -377,25 +280,14 @@ internal class EbulaEntryVM : BaseVM {
   #endregion
 
   #region Column 5 - Departure
+  public bool DepartureBold => MainBold || SecondaryBold;
 
-  private bool _departureBold;
-  public bool DepartureBold {
-    get {
-      return _departureBold;
-    }
-    set {
-      _departureBold = value;
-      OnPropertyChanged(nameof(DepartureBold));
-    }
-  }
-
-  private TimeSpan? _departure = null;
   public TimeSpan? Departure {
     get {
-      return _departure;
+      return Model.Departure?.Add(TimeOffset);
     }
     set {
-      _departure = value;
+      Model.Departure = value?.Subtract(TimeOffset);
       OnPropertyChanged(nameof(Departure));
       OnPropertyChanged(nameof(HasDeparture));
       OnPropertyChanged(nameof(DepartureHr));

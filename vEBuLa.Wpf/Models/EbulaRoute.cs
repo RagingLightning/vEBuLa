@@ -4,12 +4,14 @@ using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using vEBuLa.Extensions;
 using vEBuLa.Models;
 using vEBuLa.ViewModels;
 
 namespace vEBuLa;
 
 internal class EbulaRoute {
+  public override string ToString() => $"{Id.ToString().BiCrop(5, 5)} | {Name.Crop(30)}";
   private ILogger<EbulaRoute>? Logger => App.GetService<ILogger<EbulaRoute>>();
 
   public EbulaRoute(EbulaConfig existingConfig, Guid id, JObject jRoute) {

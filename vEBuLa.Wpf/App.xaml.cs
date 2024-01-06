@@ -41,6 +41,7 @@ public partial class App : Application {
 
     Log.Logger = new LoggerConfiguration()
       .ReadFrom.Configuration(_serilogConfig.ApplyTimestamp())
+      .ApplyDestructuringRules()
       .CreateLogger();
 
     AppDomain.CurrentDomain.UnhandledException += new UnhandledExceptionEventHandler(OnUnhandledException);

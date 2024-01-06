@@ -10,10 +10,9 @@ internal class EditEbulaEntryStationC : BaseC {
   public static readonly EditEbulaEntryStationC INSTANCE = new();
   public override void Execute(object? parameter) {
     if (parameter is not EbulaEntryVM entry) return;
-    if (entry.Model is null) return;
     if (entry.Screen is null) return;
 
-    Logger?.LogInformation("Starting {EditType} edit for EbulaEntry {EbulaEntry}", "Station", entry.Model);
+    Logger?.LogInformation("Starting {EditType} edit for EbulaEntry {EbulaEntry}", "Station", entry);
 
     var mainWindow = Application.Current.MainWindow;
     var dialog = new EditEntryNameDialog(entry.MainLabel, entry.SecondaryLabel, entry.MainBold, entry.SecondaryBold, mainWindow.PointToScreen(Mouse.GetPosition(mainWindow))-new Point(75,50));
@@ -22,12 +21,12 @@ internal class EditEbulaEntryStationC : BaseC {
       Logger?.LogDebug("{EditType} edit aborted by user", "Station");
       return;
     }
-    entry.Model.LocationName = EditEntryNameDialog.EntryName;
-    entry.Model.LocationNotes = EditEntryNameDialog.Description;
-    entry.Model.LocationNameBold = EditEntryNameDialog.NameBold;
-    entry.Model.LocationNotesBold = EditEntryNameDialog.DescriptionBold;
+    entry.MainLabel = EditEntryNameDialog.EntryName;
+    entry.SecondaryLabel = EditEntryNameDialog.Description;
+    entry.MainBold = EditEntryNameDialog.NameBold;
+    entry.SecondaryBold = EditEntryNameDialog.DescriptionBold;
 
-    Logger?.LogInformation("{EditType} edit for EbulaEntry {EbulaEntry} complete", "Station", entry.Model);
+    Logger?.LogInformation("{EditType} edit for EbulaEntry {EbulaEntry} complete", "Station", entry);
 
     entry.Screen.UpdateEntries();
   }

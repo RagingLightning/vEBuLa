@@ -10,9 +10,8 @@ internal class EditEbulaEntryTunnelC : BaseC {
   public static readonly EditEbulaEntryTunnelC INSTANCE = new();
   public override void Execute(object? parameter) {
     if (parameter is not EbulaEntryVM entry) return;
-    if (entry.Model is null) return;
     if (entry.Screen is null) return;
-    Logger?.LogInformation("Starting {EditType} edit for EbulaEntry {EbulaEntry}", "Tunnel", entry.Model);
+    Logger?.LogInformation("Starting {EditType} edit for EbulaEntry {EbulaEntry}", "Tunnel", entry);
 
     var mainWindow = Application.Current.MainWindow;
     var dialog = new EditEntryTunnelDialog(entry.TunnelStart, entry.TunnelEnd, mainWindow.PointToScreen(Mouse.GetPosition(mainWindow))-new Point(75,50));
@@ -22,10 +21,10 @@ internal class EditEbulaEntryTunnelC : BaseC {
       Logger?.LogDebug("{EditType} edit aborted by user", "Tunnel");
       return;
     }
-    entry.Model.TunnelStart = EditEntryTunnelDialog.TunnelStart;
-    entry.Model.TunnelEnd = EditEntryTunnelDialog.TunnelEnd;
+    entry.TunnelStart = EditEntryTunnelDialog.TunnelStart;
+    entry.TunnelEnd = EditEntryTunnelDialog.TunnelEnd;
 
-    Logger?.LogInformation("{EditType} edit on EbulaEntry {EbulaEntry} complete", "Tunnel", entry.Model);
+    Logger?.LogInformation("{EditType} edit on EbulaEntry {EbulaEntry} complete", "Tunnel", entry);
 
     entry.Screen.UpdateEntries();
   }

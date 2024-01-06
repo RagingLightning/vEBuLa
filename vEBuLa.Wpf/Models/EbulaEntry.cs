@@ -15,7 +15,7 @@ internal class EbulaEntry {
   public bool LocationNameBold { get; set; } = false;
   public string LocationNotes { get; set; } = string.Empty;
   public bool LocationNotesBold { get; set; } = false;
-  public Gradient GradientMark { get; set; } = Gradient.BELOW_10;
+  public Gradient Gradient { get; set; } = Gradient.BELOW_10;
   public TimeSpan? Arrival { get; set; } = null;
   public TimeSpan? Departure { get; set; } = null;
   public bool TunnelStart { get; set; } = false;

@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:vEBuLa.Dialogs"
         mc:Ignorable="d"
-        Title="SimpleTextBoxPopup" WindowStyle="None" ShowInTaskbar="False" WindowStartupLocation="Manual" ResizeMode="CanResizeWithGrip" Width="150" Height="100" KeyDown="Window_KeyDown">
+        Title="SimpleTextBoxPopup" WindowStyle="None" ShowInTaskbar="False" WindowStartupLocation="Manual" ResizeMode="CanResizeWithGrip" Width="150" Height="100" KeyDown="Window_KeyDown" Topmost="True">
     <Grid>
         <TextBox x:Name="txt"/>
     </Grid>

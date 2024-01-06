@@ -37,9 +37,9 @@ internal class GlobalHotkeyHelper {
     var id = IdGenerator.Next();
     if (HotkeyHandlers.ContainsKey(id)) id = IdGenerator.Next();
     if (!RegisterHotKey(helper.Handle, id, modifiers, vkCode)) {
-      Logger?.LogError("Failed to create global hotkey {Modifiers}&{VKCode} for {Handler}: {ErrorCode}", modifiers, vkCode, handler, GetLastError());
+      Logger?.LogError("Failed to create global hotkey 0x{Modifiers:x} + 0x{VKCode:x}: {ErrorCode}", modifiers, vkCode, GetLastError());
     }
-    Logger?.LogDebug("Global hotkey {Modifiers}&{VKCode} for {Handler} registered", modifiers, vkCode, handler);
+    Logger?.LogDebug("Global hotkey 0x{Modifiers:x} + 0x{VKCode:x} registered", modifiers, vkCode);
     HotkeyHandlers[id] = handler;
   }
 

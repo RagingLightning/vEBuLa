@@ -11,9 +11,9 @@ internal class ToggleCustomRouteC : BaseC {
   }
 
   public override void Execute(object? parameter) {
-    Screen.UsingRoutes = !Screen.UsingRoutes;
+    if (Screen.UsingRoutes) Logger?.LogInformation("Switching to custom route creation");
+    else Logger?.LogInformation("Switching to predefined route");
 
-    if (Screen.UsingRoutes) Logger?.LogInformation("Using defined routes");
-    else Logger?.LogInformation("Using custom Routes");
+    Screen.UsingRoutes = !Screen.UsingRoutes;
   }
 }

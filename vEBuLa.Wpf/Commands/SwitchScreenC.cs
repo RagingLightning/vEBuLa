@@ -12,14 +12,11 @@ internal class SwitchScreenC : BaseC {
   public SwitchScreenC(EbulaVM ebula, Func<ScreenBaseVM?> constructor) {
     Ebula = ebula;
     Constructor = constructor;
-  } 
+  }
 
   public override void Execute(object? parameter) {
     var screen = Constructor();
-    if (screen is null) {
-      Logger?.LogError("Creation of a new Screen failed");
-      return;
-    }
+    if (screen is null) return;
     Logger?.LogInformation("Switching to new screen of Type {ScreenType}", screen.GetType());
     Ebula.Screen = screen;
   }

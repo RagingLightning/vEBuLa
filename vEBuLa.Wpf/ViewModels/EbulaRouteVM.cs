@@ -5,7 +5,8 @@ using System.Linq;
 
 namespace vEBuLa.ViewModels;
 
-internal class EbulaRouteVM {
+internal class EbulaRouteVM : BaseVM {
+  public override string ToString() => $"[{Model}]";
   private StorageConfigScreenVM Screen { get; }
   public EbulaRoute Model { get; }
 
@@ -14,11 +15,43 @@ internal class EbulaRouteVM {
     Model = route;
   }
 
-  public string Name => Model.Name;
-  public string Description => Model.Description;
-  public string RouteOverview => Model.RouteOverview;
-  public int StationCount => Model.StationCount;
-  public string Duration => Model.Duration.ToString("hh':'mm':'ss");
+  public string Name {
+    get => Model.Name;
+    set {
+      Model.Name = value;
+      OnPropertyChanged(nameof(Name));
+    }
+  }
+  public string Description {
+    get => Model.Description;
+    set {
+      Model.Description = value;
+      OnPropertyChanged(nameof(Description));
+    }
+  }
+  public string RouteOverview {
+    get => Model.RouteOverview;
+    set {
+      Model.RouteOverview = value;
+      OnPropertyChanged(nameof(RouteOverview));
+    }
+  }
+  public int StationCount {
+    get => Model.StationCount;
+    set { 
+      Model.StationCount = value; 
+      OnPropertyChanged(nameof(StationCount));
+    }
+  }
+  public TimeSpan Duration {
+    get => Model.Duration;
+    set { 
+      Model.Duration = value;
+      OnPropertyChanged(nameof(Duration));
+      OnPropertyChanged(nameof(DurationText));
+    }
+  }
+  public string DurationText => Duration.ToString("hh':'mm':'ss");
 
   internal IEnumerable<EbulaRouteEntryVM> GenerateOverview() {
     List<EbulaRouteEntryVM> result = new();

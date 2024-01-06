@@ -10,10 +10,9 @@ internal class EditEbulaEntrySpeedC : BaseC {
   public static readonly EditEbulaEntrySpeedC INSTANCE = new();
   public override void Execute(object? parameter) {
     if (parameter is not EbulaEntryVM entry) return;
-    if (entry.Model is null) return;
     if (entry.Screen is null) return;
 
-    Logger?.LogInformation("Startind {EditType} edit for EbulaEntry {EbulaEntry}", "Speed", entry.Model);
+    Logger?.LogInformation("Startind {EditType} edit for EbulaEntry {EbulaEntry}", "Speed", entry);
 
     var mainWindow = Application.Current.MainWindow;
     var dialog = new EditEntrySpeedDialog(entry.SpeedLimit, entry.SpeedSigned, mainWindow.PointToScreen(Mouse.GetPosition(mainWindow))-new Point(75,50));
@@ -22,10 +21,10 @@ internal class EditEbulaEntrySpeedC : BaseC {
       Logger?.LogInformation("{EditType} edit aborted by user", "Speed");
       return;
     }
-    entry.Model.SpeedLimit = EditEntrySpeedDialog.Speed;
-    entry.Model.SpeedSigned = EditEntrySpeedDialog.Signed;
+    entry.SpeedLimit = EditEntrySpeedDialog.Speed;
+    entry.SpeedSigned = EditEntrySpeedDialog.Signed;
 
-    Logger?.LogInformation("{EditType} edit for EbulaEntry {EbulaEntry} complete", "Speed", entry.Model);
+    Logger?.LogInformation("{EditType} edit for EbulaEntry {EbulaEntry} complete", "Speed", entry);
 
     entry.Screen.UpdateEntries();
   }

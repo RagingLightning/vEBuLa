@@ -3,11 +3,12 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
+using vEBuLa.Extensions;
 
 namespace vEBuLa.Models;
 internal class EbulaSegment {
   private readonly ILogger<EbulaSegment>? Logger;
-  public override string ToString() => $"{Id,6}: {Origin.Station?.Name,6} > {Destination.Station?.Name,6}";
+  public override string ToString() => $"{Id.ToString().BiCrop(5,5)}: {Origin.Station?.Name.Crop(30)} > {Destination.Station?.Name.Crop(30)}";
 
   public EbulaSegment(EbulaConfig existingConfig, Guid id, JObject jSegment) {
     Logger = App.GetService<ILogger<EbulaSegment>>();
@@ -38,14 +39,14 @@ internal class EbulaSegment {
     Name = jSegment.Value<string>(nameof(Name)) ?? string.Empty;
 
     if (jSegment.Value<JArray>(nameof(PreEntries)) is JArray jPreEntries) {
-      Logger?.LogDebug("Parsing PreEntries for {Segment}", this);
+      Logger?.LogDebug("Parsing  PreEntries for {Segment}", this);
       ParseEntries(PreEntries, jPreEntries);
     }
     else
       Logger?.LogWarning("Segment {Segment} contains no PreEntries", this);
 
     if (jSegment.Value<JArray>(nameof(Entries)) is JArray jEntries) {
-      Logger?.LogDebug("Parsing Entries for {Segment}", this);
+      Logger?.LogDebug("Parsing     Entries for {Segment}", this);
       ParseEntries(Entries, jEntries);
     }
     else

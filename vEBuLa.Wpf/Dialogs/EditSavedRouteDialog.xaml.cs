@@ -61,7 +61,7 @@ public partial class EditSavedRouteDialog : Window {
   }
 
   private void Desc_Click(object sender, RoutedEventArgs e) {
-    var dialog = new SimpleTextBoxPopup(Description, new Vector(Left + 220, Top - 75));
+    var dialog = new SimpleTextBoxPopup(Description, true, new Vector(Left + 220, Top - 75));
 
     if (dialog.ShowDialog() == true)
       Description = SimpleTextBoxPopup.Text;
