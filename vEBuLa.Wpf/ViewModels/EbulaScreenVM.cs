@@ -104,6 +104,21 @@ internal class EbulaScreenVM : BaseVM {
   public BaseC RemoveEntryCommand { get; }
   #endregion
 
+  #region Popup Windows
+
+  private bool _controlModeOpen;
+  public bool ControlModeOpen {
+    get {
+      return _controlModeOpen;
+    }
+    set {
+      _controlModeOpen = value;
+      OnPropertyChanged(nameof(ControlModeOpen));
+    }
+  }
+
+  #endregion
+
   #region Header
 
   private string? _speedInfo;
@@ -185,7 +200,7 @@ internal class EbulaScreenVM : BaseVM {
 
   #region Footer
 
-  private string? _buttonLabel0 = null;
+  private string? _buttonLabel0 = "Zug";
   public string? ButtonLabel0 {
     get {
       return _buttonLabel0;
@@ -196,7 +211,7 @@ internal class EbulaScreenVM : BaseVM {
     }
   }
 
-  private string? _buttonLabel1 = null;
+  private string? _buttonLabel1 = "FSD";
   public string? ButtonLabel1 {
     get {
       return _buttonLabel1;
@@ -229,7 +244,7 @@ internal class EbulaScreenVM : BaseVM {
     }
   }
 
-  private string? _buttonLabel4 = null;
+  private string? _buttonLabel4 = "LW";
   public string? ButtonLabel4 {
     get {
       return _buttonLabel4;
@@ -240,7 +255,7 @@ internal class EbulaScreenVM : BaseVM {
     }
   }
 
-  private string? _buttonLabel5 = null;
+  private string? _buttonLabel5 = "GW";
   public string? ButtonLabel5 {
     get {
       return _buttonLabel5;
@@ -251,7 +266,7 @@ internal class EbulaScreenVM : BaseVM {
     }
   }
 
-  private string? _buttonLabel6 = null;
+  private string? _buttonLabel6 = "Zeit";
   public string? ButtonLabel6 {
     get {
       return _buttonLabel6;
@@ -284,7 +299,7 @@ internal class EbulaScreenVM : BaseVM {
     }
   }
 
-  private string? _buttonLabel9 = null;
+  private string? _buttonLabel9 = "G";
   public string? ButtonLabel9 {
     get {
       return _buttonLabel9;

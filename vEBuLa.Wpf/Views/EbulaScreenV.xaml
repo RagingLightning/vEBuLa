@@ -63,67 +63,126 @@
             <Setter Property="ScrollViewer.HorizontalScrollBarVisibility" Value="Disabled"/>
         </Style>
     </UserControl.Resources>
-    <DockPanel Background="White">
-        <Grid DockPanel.Dock="Top" Height="37">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="2*"/>
-                <ColumnDefinition Width="Auto"/>
-                <ColumnDefinition Width="7*"/>
-                <ColumnDefinition Width="Auto"/>
-                <ColumnDefinition Width="3*"/>
-                <ColumnDefinition Width="Auto"/>
-                <ColumnDefinition Width="3*"/>
-            </Grid.ColumnDefinitions>
+    <Grid>
+        <!-- Main Screen-->
+        <DockPanel Background="White">
+            <Grid DockPanel.Dock="Top" Height="37">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="2*"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="7*"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="3*"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="3*"/>
+                </Grid.ColumnDefinitions>
 
-            <Rectangle Grid.Column="1" Fill="Black" Width="3"/>
-            <Rectangle Grid.Column="3" Fill="Black" Width="3"/>
-            <Rectangle Grid.Column="5" Fill="Black" Width="3"/>
+                <Rectangle Grid.Column="1" Fill="Black" Width="3"/>
+                <Rectangle Grid.Column="3" Fill="Black" Width="3"/>
+                <Rectangle Grid.Column="5" Fill="Black" Width="3"/>
 
-            <TextBlock Grid.Column="0" Text="{Binding Ebula.Service}" d:Text="10901" TextAlignment="Center" VerticalAlignment="Center" FontSize="20" FontWeight="Bold"/>
-            <TextBlock Grid.Column="2" Text="Fahrplan gültig!" TextAlignment="Center" VerticalAlignment="Center" FontSize="20" FontWeight="Bold"/>
-            <TextBlock Grid.Column="4" Text="{Binding Date}" d:Text="07.06.2018" TextAlignment="Center" VerticalAlignment="Center" FontSize="20" FontWeight="Bold"/>
-            <TextBlock Grid.Column="6" Text="{Binding Ebula.Model.ServiceStartTime}" d:Text="07:02:59" TextAlignment="Center" VerticalAlignment="Center" FontSize="20" FontWeight="Bold"/>
-        </Grid>
-        <Rectangle DockPanel.Dock="Top" Fill="Black" Height="3"/>
-        <TextBlock Text="{Binding BottomStatus}" TextAlignment="Center" VerticalAlignment="Center" FontSize="15" FontWeight="Bold"/>
-        <DockPanel DockPanel.Dock="Top" Height="22" LastChildFill="False">
-            <TextBlock DockPanel.Dock="Left" Visibility="{Binding SpeedInfo, Converter={StaticResource NullVis}}" Text="{Binding SpeedInfo}" d:Text="ab km 58,4: 80 km/h" TextAlignment="Center" VerticalAlignment="Center" FontSize="15" FontWeight="Bold" Margin="5,0"/>
-            <Rectangle DockPanel.Dock="Left" Visibility="{Binding SpeedInfo, Converter={StaticResource NullVis}}" Fill="Black" Width="3"/>
+                <TextBlock Grid.Column="0" Text="{Binding Ebula.Service}" d:Text="10901" TextAlignment="Center" VerticalAlignment="Center" FontSize="20" FontWeight="Bold"/>
+                <TextBlock Grid.Column="2" Text="Fahrplan gültig!" TextAlignment="Center" VerticalAlignment="Center" FontSize="20" FontWeight="Bold"/>
+                <TextBlock Grid.Column="4" Text="{Binding Date}" d:Text="07.06.2018" TextAlignment="Center" VerticalAlignment="Center" FontSize="20" FontWeight="Bold"/>
+                <TextBlock Grid.Column="6" Text="{Binding Ebula.Model.ServiceStartTime}" d:Text="07:02:59" TextAlignment="Center" VerticalAlignment="Center" FontSize="20" FontWeight="Bold"/>
+            </Grid>
+            <Rectangle DockPanel.Dock="Top" Fill="Black" Height="3"/>
+            <TextBlock Text="{Binding BottomStatus}" TextAlignment="Center" VerticalAlignment="Center" FontSize="15" FontWeight="Bold"/>
+            <DockPanel DockPanel.Dock="Top" Height="22" LastChildFill="False">
+                <TextBlock DockPanel.Dock="Left" Visibility="{Binding SpeedInfo, Converter={StaticResource NullVis}}" Text="{Binding SpeedInfo}" d:Text="ab km 58,4: 80 km/h" TextAlignment="Center" VerticalAlignment="Center" FontSize="15" FontWeight="Bold" Margin="5,0"/>
+                <Rectangle DockPanel.Dock="Left" Visibility="{Binding SpeedInfo, Converter={StaticResource NullVis}}" Fill="Black" Width="3"/>
 
-            <TextBlock DockPanel.Dock="Right" Visibility="{Binding StopInfo, Converter={StaticResource NullVis}}" Text="{Binding StopInfo}" d:Text="Nächster Halt: Schlachtern (Sieg)" TextAlignment="Center" VerticalAlignment="Center" FontSize="15" FontWeight="Bold" Margin="5,0"/>
-            <Rectangle DockPanel.Dock="Right" Visibility="{Binding StopInfo, Converter={StaticResource NullVis}}" Fill="Black" Width="3"/>
+                <TextBlock DockPanel.Dock="Right" Visibility="{Binding StopInfo, Converter={StaticResource NullVis}}" Text="{Binding StopInfo}" d:Text="Nächster Halt: Schlachtern (Sieg)" TextAlignment="Center" VerticalAlignment="Center" FontSize="15" FontWeight="Bold" Margin="5,0"/>
+                <Rectangle DockPanel.Dock="Right" Visibility="{Binding StopInfo, Converter={StaticResource NullVis}}" Fill="Black" Width="3"/>
+            </DockPanel>
+            <Rectangle DockPanel.Dock="Top" Fill="Black" Height="3"/>
+
+            <Grid DockPanel.Dock="Bottom" Background="LightGray" Height="37">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition/>
+                    <ColumnDefinition/>
+                    <ColumnDefinition/>
+                    <ColumnDefinition/>
+                    <ColumnDefinition/>
+                    <ColumnDefinition/>
+                    <ColumnDefinition/>
+                    <ColumnDefinition/>
+                    <ColumnDefinition/>
+                    <ColumnDefinition/>
+                </Grid.ColumnDefinitions>
+
+                <Button Grid.Column="0" Content="{Binding ButtonLabel0}" Visibility="{Binding ButtonLabel0, Converter={StaticResource NullHide}}" d:Content="Zug" Height="30" VerticalAlignment="Center" Margin="5,0"/>
+                <Button Grid.Column="1" Content="{Binding ButtonLabel1}" Visibility="{Binding ButtonLabel1, Converter={StaticResource NullHide}}" d:Content="FSD" Height="30" VerticalAlignment="Center" Margin="5,0"/>
+                <Button Grid.Column="2" Content="{Binding ButtonLabel2}" Visibility="{Binding ButtonLabel2, Converter={StaticResource NullHide}}" d:Content="Zug" Height="30" VerticalAlignment="Center" Margin="5,0"/>
+                <Button Grid.Column="3" Content="{Binding ButtonLabel3}" Visibility="{Binding ButtonLabel3, Converter={StaticResource NullHide}}" d:Content="Zug" Height="30" VerticalAlignment="Center" Margin="5,0"/>
+                <Button Grid.Column="4" Content="{Binding ButtonLabel4}" Visibility="{Binding ButtonLabel4, Converter={StaticResource NullHide}}" d:Content="DAF" Height="30" VerticalAlignment="Center" Margin="5,0"/>
+                <Button Grid.Column="5" Content="{Binding ButtonLabel5}" Visibility="{Binding ButtonLabel5, Converter={StaticResource NullHide}}" d:Content="GW" Height="30" VerticalAlignment="Center" Margin="5,0"/>
+                <Button Grid.Column="6" Content="{Binding ButtonLabel6}" Visibility="{Binding ButtonLabel6, Converter={StaticResource NullHide}}" d:Content="Zeit" Height="30" VerticalAlignment="Center" Margin="5,0"/>
+                <Button Grid.Column="7" Content="{Binding ButtonLabel7}" Visibility="{Binding ButtonLabel7, Converter={StaticResource NullHide}}" d:Content="Zug" Height="30" VerticalAlignment="Center" Margin="5,0"/>
+                <Button Grid.Column="8" Content="{Binding ButtonLabel8}" Visibility="{Binding ButtonLabel8, Converter={StaticResource NullHide}}" d:Content="Zug" Height="30" VerticalAlignment="Center" Margin="5,0"/>
+                <Button Grid.Column="9" Content="{Binding ButtonLabel9}" Visibility="{Binding ButtonLabel9, Converter={StaticResource NullHide}}" d:Content="G" Height="30" VerticalAlignment="Center" Margin="5,0"/>
+            </Grid>
+
+            <Rectangle DockPanel.Dock="Bottom" Height="30" Fill="Wheat"/>
+            <Rectangle DockPanel.Dock="Bottom" Height="3" Fill="Black"/>
+
+            <ListView ItemsSource="{Binding ActiveEntries}" Style="{StaticResource ListStyle}" BorderBrush="{Binding RowHighlight}" d:ItemsSource="{d:SampleData ItemCount=15}" SelectedItem="{Binding SelectedEntry, UpdateSourceTrigger=PropertyChanged}"/>
         </DockPanel>
-        <Rectangle DockPanel.Dock="Top" Fill="Black" Height="3"/>
-
-        <Grid DockPanel.Dock="Bottom" Background="LightGray" Height="37">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition/>
-                <ColumnDefinition/>
-                <ColumnDefinition/>
-                <ColumnDefinition/>
-                <ColumnDefinition/>
-                <ColumnDefinition/>
-                <ColumnDefinition/>
-                <ColumnDefinition/>
-                <ColumnDefinition/>
-                <ColumnDefinition/>
-            </Grid.ColumnDefinitions>
-
-            <Button Grid.Column="0" Content="{Binding ButtonLabel0}" Visibility="{Binding ButtonLabel0, Converter={StaticResource NullHide}}" d:Content="Zug" Height="30" VerticalAlignment="Center" Margin="5,0"/>
-            <Button Grid.Column="1" Content="{Binding ButtonLabel1}" Visibility="{Binding ButtonLabel1, Converter={StaticResource NullHide}}" d:Content="FSD" Height="30" VerticalAlignment="Center" Margin="5,0"/>
-            <Button Grid.Column="2" Content="{Binding ButtonLabel2}" Visibility="{Binding ButtonLabel2, Converter={StaticResource NullHide}}" d:Content="Zug" Height="30" VerticalAlignment="Center" Margin="5,0"/>
-            <Button Grid.Column="3" Content="{Binding ButtonLabel3}" Visibility="{Binding ButtonLabel3, Converter={StaticResource NullHide}}" d:Content="Zug" Height="30" VerticalAlignment="Center" Margin="5,0"/>
-            <Button Grid.Column="4" Content="{Binding ButtonLabel4}" Visibility="{Binding ButtonLabel4, Converter={StaticResource NullHide}}" d:Content="DAF" Height="30" VerticalAlignment="Center" Margin="5,0"/>
-            <Button Grid.Column="5" Content="{Binding ButtonLabel5}" Visibility="{Binding ButtonLabel5, Converter={StaticResource NullHide}}" d:Content="GW" Height="30" VerticalAlignment="Center" Margin="5,0"/>
-            <Button Grid.Column="6" Content="{Binding ButtonLabel6}" Visibility="{Binding ButtonLabel6, Converter={StaticResource NullHide}}" d:Content="Zeit" Height="30" VerticalAlignment="Center" Margin="5,0"/>
-            <Button Grid.Column="7" Content="{Binding ButtonLabel7}" Visibility="{Binding ButtonLabel7, Converter={StaticResource NullHide}}" d:Content="Zug" Height="30" VerticalAlignment="Center" Margin="5,0"/>
-            <Button Grid.Column="8" Content="{Binding ButtonLabel8}" Visibility="{Binding ButtonLabel8, Converter={StaticResource NullHide}}" d:Content="Zug" Height="30" VerticalAlignment="Center" Margin="5,0"/>
-            <Button Grid.Column="9" Content="{Binding ButtonLabel9}" Visibility="{Binding ButtonLabel9, Converter={StaticResource NullHide}}" d:Content="G" Height="30" VerticalAlignment="Center" Margin="5,0"/>
-        </Grid>
-
-        <Rectangle DockPanel.Dock="Bottom" Height="30" Fill="Wheat"/>
-        <Rectangle DockPanel.Dock="Bottom" Height="3" Fill="Black"/>
-
-        <ListView ItemsSource="{Binding ActiveEntries}" Style="{StaticResource ListStyle}" BorderBrush="{Binding RowHighlight}" d:ItemsSource="{d:SampleData ItemCount=15}" SelectedItem="{Binding SelectedEntry, UpdateSourceTrigger=PropertyChanged}"/>
-    </DockPanel>
+        <!-- Popup Windows -->
+        <Canvas Panel.ZIndex="100" Background="Transparent" IsHitTestVisible="False">
+            <!-- Time Settings -->
+            <DockPanel d:Visibility="Visible" Visibility="{Binding ControlModeOpen, Converter={StaticResource BoolVis}}" Canvas.Left="480" Canvas.Top="80" Background="LightGray" Width="320" Height="450" LastChildFill="False">
+                <TextBlock DockPanel.Dock="Top" Text="Steuerungsart" Background="DarkBlue" Foreground="White" FontSize="16"/>
+                <Grid DockPanel.Dock="Right">
+                    <UniformGrid Columns="1" Rows="6" VerticalAlignment="Center">
+                        <Button Content="C" Width="25" Height="25"/>
+                        <Rectangle Width="40" Height="40"/>
+                        <Button Content=">" Width="25" Height="25"/>
+                        <Button Content="/\" Width="25" Height="25"/>
+                        <Button Content="\/" Width="25" Height="25"/>
+                        <Button Content="E" Width="25" Height="25"/>
+                    </UniformGrid>
+                </Grid>
+                <Grid DockPanel.Dock="Left" Width="250" Margin="15,15,0,15">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="2*"/>
+                        <RowDefinition Height="3*"/>
+                        <RowDefinition Height="3*"/>
+                        <RowDefinition Height="4*"/>
+                        <RowDefinition Height="2*"/>
+                    </Grid.RowDefinitions>
+                    <TextBlock FontSize="16" Grid.Row="0">
+                        Wählen Sie die Verspätung und
+                        <LineBreak/>
+                        den Blättermodus aus
+                    </TextBlock>
+                    <GroupBox Header="Blättern" Grid.Row="1" Margin="0,0,40,0" FontSize="16">
+                        <UniformGrid Columns="1" Rows="2">
+                            <RadioButton Content="vor" GroupName="scrolldir" VerticalAlignment="Center"/>
+                            <RadioButton Content="zurück" GroupName="scrolldir" VerticalAlignment="Center"/>
+                        </UniformGrid>
+                    </GroupBox>
+                    <GroupBox Header="Verspätung" Grid.Row="2" Margin="0,0,40,0" FontSize="16">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBox Width="100"  VerticalAlignment="Center" Margin="10,0,2,0"/>
+                            <TextBlock Text="Minuten" VerticalAlignment="Center" Margin="5,0,0,0"/>
+                        </StackPanel>
+                    </GroupBox>
+                    <GroupBox Header="Blättermodus" Grid.Row="3" Margin="0,0,40,0" FontSize="16">
+                        <UniformGrid Columns="1" Rows="3">
+                            <Rectangle/>
+                            <RadioButton Content="Zeit" GroupName="scrollmode" VerticalAlignment="Center"/>
+                            <RadioButton Content="manuell" GroupName="scrollmode" IsChecked="True" VerticalAlignment="Center"/>
+                        </UniformGrid>
+                    </GroupBox>
+                    <TextBlock Grid.Row="4" FontSize="16">
+                        Bestätigen mit E, Abbrechen mit C
+                        <LineBreak/>
+                        und Auswahl mit den Pfeiltasten
+                    </TextBlock>
+                </Grid>
+            </DockPanel>
+            
+        </Canvas>
+    </Grid>
 </UserControl>
