@@ -9,7 +9,7 @@ using System.Security.Policy;
 namespace vEBuLa.Models;
 internal class Ebula {
   private ILogger<Ebula>? Logger => App.GetService<ILogger<Ebula>>();
-  public EbulaConfig? Config { get; }
+  public EbulaConfig Config { get; }
   public List<EbulaSegment> Segments { get; } = new();
   public TimeSpan ServiceStartTime { get; private set; } = TimeSpan.Zero;
 

@@ -17,8 +17,8 @@ namespace vEBuLa.Views;
 /// <summary>
 /// Interaktionslogik für StorageConfigScreenV.xaml
 /// </summary>
-public partial class StorageConfigScreenV : UserControl {
-  public StorageConfigScreenV() {
+public partial class SetupScreenV : UserControl {
+  public SetupScreenV() {
     InitializeComponent();
   }
 }

@@ -10,7 +10,7 @@ using vEBuLa.Dialogs;
 using vEBuLa.Models;
 using vEBuLa.ViewModels;
 
-namespace vEBuLa.Commands;
+namespace vEBuLa.Commands.Setup;
 internal class DeleteConfigSegmentC : BaseC {
   private ILogger<DeleteConfigSegmentC>? Logger => App.GetService<ILogger<DeleteConfigSegmentC>>();
 
@@ -34,5 +34,6 @@ internal class DeleteConfigSegmentC : BaseC {
       }
       departure += result.nextDeparture;
     }
+    entry.Screen.Ebula.MarkDirty();
   }
 }

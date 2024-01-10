@@ -6,20 +6,78 @@
              xmlns:vm="clr-namespace:vEBuLa.ViewModels"
              xmlns:conv="clr-namespace:vEBuLa.XamlConverter"
              mc:Ignorable="d" 
-             Height="31" Width="800" d:DataContext="{d:DesignInstance vm:EbulaEntryVM}">
+             d:DesignHeight="62" Height="{Binding Height}" Width="800" d:DataContext="{d:DesignInstance vm:EbulaEntryVM}">
     <UserControl.Resources>
         <conv:BoolHideConverter x:Key="BoolHide"/>
         <conv:BoolBoldConverter x:Key="BoolBold"/>
-        <PathGeometry x:Key="Marker" Figures="M10,0 L0,10 L10,20 L20,10 Z"/>
+        <conv:NullHideConverter x:Key="NullHide"/>
+        <PathGeometry x:Key="Marker" Figures="M0,0 l10,-10 l10,10 l-10,10 Z"/>
         <PathGeometry x:Key="ZigZag" Figures="M0,-1 L7,7 L0,15 L7,23 L0,31"/>
-        <PathGeometry x:Key="TunnelStart" Figures="M0,26 L0,2 L15,2 L15,26 L14,26 L12,13 L3,13 L1,26 Z"/>
-        <PathGeometry x:Key="TunnelMid" Figures="M0,0 L0,10 L1,10 L1,0 Z M0,26 L0,16 L1,16 L1,26 Z M15,0 L15,10 L14,10 L14,0 Z M15,26 L15,16 L14,16 L14,26 Z"/>
-        <PathGeometry x:Key="TunnelEnd" Figures="M0,0 L0,24 L15,24 L15,0 L14,0 L12,13 L3,13 L1,0 Z"/>
-        <PathGeometry x:Key="YMarker" Figures="M2,0 L7,0 L11,11 L15,0 L20,0 L16,11 L22,11 L22,14 L14,14 L14,17 L22,17 L22,20 L14,20 L14,24 L8,24 L8,20 L0,20 L0,17 L8,17 L8,14 L0,14 L0,11 L6,11 Z"/>
-        <PathGeometry x:Key="TriangleMarker" Figures="M0,0 L22,0 L11,11 Z"/>
-        <PathGeometry x:Key="TMarker" Figures="M0,0 L0,20 M0,10 L25,10"/>
+        <PathGeometry x:Key="TunnelStart" Figures="M0,11 L0,-13 L15,-13 L15,11 L14,11 L12,-2 L3,-2 L1,11 Z"/>
+        <PathGeometry x:Key="TunnelMid" Figures="M0,3 L0,13 L1,13 L1,3 Z M0,29 L0,19 L1,19 L1,29 Z M15,3 L15,13 L14,13 L14,3 Z M15,29 L15,19 L14,19 L14,29 Z"/>
+        <PathGeometry x:Key="TunnelEnd" Figures="M0,-15 L0,9 L15,9 L15,-15 L14,-15 L12,-2 L3,-2 L1,-15 Z"/>
+        <PathGeometry x:Key="YMarker" Figures="M2,-15 L7,-15 L11,-4 L15,-15 L20,-15 L16,-4 L22,-4 L22,-1 L14,-1 L14,2 L22,2 L22,5 L14,5 L14,9 L8,9 L8,5 L0,5 L0,2 L8,2 L8,-1 L0,-1 L0,-4 L6,-4 Z"/>
+        <PathGeometry x:Key="TriangleMarker" Figures="M0,-15 L22,-15 L11,-4 Z"/>
+        <PathGeometry x:Key="TMarker" Figures="M0,-15 L0,5 M0,-5 L25,-5"/>
+        <Style TargetType="TextBlock">
+            <Setter Property="Height" Value="31" />
+        </Style>
+        <Style TargetType="Image">
+            <Setter Property="Height" Value="31"/>
+        </Style>
+        <Style TargetType="Path">
+            <Setter Property="Height" Value="31"/>
+            <Setter Property="RenderTransform">
+                <Setter.Value>
+                    <TranslateTransform X="0" Y="15.5"/>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style x:Key="ZigZagStyle" TargetType="ListViewItem">
+            <Setter Property="Padding" Value="0"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate>
+                        <Path Data="{StaticResource ZigZag}" Stroke="Black"/>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style x:Key="TunnelStyle" TargetType="ListViewItem">
+            <Setter Property="Padding" Value="0"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate>
+                        <Path Data="{StaticResource TunnelMid}" Stroke="Black" Fill="Black" Height="31"/>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style x:Key="LabelStyle" TargetType="ListViewItem">
+            <Setter Property="Padding" Value="0"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate>
+                        <TextBlock Text="{Binding}" d:Text="Herchener Tunnel" Height="31" FontSize="20" Foreground="Black" Margin="10,0,10,-2" FontWeight="{Binding DataContext.MainBold, RelativeSource={RelativeSource AncestorType=ListView}, Converter={StaticResource BoolBold}}" VerticalAlignment="Center" HorizontalAlignment="Left"/>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style x:Key="RawList" TargetType="ListView">
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="IsHitTestVisible" Value="False" />
+            <Setter Property="Padding" Value="-1"/>
+            <Setter Property="Background" Value="{x:Null}"/>
+            <Setter Property="HorizontalAlignment" Value="Center"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="ScrollViewer.VerticalScrollBarVisibility" Value="Disabled"/>
+            <Setter Property="ScrollViewer.HorizontalScrollBarVisibility" Value="Disabled"/>
+        </Style>
         <Style x:Key="EditBtn" TargetType="Button">
-            <Setter Property="IsEnabled" Value="{Binding Screen.EditMode}"/>
+            <Setter Property="IsEnabled" Value="{Binding Screen.Ebula.EditMode}"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
@@ -48,11 +106,11 @@
 
         <Rectangle Grid.Column="1" Fill="Black" Width="3"/>
         <Rectangle Grid.Column="3" Fill="Black" Width="3"/>
-        <Rectangle Grid.Column="4" Fill="Black" Width="3"/>
+        <Rectangle Grid.Column="4" Fill="Black" Width="3" Panel.ZIndex="5"/>
         <Rectangle Grid.Column="6" Fill="Black" Width="3"/>
         <Rectangle Grid.Column="8" Fill="Black" Width="3"/>
 
-        <Rectangle Grid.Column="0" Height="3" Fill="Black" Visibility="{Binding SpeedLimitDisplay, Converter={StaticResource BoolHide}}" VerticalAlignment="Bottom"/>
+
         <DockPanel Grid.Column="0" Margin="0,0,5,0">
             <Rectangle DockPanel.Dock="Left" Fill="Black" Width="9" Visibility="{Binding SpeedColumn2, Converter={StaticResource BoolHide}}"/>
             <Rectangle DockPanel.Dock="Left" Fill="Black" Width="9" Visibility="{Binding SpeedColumn4, Converter={StaticResource BoolHide}}"/>
@@ -63,25 +121,34 @@
             <Rectangle DockPanel.Dock="Left" Fill="Black" Width="9" Visibility="{Binding SpeedColumn14, Converter={StaticResource BoolHide}}"/>
             <Rectangle DockPanel.Dock="Left" Fill="Black" Width="9" Visibility="{Binding SpeedColumn16, Converter={StaticResource BoolHide}}"/>
             <Button Style="{DynamicResource EditBtn}" DockPanel.Dock="Right" Command="{Binding EditSpeedCommand}" CommandParameter="{Binding .}">
-                <TextBlock Text="{Binding SpeedLimit}" d:Text="160" FontSize="20" TextAlignment="Right" FontWeight="Bold" VerticalAlignment="Center" Visibility="{Binding SpeedLimitDisplay, Converter={StaticResource BoolHide}}" HorizontalAlignment="Right" Foreground="{Binding SpeedColor}" Background="{Binding SpeedBackground}"/>
+                <TextBlock Text="{Binding SpeedLimit}" d:Text="160" FontSize="20" TextAlignment="Right" FontWeight="Bold" VerticalAlignment="Bottom" Visibility="{Binding SpeedLimitDisplay, Converter={StaticResource BoolHide}}" HorizontalAlignment="Right" Foreground="{Binding SpeedColor}" Background="{Binding SpeedBackground}"/>
             </Button>
-
         </DockPanel>
+        <Rectangle Grid.Column="0" Height="3" Fill="Black" Visibility="{Binding SpeedLimitDisplay, Converter={StaticResource BoolHide}}" VerticalAlignment="Bottom"/>
 
         <Rectangle Grid.Column="1" Fill="Black" Width="11" Height="3" VerticalAlignment="Bottom" HorizontalAlignment="Left" Visibility="{Binding SpeedLimitDisplay, Converter={StaticResource BoolHide}}"/>
-        <Path Grid.Column="1" Data="{StaticResource Marker}" Fill="Black" HorizontalAlignment="Center" VerticalAlignment="Center" Visibility="{Binding IsCurrent, Converter={StaticResource BoolHide}}"/>
+        <Path Grid.Column="1" Data="{StaticResource Marker}" Fill="Black" HorizontalAlignment="Center" VerticalAlignment="Top" Visibility="{Binding IsCurrent, Converter={StaticResource BoolHide}}" RenderTransformOrigin="0.5,0.5">
+            <Path.RenderTransform>
+                <TransformGroup>
+                    <ScaleTransform/>
+                    <SkewTransform/>
+                    <RotateTransform/>
+                    <TranslateTransform Y="15" X="0"/>
+                </TransformGroup>
+            </Path.RenderTransform>
+        </Path>
         <Rectangle Grid.Column="1" Width="11" Height="2" Fill="Black" Visibility="{Binding KilometerBreak, Converter={StaticResource BoolHide}}" VerticalAlignment="Bottom" HorizontalAlignment="Right"/>
 
         <Rectangle Grid.Column="2" Height="2" Fill="Black" Visibility="{Binding KilometerBreak, Converter={StaticResource BoolHide}}" VerticalAlignment="Bottom"/>
         <DockPanel Grid.Column="2" Margin="5,0,0,0">
-            <Path DockPanel.Dock="Right" Data="{StaticResource ZigZag}" Stroke="Black" Visibility="{Binding ZigZag1, Converter={StaticResource BoolHide}}" Margin="-2,0,0,0" Height="31" VerticalAlignment="Center"/>
-            <Path DockPanel.Dock="Right" Data="{StaticResource ZigZag}" Stroke="Black" Visibility="{Binding ZigZag2, Converter={StaticResource BoolHide}}" Margin="-2,0,0,0" Height="31" VerticalAlignment="Center"/>
-            <Path DockPanel.Dock="Right" Data="{StaticResource ZigZag}" Stroke="Black" Visibility="{Binding ZigZag3, Converter={StaticResource BoolHide}}" Height="31" VerticalAlignment="Center"/>
+            <ListView Style="{StaticResource RawList}" ItemContainerStyle="{StaticResource ZigZagStyle}" Margin="-2,0,0,0" DockPanel.Dock="Right" ItemsSource="{Binding ZigZag1}" d:ItemsSource="{d:SampleData ItemCount=2}"/>
+            <ListView Style="{StaticResource RawList}" ItemContainerStyle="{StaticResource ZigZagStyle}" Margin="-2,0,0,0" DockPanel.Dock="Right" ItemsSource="{Binding ZigZag2}" d:ItemsSource="{d:SampleData ItemCount=2}"/>
+            <ListView Style="{StaticResource RawList}" ItemContainerStyle="{StaticResource ZigZagStyle}" DockPanel.Dock="Right" ItemsSource="{Binding ZigZag3}" d:ItemsSource="{d:SampleData ItemCount=2}"/>
             <Button Style="{DynamicResource EditBtn}" DockPanel.Dock="Left" Command="{Binding EditLocationCommand}" CommandParameter="{Binding .}">
-                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                <StackPanel Orientation="Horizontal" VerticalAlignment="Top" Visibility="{Binding Location, Converter={StaticResource NullHide}}">
                     <TextBlock Text="{Binding LocationInt}" d:Text="287" FontSize="20" VerticalAlignment="Center"/>
-                    <TextBlock Text="," FontSize="15" VerticalAlignment="Bottom"/>
-                    <TextBlock Text="{Binding LocationFrac}" d:Text="3" FontSize="15" VerticalAlignment="Bottom"/>
+                    <TextBlock Text="," FontSize="15" Height="20" VerticalAlignment="Center"/>
+                    <TextBlock Text="{Binding LocationFrac}" d:Text="3" FontSize="15" Height="20" VerticalAlignment="Center"/>
                 </StackPanel>
             </Button>
         </DockPanel>
@@ -90,15 +157,15 @@
 
         <Button Style="{DynamicResource EditBtn}" Grid.Column="4" Command="{Binding EditTunnelCommand}" CommandParameter="{Binding .}">
             <Grid>
-                <Path Data="{StaticResource TunnelStart}" Stroke="Black" Fill="Black" HorizontalAlignment="Center" VerticalAlignment="Center" Visibility="{Binding TunnelStart, Converter={StaticResource BoolHide}}"/>
-                <Path Data="{StaticResource TunnelMid}" Stroke="Black" Fill="Black" HorizontalAlignment="Center" VerticalAlignment="Center" Visibility="{Binding TunnelMid, Converter={StaticResource BoolHide}}"/>
-                <Path Data="{StaticResource TunnelEnd}" Stroke="Black" Fill="Black" HorizontalAlignment="Center" VerticalAlignment="Center" Visibility="{Binding TunnelEnd, Converter={StaticResource BoolHide}}"/>
+                <Path Data="{StaticResource TunnelStart}" Stroke="Black" Fill="Black" HorizontalAlignment="Center" VerticalAlignment="Top" Visibility="{Binding TunnelStart, Converter={StaticResource BoolHide}}"/>
+                <ListView Style="{StaticResource RawList}" ItemContainerStyle="{StaticResource TunnelStyle}" ItemsSource="{Binding TunnelMid}" d:ItemsSource="{d:SampleData ItemCount=2}"/>
+                <Path Data="{StaticResource TunnelEnd}" Stroke="Black" Fill="Black" HorizontalAlignment="Center" VerticalAlignment="Bottom" Visibility="{Binding TunnelEnd, Converter={StaticResource BoolHide}}"/>
             </Grid>
         </Button>
 
         <DockPanel Grid.Column="5" Margin="5,0,20,0">
             <Button Style="{DynamicResource EditBtn}" DockPanel.Dock="Left" Command="{Binding EditSymbolCommand}" CommandParameter="{Binding .}">
-                <Grid Width="25">
+                <Grid Width="25" VerticalAlignment="Top">
                     <Path Data="{StaticResource YMarker}" Stroke="Black" Fill="Black" HorizontalAlignment="Center" VerticalAlignment="Center" Visibility="{Binding YMarker, Converter={StaticResource BoolHide}}"/>
                     <Image Source="../phone.png" HorizontalAlignment="Center" VerticalAlignment="Center" Visibility="{Binding PhoneMarker, Converter={StaticResource BoolHide}}"/>
                     <Path Data="{StaticResource TriangleMarker}" Stroke="Black" HorizontalAlignment="Center" VerticalAlignment="center" Margin="0,7,0,0" Visibility="{Binding TriangleMarker, Converter={StaticResource BoolHide}}"/>
@@ -106,29 +173,29 @@
                 </Grid>
             </Button>
             <Rectangle DockPanel.Dock="Bottom" Height="2" Fill="LightGray" Margin="5,0"/>
-            <TextBlock DockPanel.Dock="Right" Text="{Binding SecondaryLabel}" d:Text="E60" FontSize="20" Margin="5,0,5,-2" FontWeight="{Binding SecondaryBold, Converter={StaticResource BoolBold}}" VerticalAlignment="Center"/>
+            <TextBlock DockPanel.Dock="Right" Text="{Binding SecondaryLabel}" d:Text="E60" FontSize="20" Margin="5,0,5,-2" FontWeight="{Binding SecondaryBold, Converter={StaticResource BoolBold}}" VerticalAlignment="Top"/>
             <Button Style="{DynamicResource EditBtn}" DockPanel.Dock="Left" Command="{Binding EditStationCommand}" CommandParameter="{Binding .}">
-                <TextBlock Text="{Binding MainLabel}" d:Text="Herchener Tunnel" FontSize="20" Margin="10,0,10,-2" FontWeight="{Binding MainBold, Converter={StaticResource BoolBold}}" VerticalAlignment="Center"/>
+                <ListView Style="{StaticResource RawList}" ItemContainerStyle="{StaticResource LabelStyle}" ItemsSource="{Binding MainLabels}" d:ItemsSource="{d:SampleData ItemCount=2}" HorizontalAlignment="Left"/>
             </Button>
         </DockPanel>
 
         <Button Style="{DynamicResource EditBtn}" Grid.Column="7" Command="{Binding EditArrivalCommand}" CommandParameter="{Binding .}">
-            <StackPanel Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Center" Visibility="{Binding HasArrival, Converter={StaticResource BoolHide}}">
-                <TextBlock Text="{Binding ArrivalHr}" d:Text="07" FontSize="20" FontWeight="{Binding ArrivalBold, Converter={StaticResource BoolBold}}" VerticalAlignment="Center" Margin="0,0,0,-1"/>
+            <StackPanel Orientation="Horizontal" VerticalAlignment="Top" HorizontalAlignment="Center" Visibility="{Binding HasArrival, Converter={StaticResource BoolHide}}">
+                <TextBlock Text="{Binding ArrivalHr}" d:Text="07" FontSize="20" FontWeight="{Binding ArrivalBold, Converter={StaticResource BoolBold}}" VerticalAlignment="Center"/>
                 <TextBlock Text=":" FontSize="20" FontWeight="{Binding ArrivalBold, Converter={StaticResource BoolBold}}" VerticalAlignment="Center" Margin="0,0,0,-1"/>
-                <TextBlock Text="{Binding ArrivalMn}" d:Text="03" FontSize="20" FontWeight="{Binding ArrivalBold, Converter={StaticResource BoolBold}}" VerticalAlignment="Center" Margin="0,0,0,-1"/>
-                <TextBlock Text="." FontSize="13" FontWeight="{Binding ArrivalBold, Converter={StaticResource BoolBold}}" VerticalAlignment="Bottom" Margin="0,0,0,1"/>
-                <TextBlock Text="{Binding ArrivalFr}" d:Text="3" FontSize="13" FontWeight="{Binding ArrivalBold, Converter={StaticResource BoolBold}}" VerticalAlignment="Bottom" Margin="0,0,0,1"/>
+                <TextBlock Text="{Binding ArrivalMn}" d:Text="03" FontSize="20" FontWeight="{Binding ArrivalBold, Converter={StaticResource BoolBold}}" VerticalAlignment="Center"/>
+                <TextBlock Text="." FontSize="15" FontWeight="{Binding ArrivalBold, Converter={StaticResource BoolBold}}" Height="20" VerticalAlignment="Center" Margin="0,0,0,-1"/>
+                <TextBlock Text="{Binding ArrivalFr}" d:Text="3" FontSize="15" FontWeight="{Binding ArrivalBold, Converter={StaticResource BoolBold}}" Height="20" VerticalAlignment="Center"/>
             </StackPanel>
         </Button>
 
         <Button Style="{DynamicResource EditBtn}" Grid.Column="9" Command="{Binding EditDepartureCommand}" CommandParameter="{Binding .}">
-            <StackPanel Grid.Column="9" Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Center" Visibility="{Binding HasDeparture, Converter={StaticResource BoolHide}}">
-                <TextBlock Text="{Binding DepartureHr}" d:Text="07" FontSize="20" FontWeight="{Binding ArrivalBold, Converter={StaticResource BoolBold}}" VerticalAlignment="Center" Margin="0,0,0,-1"/>
+            <StackPanel Grid.Column="9" Orientation="Horizontal" VerticalAlignment="Top" HorizontalAlignment="Center" Visibility="{Binding HasDeparture, Converter={StaticResource BoolHide}}">
+                <TextBlock Text="{Binding DepartureHr}" d:Text="07" FontSize="20" FontWeight="{Binding ArrivalBold, Converter={StaticResource BoolBold}}" VerticalAlignment="Center"/>
                 <TextBlock Text=":" FontSize="20" FontWeight="{Binding ArrivalBold, Converter={StaticResource BoolBold}}" VerticalAlignment="Center" Margin="0,0,0,-1"/>
-                <TextBlock Text="{Binding DepartureMn}" d:Text="03" FontSize="20" FontWeight="{Binding ArrivalBold, Converter={StaticResource BoolBold}}" VerticalAlignment="Center" Margin="0,0,0,-1"/>
-                <TextBlock Text="." FontSize="13" FontWeight="{Binding ArrivalBold, Converter={StaticResource BoolBold}}" VerticalAlignment="Bottom" Margin="0,0,0,1"/>
-                <TextBlock Text="{Binding DepartureFr}" d:Text="3" FontSize="13" FontWeight="{Binding ArrivalBold, Converter={StaticResource BoolBold}}" VerticalAlignment="Bottom" Margin="0,0,0,1"/>
+                <TextBlock Text="{Binding DepartureMn}" d:Text="03" FontSize="20" FontWeight="{Binding ArrivalBold, Converter={StaticResource BoolBold}}" VerticalAlignment="Center"/>
+                <TextBlock Text="." FontSize="15" FontWeight="{Binding ArrivalBold, Converter={StaticResource BoolBold}}" Height="20" VerticalAlignment="Center" Margin="0,0,0,1"/>
+                <TextBlock Text="{Binding DepartureFr}" d:Text="3" FontSize="15" FontWeight="{Binding ArrivalBold, Converter={StaticResource BoolBold}}" Height="20" VerticalAlignment="Center"/>
             </StackPanel>
         </Button>
     </Grid>

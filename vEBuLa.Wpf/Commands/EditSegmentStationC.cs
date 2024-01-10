@@ -32,5 +32,6 @@ internal class EditSegmentStationC : BaseC {
     Logger?.LogInformation("{EditType} edit on EbulaSegment {EbulaSegment} complete", IsDestination ? "Destination Name" : "Origin Name", entry.Segment);
 
     entry.Screen.UpdateEntries();
+    entry.Screen.Ebula.MarkDirty();
   }
 }

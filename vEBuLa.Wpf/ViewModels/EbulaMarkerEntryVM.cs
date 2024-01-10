@@ -105,20 +105,22 @@ internal class EbulaMarkerEntryVM : BaseVM {
       OnPropertyChanged(nameof(LocationName));
     }
   }
-
-  private TimeSpan _duration;
   public TimeSpan Duration {
     get {
-      return _duration;
+      return Segment.Duration;
     }
     set {
-      _duration = value;
+      Segment.Duration = value;
       OnPropertyChanged(nameof(Duration));
       OnPropertyChanged(nameof(DurationText));
     }
   }
 
-  public string DurationText => Duration.ToString("hh':'mm':'ss");
+  public string DurationText => MarkerType switch {
+    EbulaMarkerType.PRE => "--PRE--",
+    EbulaMarkerType.POST => "--POST--",
+    _ => Duration.ToString("hh':'mm':'ss")
+  };
 
   #endregion
 

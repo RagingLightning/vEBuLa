@@ -25,7 +25,9 @@ internal class EditSegmentDurationC : BaseC {
 
     entry.Duration = (TimeSpan) EditTimeSpanDialog.Time;
 
-
     Logger?.LogInformation("{EditType} edit on EbulaSegment {EbulaSegment} complete", "Duration", entry.Segment);
+
+    entry.Screen.UpdateEntries();
+    entry.Screen.Ebula.MarkDirty();
   }
 }

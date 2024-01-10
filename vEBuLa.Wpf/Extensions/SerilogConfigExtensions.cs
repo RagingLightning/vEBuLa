@@ -57,6 +57,6 @@ internal static class SerilogConfigExtensions {
       .Destructure.ByTransforming<EbulaSegmentVM>(vm => new { Model = vm.Model })
       .Destructure.ByTransforming<EbulaStationVM>(vm => new {Model = vm.Model})
       .Destructure.ByTransforming<EbulaVM>(vm => new {Model = vm.Model, Screen = vm.Screen, Active = vm.Active, EditMode = vm.EditMode})
-      .Destructure.ByTransforming<StorageConfigScreenVM>(vm => new {UsingCustom = vm.UsingCustom, CustomRoute = vm.CustomRoute, PredefinedRoute = vm.SelectedRoute, Departure = vm.Departure});
+      .Destructure.ByTransforming<SetupScreenVM>(vm => new {UsingCustom = vm.UsingCustom, CustomRoute = vm.CustomRoute, PredefinedRoute = vm.SelectedRoute, Departure = vm.Departure});
   }
 }

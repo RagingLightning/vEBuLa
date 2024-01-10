@@ -7,9 +7,9 @@ internal class SwitchScreenC : BaseC {
   private ILogger<SwitchScreenC>? Logger => App.GetService<ILogger<SwitchScreenC>>();
 
   private EbulaVM Ebula;
-  private Func<ScreenBaseVM?> Constructor;
+  private Func<BaseVM?> Constructor;
 
-  public SwitchScreenC(EbulaVM ebula, Func<ScreenBaseVM?> constructor) {
+  public SwitchScreenC(EbulaVM ebula, Func<BaseVM?> constructor) {
     Ebula = ebula;
     Constructor = constructor;
   }

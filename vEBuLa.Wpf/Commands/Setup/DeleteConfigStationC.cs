@@ -10,7 +10,7 @@ using vEBuLa.Dialogs;
 using vEBuLa.Models;
 using vEBuLa.ViewModels;
 
-namespace vEBuLa.Commands;
+namespace vEBuLa.Commands.Setup;
 internal class DeleteConfigStationC : BaseC {
   private ILogger<DeleteConfigStationC>? Logger => App.GetService<ILogger<DeleteConfigStationC>>();
   private bool IsOrigin;
@@ -42,5 +42,6 @@ internal class DeleteConfigStationC : BaseC {
       }
       departure += result.nextDeparture;
     }
+    entry.Screen.Ebula.MarkDirty();
   }
 }

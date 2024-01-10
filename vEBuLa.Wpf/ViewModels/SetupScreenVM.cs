@@ -3,18 +3,20 @@ using System;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text.RegularExpressions;
+using System.Windows;
 using vEBuLa.Commands;
+using vEBuLa.Commands.Setup;
 using vEBuLa.Extensions;
 using vEBuLa.Models;
 
 namespace vEBuLa.ViewModels;
-internal partial class StorageConfigScreenVM : ScreenBaseVM {
-  private ILogger<StorageConfigScreenVM>? Logger => App.GetService<ILogger<StorageConfigScreenVM>>();
+internal partial class SetupScreenVM : BaseVM {
+  private ILogger<SetupScreenVM>? Logger => App.GetService<ILogger<SetupScreenVM>>();
+  public EbulaVM Ebula { get; }
 
-  public StorageConfigScreenVM(EbulaVM ebula) : base(ebula) {
-    ToggleRouteModeCommand = new ToggleCustomRouteC(this);
-    LoadConfigCommand = new LoadEbulaConfigC(this);
-    SaveConfigCommand = new SaveEbulaConfigC(this);
+  public SetupScreenVM(EbulaVM ebula){
+    Ebula = ebula;
+    Ebula.NavigateCommand = new NavigateSetupScreenC(this);
 
     EditRouteCommand = new EditPredefinedRouteC(this);
 
@@ -27,43 +29,33 @@ internal partial class StorageConfigScreenVM : ScreenBaseVM {
     AddDestinationCommand = AddConfigStationC.DESTINATION;
     EditDestinationCommand = EditConfigEntryC.DESTINATION;
     RemoveDestinationCommand = DeleteConfigStationC.DESTINATION;
-    SaveRouteCommand = new SaveCustomRouteC(this);
-
-    StartEbulaCommand = new SwitchScreenC(ebula, () => {
-      Logger?.LogInformation("Switching to main EBuLa screen");
-      Ebula.Model.Segments.Clear();
-      if (UsingRoutes) {
-        if (SelectedRoute is null) {
-          Logger?.LogWarning("No Route is selected. Remaining on Setup screen");
-          return null;
-        }
-        Ebula.Model.Segments.AddRange(SelectedRoute.Model.Segments);
-      } else {
-        if (CustomRoute.Where(e => e.SelectedSegment is not null).Count() == 0) {
-          Logger?.LogWarning("Custom Route contains no Segments. Remaining on Setup screen.");
-          return null;
-        }
-        Ebula.Model.Segments.AddRange(CustomRoute.Where(e => e.SelectedSegment is not null).Select(e => e.SelectedSegment.Model));
-      }
-      Logger?.LogDebug("EBuLa instance starts with Segments {Segments}", Ebula.Model.Segments);
-      return new EbulaScreenVM(ebula);
-    });
 
     Ebula.PropertyChanged += Ebula_PropertyChanged;
+    Ebula.ConfigDirtyChanged += Ebula_ConfigDirtyChanged;
 
     LoadConfig();
   }
 
+  public override void Destroy() {
+    Ebula.PropertyChanged -= Ebula_PropertyChanged;
+    Ebula.ConfigDirtyChanged -= Ebula_ConfigDirtyChanged;
+  }
+
   private void Ebula_PropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e) {
-    if (sender != Ebula) return;
     if (e.PropertyName == nameof(Ebula.EditMode)) {
-      OnPropertyChanged(nameof(ShowSave));
+      OnPropertyChanged(nameof(CanSaveRoute));
       OnPropertyChanged(nameof(SelectedRoute));
     }
   }
 
+  private void Ebula_ConfigDirtyChanged() {
+    OnPropertyChanged(nameof(CanSave));
+  }
+
   public void LoadConfig() {
     if (Ebula.Model.Config is not EbulaConfig config) return;
+    OnPropertyChanged(nameof(LoadLabel));
+    OnPropertyChanged(nameof(CanSave));
     Logger?.LogDebug("Loading UI values from EBuLa Config {Config}", Ebula.Model.Config);
     ConfigName = config.Name;
 
@@ -77,10 +69,9 @@ internal partial class StorageConfigScreenVM : ScreenBaseVM {
 
 
   #region Properties
-  public BaseC ToggleRouteModeCommand { get; }
   public BaseC EditRouteCommand { get; }
-  public BaseC LoadConfigCommand { get; }
-  public BaseC SaveConfigCommand { get; }
+  public string LoadLabel => Ebula.Model.Config.IsEmpty ? "LOAD" : "NEW";
+  public bool CanSave => Ebula.Model.Config.IsDirty;
   public BaseC AddOriginCommand { get; }
   public BaseC EditOriginCommand { get; }
   public BaseC RemoveOriginCommand { get; }
@@ -90,11 +81,8 @@ internal partial class StorageConfigScreenVM : ScreenBaseVM {
   public BaseC AddDestinationCommand { get; }
   public BaseC EditDestinationCommand { get; }
   public BaseC RemoveDestinationCommand { get; }
+  public bool CanSaveRoute => Ebula.EditMode && UsingCustom;
   public BaseC SaveRouteCommand { get; }
-
-  public BaseC StartEbulaCommand { get; }
-
-  public bool ShowSave => EditMode && UsingCustom;
 
   private string _configName = string.Empty;
   public string ConfigName {
@@ -119,7 +107,7 @@ internal partial class StorageConfigScreenVM : ScreenBaseVM {
       else Logger?.LogDebug("Switching to custom route view");
       OnPropertyChanged(nameof(UsingRoutes));
       OnPropertyChanged(nameof(UsingCustom));
-      OnPropertyChanged(nameof(ShowSave));
+      OnPropertyChanged(nameof(CanSaveRoute));
     }
   }
   public bool UsingCustom {
@@ -132,7 +120,7 @@ internal partial class StorageConfigScreenVM : ScreenBaseVM {
       else Logger?.LogDebug("Switching to predefined route view");
       OnPropertyChanged(nameof(UsingRoutes));
       OnPropertyChanged(nameof(UsingCustom));
-      OnPropertyChanged(nameof(ShowSave));
+      OnPropertyChanged(nameof(CanSaveRoute));
     }
   }
 
@@ -141,7 +129,7 @@ internal partial class StorageConfigScreenVM : ScreenBaseVM {
   private EbulaRouteVM? _selectedRoute;
   public EbulaRouteVM? SelectedRoute {
     get {
-      return EditMode ? null : _selectedRoute;
+      return Ebula.EditMode ? null : _selectedRoute;
     }
     set {
       _selectedRoute = value;
@@ -150,7 +138,7 @@ internal partial class StorageConfigScreenVM : ScreenBaseVM {
         Logger?.LogInformation("Predefined Route {Route} selected", value);
         RouteOverview.AddRange(value.GenerateOverview());
       }
-      if (EditMode)
+      if (Ebula.EditMode)
         EditRouteCommand.Execute(value);
       OnPropertyChanged(nameof(SelectedRoute));
     }
@@ -170,8 +158,17 @@ internal partial class StorageConfigScreenVM : ScreenBaseVM {
   public ObservableCollection<EbulaRouteEntryVM> RouteOverview { get; } = new();
 
   public ObservableCollection<EbulaCustomEntryVM> CustomRoute { get; } = new();
+  public string Service {
+    get {
+      return Ebula.Service;
+    }
+    set {
+      Ebula.Service = value;
+      OnPropertyChanged(nameof(Service));
+    }
+  }
 
-  private TimeSpan _departure;
+  private TimeSpan _departure = TimeSpan.Zero;
   public TimeSpan Departure {
     get {
       return _departure;
@@ -179,16 +176,14 @@ internal partial class StorageConfigScreenVM : ScreenBaseVM {
     set {
       _departure = value;
       OnPropertyChanged(nameof(Departure));
-      _departureText = value.ToString("hh':'mm':'ss");
       OnPropertyChanged(nameof(DepartureText));
     }
   }
-  private string _departureText = "00:00:00";
   public string DepartureText {
-    get => _departureText;
+    get => Departure.ToString("hh':'mm':'ss");
     set {
-      _departureText = value;
-      if (Time().IsMatch(value) && TimeSpan.TryParse(value, out var t)) {
+      if (ShortTime().IsMatch(value) && TimeSpan.TryParse($"{value[..2]}:{value[2..4]}:{value[4..]}", out var t)
+        || Time().IsMatch(value) && TimeSpan.TryParse(value, out t)) {
         Logger?.LogInformation("Departure time set to {DepartureTime}", t);
         Departure = t;
       }
@@ -197,6 +192,9 @@ internal partial class StorageConfigScreenVM : ScreenBaseVM {
 
   [GeneratedRegex("\\d{2}:\\d{2}:\\d{2}")]
   private static partial Regex Time();
+
+  [GeneratedRegex("\\d{6}")]
+  private static partial Regex ShortTime();
 
 
   #endregion

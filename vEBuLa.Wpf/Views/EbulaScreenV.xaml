@@ -7,9 +7,10 @@
              xmlns:conv="clr-namespace:vEBuLa.XamlConverter"
              xmlns:vm="clr-namespace:vEBuLa.ViewModels"
              mc:Ignorable="d" 
-             d:DesignHeight="600" d:DesignWidth="800" d:DataContext="{d:DesignInstance vm:EbulaScreenVM}">
+             Height="600" Width="800" d:DataContext="{d:DesignInstance vm:EbulaScreenVM}">
     <UserControl.Resources>
         <conv:NullHideConverter x:Key="NullHide"/>
+        <conv:NullVisConverter x:Key="NullVis"/>
         <BooleanToVisibilityConverter x:Key="BoolVis"/>
         <ContextMenu x:Key="EditMenu">
             <MenuItem Header="Add Entry above" Command="{Binding DataContext.AddEntryCommand, RelativeSource={RelativeSource AncestorType=local:EbulaScreenV}}" CommandParameter="{Binding .}"/>
@@ -27,7 +28,7 @@
             </Style.Triggers>
         </Style>
         <DataTemplate DataType="{x:Type vm:EbulaEntryVM}">
-            <local:EbulaEntryV Style="{StaticResource EbulaEntryStyle}" TabIndex="{Binding DataContext.EditMode, RelativeSource={RelativeSource AncestorType=local:EbulaScreenV}}"/>
+            <local:EbulaEntryV Style="{StaticResource EbulaEntryStyle}" TabIndex="{Binding DataContext.Ebula.EditMode, RelativeSource={RelativeSource AncestorType=local:EbulaScreenV}}"/>
         </DataTemplate>
         <DataTemplate DataType="{x:Type vm:EbulaMarkerEntryVM}">
             <local:EbulaMarkerEntryV Style="{StaticResource EbulaEntryStyle}" TabIndex="1"/>
@@ -78,28 +79,20 @@
             <Rectangle Grid.Column="3" Fill="Black" Width="3"/>
             <Rectangle Grid.Column="5" Fill="Black" Width="3"/>
 
-            <TextBlock Grid.Column="0" Text="{Binding FormattedTrainNumber}" d:Text="10901" TextAlignment="Center" VerticalAlignment="Center" FontSize="20" FontWeight="Bold"/>
-            <TextBlock Grid.Column="2" Text="{Binding TopStatus}" d:Text="Fahrplan gültig!" TextAlignment="Center" VerticalAlignment="Center" FontSize="20" FontWeight="Bold"/>
+            <TextBlock Grid.Column="0" Text="{Binding Ebula.Service}" d:Text="10901" TextAlignment="Center" VerticalAlignment="Center" FontSize="20" FontWeight="Bold"/>
+            <TextBlock Grid.Column="2" Text="Fahrplan gültig!" TextAlignment="Center" VerticalAlignment="Center" FontSize="20" FontWeight="Bold"/>
             <TextBlock Grid.Column="4" Text="{Binding Date}" d:Text="07.06.2018" TextAlignment="Center" VerticalAlignment="Center" FontSize="20" FontWeight="Bold"/>
-            <TextBlock Grid.Column="6" Text="{Binding Time}" d:Text="07:02:59" TextAlignment="Center" VerticalAlignment="Center" FontSize="20" FontWeight="Bold"/>
+            <TextBlock Grid.Column="6" Text="{Binding Ebula.Model.ServiceStartTime}" d:Text="07:02:59" TextAlignment="Center" VerticalAlignment="Center" FontSize="20" FontWeight="Bold"/>
         </Grid>
         <Rectangle DockPanel.Dock="Top" Fill="Black" Height="3"/>
-        <Grid DockPanel.Dock="Top" Height="22">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="3*"/>
-                <ColumnDefinition Width="Auto"/>
-                <ColumnDefinition Width="6*"/>
-                <ColumnDefinition Width="Auto"/>
-                <ColumnDefinition Width="4*"/>
-            </Grid.ColumnDefinitions>
+        <TextBlock Text="{Binding BottomStatus}" TextAlignment="Center" VerticalAlignment="Center" FontSize="15" FontWeight="Bold"/>
+        <DockPanel DockPanel.Dock="Top" Height="22" LastChildFill="False">
+            <TextBlock DockPanel.Dock="Left" Visibility="{Binding SpeedInfo, Converter={StaticResource NullVis}}" Text="{Binding SpeedInfo}" d:Text="ab km 58,4: 80 km/h" TextAlignment="Center" VerticalAlignment="Center" FontSize="15" FontWeight="Bold" Margin="5,0"/>
+            <Rectangle DockPanel.Dock="Left" Visibility="{Binding SpeedInfo, Converter={StaticResource NullVis}}" Fill="Black" Width="3"/>
 
-            <Rectangle Grid.Column="1" Fill="Black" Width="3"/>
-            <Rectangle Grid.Column="3" Fill="Black" Width="3"/>
-
-            <TextBlock Grid.Column="0" Text="{Binding SpeedInfo}" d:Text="ab km 58,4: 80 km/h" TextAlignment="Center" VerticalAlignment="Center" FontSize="15" FontWeight="Bold"/>
-            <TextBlock Grid.Column="2" Text="{Binding BottomStatus}" TextAlignment="Center" VerticalAlignment="Center" FontSize="15" FontWeight="Bold"/>
-            <TextBlock Grid.Column="4" Text="{Binding StopInfo}" d:Text="Nächster Halt: Schlachtern (Sieg)" TextAlignment="Center" VerticalAlignment="Center" FontSize="15" FontWeight="Bold"/>
-        </Grid>
+            <TextBlock DockPanel.Dock="Right" Visibility="{Binding StopInfo, Converter={StaticResource NullVis}}" Text="{Binding StopInfo}" d:Text="Nächster Halt: Schlachtern (Sieg)" TextAlignment="Center" VerticalAlignment="Center" FontSize="15" FontWeight="Bold" Margin="5,0"/>
+            <Rectangle DockPanel.Dock="Right" Visibility="{Binding StopInfo, Converter={StaticResource NullVis}}" Fill="Black" Width="3"/>
+        </DockPanel>
         <Rectangle DockPanel.Dock="Top" Fill="Black" Height="3"/>
 
         <Grid DockPanel.Dock="Bottom" Background="LightGray" Height="37">

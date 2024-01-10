@@ -6,6 +6,7 @@ namespace vEBuLa.ViewModels;
 public static class EbulaStationExtension { public static EbulaStationVM ToVM(this EbulaStation station) => new EbulaStationVM(station); }
 
 public class EbulaStationVM : BaseVM {
+  public override string ToString() => $"[{Model}]";
   public EbulaStation Model { get; }
   public EbulaStationVM(EbulaStation station) { Model = station; }
   public override bool Equals(object? obj) => obj is EbulaStationVM vm && vm.Model.Equals(Model);

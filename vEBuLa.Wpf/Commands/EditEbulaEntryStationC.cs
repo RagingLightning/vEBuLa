@@ -29,5 +29,6 @@ internal class EditEbulaEntryStationC : BaseC {
     Logger?.LogInformation("{EditType} edit for EbulaEntry {EbulaEntry} complete", "Station", entry);
 
     entry.Screen.UpdateEntries();
+    entry.Screen.Ebula.MarkDirty();
   }
 }

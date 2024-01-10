@@ -25,5 +25,6 @@ internal class RemoveEbulaEntryC : BaseC {
     index.Value.List.Remove(entry.Model);
 
     ebulaScreen.UpdateEntries();
+    entry.Screen.Ebula.MarkDirty();
   }
 }

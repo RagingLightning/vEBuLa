@@ -27,5 +27,6 @@ internal class EditEbulaEntrySpeedC : BaseC {
     Logger?.LogInformation("{EditType} edit for EbulaEntry {EbulaEntry} complete", "Speed", entry);
 
     entry.Screen.UpdateEntries();
+    entry.Screen.Ebula.MarkDirty();
   }
 }

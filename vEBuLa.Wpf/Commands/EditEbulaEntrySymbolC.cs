@@ -27,5 +27,6 @@ internal class EditEbulaEntrySymbolC : BaseC {
     Logger?.LogInformation("{EditType} edit on EbulaEntry {EbulaEntry} complete", "Symbol", entry);
 
     entry.Screen.UpdateEntries();
+    entry.Screen.Ebula.MarkDirty();
   }
 }

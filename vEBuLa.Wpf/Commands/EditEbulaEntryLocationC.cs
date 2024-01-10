@@ -20,6 +20,7 @@ internal class EditEbulaEntryLocationC : BaseC {
       Logger?.LogDebug("{EditType} edit aborted by user", "Location");
       return;
     }
+
     entry.Location = EditEntryLocationDialog.Location;
     entry.Gradient = EditEntryLocationDialog.Gradient;
     entry.KilometerBreak = EditEntryLocationDialog.KilometerBreak;
@@ -27,5 +28,6 @@ internal class EditEbulaEntryLocationC : BaseC {
     Logger?.LogInformation("{EditType} edit on EbulaEntry {EbulaEntry} complete", "Location", entry);
 
     entry.Screen.UpdateEntries();
+    entry.Screen.Ebula.MarkDirty();
   }
 }

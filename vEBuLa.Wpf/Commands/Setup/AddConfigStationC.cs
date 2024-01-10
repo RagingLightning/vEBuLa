@@ -10,7 +10,7 @@ using vEBuLa.Dialogs;
 using vEBuLa.Models;
 using vEBuLa.ViewModels;
 
-namespace vEBuLa.Commands;
+namespace vEBuLa.Commands.Setup;
 internal class AddConfigStationC : BaseC {
   private ILogger<AddConfigStationC>? Logger => App.GetService<ILogger<AddConfigStationC>>();
   private bool IsOrigin;
@@ -52,5 +52,6 @@ internal class AddConfigStationC : BaseC {
       }
       departure += result.nextDeparture;
     }
+    entry.Screen.Ebula.MarkDirty();
   }
 }

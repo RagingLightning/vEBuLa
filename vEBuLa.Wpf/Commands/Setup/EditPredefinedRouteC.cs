@@ -4,12 +4,12 @@ using System.Windows.Input;
 using vEBuLa.Dialogs;
 using vEBuLa.ViewModels;
 
-namespace vEBuLa.Commands;
+namespace vEBuLa.Commands.Setup;
 internal class EditPredefinedRouteC : BaseC {
   private ILogger<EditPredefinedRouteC>? Logger = App.GetService<ILogger<EditPredefinedRouteC>>();
-  private StorageConfigScreenVM Screen { get; }
+  private SetupScreenVM Screen { get; }
 
-  public EditPredefinedRouteC(StorageConfigScreenVM screen) {
+  public EditPredefinedRouteC(SetupScreenVM screen) {
     Screen = screen;
   }
   public override void Execute(object? parameter) {
@@ -30,7 +30,8 @@ internal class EditPredefinedRouteC : BaseC {
     route.StationCount = EditSavedRouteDialog.Stations;
     route.Duration = EditSavedRouteDialog.Duration;
     route.RouteOverview = EditSavedRouteDialog.Route;
-    
+
     Logger?.LogInformation("{EditType} edit on new Route {Route} complete", "Route Info", route);
+    Screen.Ebula.MarkDirty();
   }
 }

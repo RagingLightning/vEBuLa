@@ -13,14 +13,20 @@ using vEBuLa.ViewModels;
 namespace vEBuLa.Models;
 internal class EbulaConfig {
   private ILogger<EbulaConfig>? Logger => App.AppHost?.Services.GetRequiredService<ILogger<EbulaConfig>>();
-
   public override string ToString() => $"{Name.Crop(30)} ({Stations.Count}/{Segments.Count}/{Routes.Count})";
+
+  public bool IsEmpty { get; } = false;
+  public void MarkDirty() { IsDirty = true; }
+  public bool IsDirty { get; private set; } = false;
   public string Name { get; set; } = "Unnamed Configuration";
   public Dictionary<Guid, EbulaStation> Stations { get; private set; } = new();
   public Dictionary<Guid, EbulaSegment> Segments { get; private set; } = new();
   public Dictionary<Guid, EbulaRoute> Routes { get; private set; } = new();
 
-  public EbulaConfig() { Logger?.LogInformation("Using blank EBuLa Config"); }
+  public EbulaConfig() {
+    Logger?.LogInformation("Using blank EBuLa Config");
+    IsEmpty = true;
+  }
 
   public EbulaConfig(string fileName) {
     Logger?.LogInformation("Loading EBuLa Config from {ConfigFile}", fileName.BiCrop(10,30));
@@ -85,6 +91,7 @@ internal class EbulaConfig {
     }
 
     Logger?.LogInformation("EBuLa Config {Config} fully loaded", this);
+    IsDirty = false;
   }
 
   public IEnumerable<EbulaSegment> FindSegments(EbulaStation origin) {
@@ -96,6 +103,7 @@ internal class EbulaConfig {
     while (Stations.ContainsKey(id)) id = Guid.NewGuid();
     var station = new EbulaStation(id, name);
     Stations.Add(id, station);
+    IsDirty = true;
     return station;
   }
 
@@ -105,6 +113,7 @@ internal class EbulaConfig {
     var segment = new EbulaSegment(this, id, name);
     if (origin is not null) segment.Origin = (origin.Id, origin);
     Segments.Add(id, segment);
+    IsDirty = true;
     return segment;
   }
 
@@ -113,6 +122,7 @@ internal class EbulaConfig {
     while (Routes.ContainsKey(id)) id = Guid.NewGuid();
     var route = new EbulaRoute(id, segments, routeName, description, stations, duration, routeDesc);
     Routes.Add(id, route);
+    IsDirty = true;
     return route;
   }
 
@@ -134,5 +144,6 @@ internal class EbulaConfig {
 
     var jsonString = JsonConvert.SerializeObject(jConfig, Formatting.Indented);
     File.WriteAllText(fileName, jsonString);
+    IsDirty = false;
   }
 }

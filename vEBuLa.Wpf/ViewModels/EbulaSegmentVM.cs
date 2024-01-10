@@ -4,11 +4,11 @@ using vEBuLa.Models;
 
 namespace vEBuLa.ViewModels;
 
-internal static class EbulaSegmentExtension { public static EbulaSegmentVM ToVM(this EbulaSegment segment) => new EbulaSegmentVM(segment); }
+internal static class EbulaSegmentExtension { public static EbulaSegmentVM ToVM(this EbulaSegment segment) => new(segment); }
 
 internal class EbulaSegmentVM : BaseVM {
   public EbulaSegment Model { get; }
-  public override string ToString() => $"{Id,6}: {Origin.Station?.Name,6} > {Destination.Station?.Name,6}";
+  public override string ToString() => $"[{Model}]";
   public EbulaSegmentVM(EbulaSegment segment) { Model = segment; }
 
   public override bool Equals(object? obj) => obj is EbulaSegmentVM vm && vm.Model.Equals(Model);

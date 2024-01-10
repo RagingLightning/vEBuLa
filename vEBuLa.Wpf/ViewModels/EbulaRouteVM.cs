@@ -7,10 +7,10 @@ namespace vEBuLa.ViewModels;
 
 internal class EbulaRouteVM : BaseVM {
   public override string ToString() => $"[{Model}]";
-  private StorageConfigScreenVM Screen { get; }
+  private SetupScreenVM Screen { get; }
   public EbulaRoute Model { get; }
 
-  public EbulaRouteVM(StorageConfigScreenVM screen, EbulaRoute route) {
+  public EbulaRouteVM(SetupScreenVM screen, EbulaRoute route) {
     Screen = screen;
     Model = route;
   }

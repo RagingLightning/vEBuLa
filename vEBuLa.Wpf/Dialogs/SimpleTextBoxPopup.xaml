@@ -5,8 +5,15 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:vEBuLa.Dialogs"
         mc:Ignorable="d"
-        Title="SimpleTextBoxPopup" WindowStyle="None" ShowInTaskbar="False" WindowStartupLocation="Manual" ResizeMode="CanResizeWithGrip" Width="150" Height="100" KeyDown="Window_KeyDown" Topmost="True">
+        WindowStyle="None" ShowInTaskbar="False" WindowStartupLocation="Manual" d:DesignWidth="150" d:DesignHeight="100" KeyDown="Window_KeyDown" Topmost="True"
+        FocusManager.FocusedElement="{Binding ElementName=txt}">
+    <Window.Resources>
+        <Style x:Key="Dark" TargetType="TextBox">
+            <Setter Property="Background" Value="#333"/>
+            <Setter Property="Foreground" Value="White"/>
+        </Style>
+    </Window.Resources>
     <Grid>
-        <TextBox x:Name="txt"/>
+        <TextBox x:Name="txt" d:Style="{StaticResource Dark}"/>
     </Grid>
 </Window>

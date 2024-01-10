@@ -3,8 +3,8 @@
 namespace vEBuLa.ViewModels;
 
 internal class EbulaRouteEntryVM : BaseVM {
-  private StorageConfigScreenVM Screen { get; }
-  public EbulaRouteEntryVM(StorageConfigScreenVM screen, EbulaSegmentVM segment, EbulaRouteEntryVM? prev) {
+  private SetupScreenVM Screen { get; }
+  public EbulaRouteEntryVM(SetupScreenVM screen, EbulaSegmentVM segment, EbulaRouteEntryVM? prev) {
     Screen = screen;
 
     Screen.PropertyChanged += Screen_PropertyChanged;
@@ -17,7 +17,7 @@ internal class EbulaRouteEntryVM : BaseVM {
   }
 
   private void Screen_PropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e) {
-    if (e.PropertyName == nameof(StorageConfigScreenVM.Departure)) OnPropertyChanged(DepartureText);
+    if (e.PropertyName == nameof(SetupScreenVM.Departure)) OnPropertyChanged(DepartureText);
   }
 
   public string Name { get; }

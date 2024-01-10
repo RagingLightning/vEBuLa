@@ -27,5 +27,6 @@ internal class EditEbulaEntryTunnelC : BaseC {
     Logger?.LogInformation("{EditType} edit on EbulaEntry {EbulaEntry} complete", "Tunnel", entry);
 
     entry.Screen.UpdateEntries();
+    entry.Screen.Ebula.MarkDirty();
   }
 }

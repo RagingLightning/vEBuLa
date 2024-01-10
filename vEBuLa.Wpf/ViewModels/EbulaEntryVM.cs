@@ -1,7 +1,11 @@
 ﻿using Microsoft.Extensions.Logging;
+using Newtonsoft.Json.Linq;
 using System;
+using System.Collections.ObjectModel;
+using System.Linq;
 using System.Windows.Media;
 using vEBuLa.Commands;
+using vEBuLa.Extensions;
 using vEBuLa.Models;
 
 namespace vEBuLa.ViewModels;
@@ -15,6 +19,8 @@ internal class EbulaEntryVM : BaseVM {
     Screen = screen;
     TimeOffset = offset;
 
+    DisplayUnits = entry.LocationName.Where(c => c == '\n').Count() + 1;
+
     Screen.PropertyChanged += Screen_PropertyChanged;
 
     EditSpeedCommand = EditEbulaEntrySpeedC.INSTANCE;
@@ -26,7 +32,11 @@ internal class EbulaEntryVM : BaseVM {
     EditDepartureCommand = EditEbulaEntryTimeC.DEPARTURE;
 
     PrevSpeedLimit = prev?.SpeedLimit ?? 0;
-    PrevTunnel = prev is null ? false : prev.TunnelMid || prev.TunnelStart;
+    PrevTunnel = prev is null ? false : prev.TunnelMid.Count > 0 || prev.TunnelStart;
+
+    MainLabels.AddRange(entry.LocationName.Split('\n').Select(s => s.Replace("\r", null)));
+    SetGradient();
+    SetTunnel();
   }
 
   private void Screen_PropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e) {
@@ -40,6 +50,34 @@ internal class EbulaEntryVM : BaseVM {
     }
   }
 
+  private void SetGradient() {
+    if (Gradient < Gradient.BELOW_20)
+      ZigZag1.Clear();
+    else
+      while (ZigZag1.Count < DisplayUnits)
+        ZigZag1.Add(new());
+    OnPropertyChanged(nameof(ZigZag1));
+    if (Gradient < Gradient.BELOW_30)
+      ZigZag2.Clear();
+    else
+      while (ZigZag2.Count < DisplayUnits)
+        ZigZag1.Add(new());
+    OnPropertyChanged(nameof(ZigZag2));
+    if (Gradient < Gradient.ABOVE_30)
+      ZigZag3.Clear();
+    else
+      while (ZigZag3.Count < DisplayUnits)
+        ZigZag1.Add(new());
+    OnPropertyChanged(nameof(ZigZag3));
+  }
+
+  private void SetTunnel() {
+    if (TunnelStart || TunnelEnd || !PrevTunnel)
+      TunnelMid.Clear();
+    else
+      while (TunnelMid.Count < DisplayUnits)
+        TunnelMid.Add(new());
+  }
 
   #region Properties
 
@@ -56,6 +94,10 @@ internal class EbulaEntryVM : BaseVM {
   #endregion
   #endregion
 
+  public int DisplayUnits { get; }
+
+  public int Height => 31 * DisplayUnits;
+
   #region Column 1 - Speeds
   public bool SpeedColumn2 => SpeedLimit > 0 && SpeedLimit < 40;
   public bool SpeedColumn4 => SpeedLimit > 39 && SpeedLimit < 60;
@@ -66,7 +108,7 @@ internal class EbulaEntryVM : BaseVM {
   public bool SpeedColumn14 => SpeedLimit > 139 && SpeedLimit < 160;
   public bool SpeedColumn16 => SpeedLimit > 159;
 
-  private int PrevSpeedLimit = 0;
+  public int PrevSpeedLimit { get; } = 0;
   public int SpeedLimit {
     get {
       return Model.SpeedLimit == 0 ? PrevSpeedLimit : Model.SpeedLimit;
@@ -102,7 +144,7 @@ internal class EbulaEntryVM : BaseVM {
   }
 
   public Brush SpeedColor => SpeedSigned ? Brushes.Black : Brushes.White;
-  public Brush SpeedBackground => SpeedSigned ? Brushes.White : Brushes.Black;
+  public Brush SpeedBackground => ForceSpeedDisplay ? Brushes.Yellow : SpeedSigned ? Brushes.White : Brushes.Black;
 
   #endregion
 
@@ -118,7 +160,7 @@ internal class EbulaEntryVM : BaseVM {
     }
   }
 
-  public int Location {
+  public int? Location {
     get {
       return Model.Location;
     }
@@ -129,12 +171,12 @@ internal class EbulaEntryVM : BaseVM {
       OnPropertyChanged(nameof(LocationFrac));
     }
   }
-  public string LocationInt => (Location / 1000).ToString();
-  public string LocationFrac => (Location % 1000 / 100).ToString();
+  public string LocationInt => Location is not int l ? string.Empty : (l / 1000).ToString();
+  public string LocationFrac => Location is not int l ? string.Empty : (l % 1000 / 100).ToString();
 
-  public bool ZigZag1 => Gradient > Gradient.BELOW_10;
-  public bool ZigZag2 => Gradient > Gradient.BELOW_20;
-  public bool ZigZag3 => Gradient > Gradient.BELOW_30;
+  public ObservableCollection<object> ZigZag1 { get; } = new();
+  public ObservableCollection<object> ZigZag2 { get; } = new();
+  public ObservableCollection<object> ZigZag3 { get; } = new();
 
   public Gradient Gradient {
     get {
@@ -143,6 +185,7 @@ internal class EbulaEntryVM : BaseVM {
     set {
       Model.Gradient = value;
       OnPropertyChanged(nameof(Gradient));
+      SetGradient();
       OnPropertyChanged(nameof(ZigZag1));
       OnPropertyChanged(nameof(ZigZag2));
       OnPropertyChanged(nameof(ZigZag3));
@@ -169,12 +212,13 @@ internal class EbulaEntryVM : BaseVM {
     set {
       Model.TunnelStart = value;
       OnPropertyChanged(nameof(TunnelStart));
+      SetTunnel();
       OnPropertyChanged(nameof(TunnelMid));
     }
   }
 
   private bool PrevTunnel = false;
-  public bool TunnelMid => PrevTunnel && !TunnelEnd && !TunnelStart;
+  public ObservableCollection<object> TunnelMid { get; } = new();
 
   public bool TunnelEnd {
     get {
@@ -183,6 +227,7 @@ internal class EbulaEntryVM : BaseVM {
     set {
       Model.TunnelEnd = value;
       OnPropertyChanged(nameof(TunnelEnd));
+      SetTunnel();
       OnPropertyChanged(nameof(TunnelMid));
     }
   }
@@ -213,9 +258,13 @@ internal class EbulaEntryVM : BaseVM {
     }
     set {
       Model.LocationName = value;
+      MainLabels.Clear();
+      MainLabels.AddRange(value.Split('\n').Select(s => s.Replace("\r", null)));
       OnPropertyChanged(nameof(MainLabel));
     }
   }
+
+  public ObservableCollection<string> MainLabels { get; } = new();
 
   public bool MainBold {
     get {

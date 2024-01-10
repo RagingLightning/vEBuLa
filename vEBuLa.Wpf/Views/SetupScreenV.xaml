@@ -1,0 +1,303 @@
+﻿<UserControl x:Class="vEBuLa.Views.SetupScreenV"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:sys="clr-namespace:System;assembly=mscorlib"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:vm="clr-namespace:vEBuLa.ViewModels"
+             xmlns:conv="clr-namespace:vEBuLa.XamlConverter"
+             xmlns:com="clr-namespace:vEBuLa.Commands"
+             mc:Ignorable="d" 
+             x:Name="SetupScreen"
+             Height="600" Width="800" Background="#222" d:DataContext="{d:DesignInstance vm:SetupScreenVM}">
+    <UserControl.Resources>
+        <BooleanToVisibilityConverter x:Key="BoolVis"/>
+        <conv:BoolHideConverter x:Key="BoolHide"/>
+        <conv:NullHideConverter x:Key="NullHide"/>
+        <conv:BoolNumConverter x:Key="BoolNum"/>
+        <Style TargetType="TextBlock">
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="FontSize" Value="15"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="TextAlignment" Value="Center" />
+        </Style>
+        <Style TargetType="TextBox">
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="Background" Value="#333"/>
+            <Setter Property="FontSize" Value="15"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+        </Style>
+        <Style TargetType="Button">
+            <Setter Property="Background" Value="#555"/>
+            <Setter Property="BorderBrush" Value="#777"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="Margin" Value="4"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="3">
+                            <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}" Margin="{TemplateBinding Padding}"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Setter Property="ContextMenuService.VerticalOffset" Value="-45"/>
+            <Setter Property="ContextMenu">
+                <Setter.Value>
+                    <ContextMenu>
+                        <MenuItem>
+                            <MenuItem.Header>
+                                <TextBox Text="CONTENT" Height="30"/>
+                            </MenuItem.Header>
+                        </MenuItem>
+                    </ContextMenu>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <Trigger Property="IsEnabled" Value="False">
+                    <Setter Property="Background" Value="Black"/>
+                    <Setter Property="BorderBrush" Value="#555"/>
+                    <Setter Property="Foreground" Value="#999" />
+                </Trigger>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#333"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+        <Style TargetType="ListView">
+            <Setter Property="Background" Value="#333"/>
+            <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+        </Style>
+        <Style x:Key="TextBoxHint" TargetType="TextBlock">
+            <Setter Property="TextAlignment" Value="Center"/>
+            <Setter Property="Foreground" Value="#777"/>
+            <Setter Property="IsHitTestVisible" Value="False"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+        </Style>
+        <ControlTemplate x:Key="HintBox" TargetType="TextBox">
+            <Grid>
+                <TextBox Text="{Binding Text, RelativeSource={RelativeSource AncestorType=TextBox}, UpdateSourceTrigger=PropertyChanged}"/>
+                <TextBlock Text="{TemplateBinding Tag}" Style="{StaticResource TextBoxHint}" TextAlignment="{TemplateBinding TextAlignment}" Visibility="{Binding Text, Converter={StaticResource NullHide}, ConverterParameter=invert, RelativeSource={RelativeSource AncestorType=TextBox}}"/>
+            </Grid>
+        </ControlTemplate>
+        <DataTemplate x:Key="RouteTemplate">
+            <DataTemplate.Resources>
+                <Style TargetType="TextBlock">
+                    <Setter Property="Foreground" Value="White"/>
+                    <Setter Property="FontSize" Value="17"/>
+                    <Setter Property="FontWeight" Value="Bold"/>
+                    <Setter Property="TextAlignment" Value="Center" />
+                </Style>
+            </DataTemplate.Resources>
+            <StackPanel Width="{TemplateBinding ActualWidth}">
+                <DockPanel>
+                    <TextBlock DockPanel.Dock="Right" Text="{Binding DurationText}" d:Text="00:32:30"/>
+                    <Rectangle DockPanel.Dock="Right" Width="2" Fill="#666" Margin="5,0"/>
+                    <TextBlock DockPanel.Dock="Right" Text="{Binding StationCount}" d:Text="13"/>
+                    <Rectangle DockPanel.Dock="Right" Width="2" Fill="#666" Margin="5,0"/>
+                    <TextBlock DockPanel.Dock="Right" Text="{Binding Name}" d:Text="Hbf-Melsungen S-Bahn" ToolTip="{Binding Description}" ToolTipService.InitialShowDelay="250"/>
+                </DockPanel>
+                <Rectangle Height="2" Fill="#666"/>
+                <TextBlock Text="{Binding RouteOverview}" d:Text="Hbf S - Achim - Donau - Melsungen"/>
+                <Rectangle Height="5" Fill="#666"/>
+            </StackPanel>
+        </DataTemplate>
+        <DataTemplate x:Key="OverviewTemplate">
+            <DataTemplate.Resources>
+                <Style TargetType="TextBlock">
+                    <Setter Property="Foreground" Value="White"/>
+                    <Setter Property="FontSize" Value="17"/>
+                    <Setter Property="FontWeight" Value="Bold"/>
+                    <Setter Property="TextAlignment" Value="Center" />
+                </Style>
+            </DataTemplate.Resources>
+            <Grid Width="{TemplateBinding ActualWidth}">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="2*"/>
+                    <ColumnDefinition/>
+                </Grid.ColumnDefinitions>
+                <TextBlock Text="{Binding Name}" d:Text="München Hbf S"/>
+                <TextBlock Grid.Column="1" Text="{Binding DepartureText}" d:Text="00:00:00"/>
+            </Grid>
+        </DataTemplate>
+        <DataTemplate x:Key="CustomRouteTemplate">
+            <DataTemplate.Resources>
+                <Style TargetType="TextBlock">
+                    <Setter Property="Foreground" Value="White"/>
+                    <Setter Property="FontSize" Value="17"/>
+                    <Setter Property="FontWeight" Value="Bold"/>
+                    <Setter Property="TextAlignment" Value="Center" />
+                    <Setter Property="VerticalAlignment" Value="Center" />
+                </Style>
+                <Style TargetType="ComboBox">
+                    <Setter Property="Foreground" Value="White"/>
+                    <Setter Property="Background" Value="#777"/>
+                    <Setter Property="Height" Value="25"/>
+                    <Setter Property="Padding" Value="0,-2"/>
+                    <Setter Property="VerticalContentAlignment" Value="Center"/>
+                </Style>
+                <Style TargetType="Button">
+                    <Setter Property="Background" Value="#555"/>
+                    <Setter Property="BorderBrush" Value="#777"/>
+                    <Setter Property="Foreground" Value="White"/>
+                    <Setter Property="Padding" Value="0"/>
+                    <Setter Property="Margin" Value="2"/>
+                    <Setter Property="FontWeight" Value="Bold"/>
+                    <Setter Property="Template">
+                        <Setter.Value>
+                            <ControlTemplate TargetType="Button">
+                                <Border Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="3">
+                                    <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}" Margin="{TemplateBinding Padding}"/>
+                                </Border>
+                            </ControlTemplate>
+                        </Setter.Value>
+                    </Setter>
+                    <Style.Triggers>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter Property="Background" Value="Black"/>
+                            <Setter Property="BorderBrush" Value="#555"/>
+                            <Setter Property="Foreground" Value="#999" />
+                        </Trigger>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter Property="Background" Value="#333"/>
+                        </Trigger>
+                    </Style.Triggers>
+                </Style>
+            </DataTemplate.Resources>
+            <Grid Width="{TemplateBinding ActualWidth}">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="2*"/>
+                    <ColumnDefinition Width="20"/>
+                    <ColumnDefinition Width="20"/>
+                    <ColumnDefinition Width="20"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="2*"/>
+                    <ColumnDefinition Width="20"/>
+                    <ColumnDefinition Width="20"/>
+                    <ColumnDefinition Width="20"/>
+                    <ColumnDefinition Width="2*"/>
+                    <ColumnDefinition Width="20"/>
+                    <ColumnDefinition Width="20"/>
+                    <ColumnDefinition Width="20"/>
+                </Grid.ColumnDefinitions>
+                <ComboBox ItemsSource="{Binding Origins}" SelectedItem="{Binding SelectedOrigin}" Visibility="{Binding Origins, Converter={StaticResource NullHide}}" Grid.ColumnSpan="{Binding DataContext.Ebula.EditMode, ElementName=SetupScreen, Converter={StaticResource BoolNum}, ConverterParameter=1|4}">
+                    <ComboBox.ItemTemplate>
+                        <DataTemplate>
+                            <Label Content="{Binding Name}"/>
+                        </DataTemplate>
+                    </ComboBox.ItemTemplate>
+                </ComboBox>
+                <TextBlock Text="{Binding OriginText}" d:Text="München Hbf S" FontSize="12" Visibility="{Binding Origin, Converter={StaticResource NullHide}}" Grid.ColumnSpan="{Binding DataContext.Ebula.EditMode, ElementName=SetupScreen, Converter={StaticResource BoolNum}, ConverterParameter=1|4}"/>
+                <Button Grid.Column="1" Content="+" Command="{Binding DataContext.AddOriginCommand, ElementName=SetupScreen}" CommandParameter="{Binding .}" Visibility="{Binding DataContext.Ebula.EditMode, ElementName=SetupScreen, Converter={StaticResource BoolHide}}"/>
+                <Button Grid.Column="2" Content="E" Command="{Binding DataContext.EditOriginCommand, ElementName=SetupScreen}" CommandParameter="{Binding .}" Visibility="{Binding DataContext.Ebula.EditMode, ElementName=SetupScreen, Converter={StaticResource BoolHide}}"/>
+                <Button Grid.Column="3" Content="-" Command="{Binding DataContext.RemoveOriginCommand, ElementName=SetupScreen}" CommandParameter="{Binding .}" Visibility="{Binding DataContext.Ebula.EditMode, ElementName=SetupScreen, Converter={StaticResource BoolHide}}"/>
+                <TextBlock Grid.Column="4" Text="{Binding DepartureText}" d:Text="00:00:00"/>
+                <ComboBox Grid.Column="5" ItemsSource="{Binding Segments}" SelectedItem="{Binding SelectedSegment}" Visibility="{Binding Segments, Converter={StaticResource NullHide}}"  Grid.ColumnSpan="{Binding DataContext.Ebula.EditMode, ElementName=SetupScreen, Converter={StaticResource BoolNum}, ConverterParameter=1|4}">
+                    <ComboBox.ItemTemplate>
+                        <DataTemplate>
+                            <Label Content="{Binding Name}"/>
+                        </DataTemplate>
+                    </ComboBox.ItemTemplate>
+                </ComboBox>
+                <Button Grid.Column="6" Content="+" Command="{Binding DataContext.AddSegmentCommand, ElementName=SetupScreen}" CommandParameter="{Binding .}" Visibility="{Binding DataContext.Ebula.EditMode, ElementName=SetupScreen, Converter={StaticResource BoolHide}}"/>
+                <Button Grid.Column="7" Content="E" Command="{Binding DataContext.EditSegmentCommand, ElementName=SetupScreen}" CommandParameter="{Binding .}" Visibility="{Binding DataContext.Ebula.EditMode, ElementName=SetupScreen, Converter={StaticResource BoolHide}}"/>
+                <Button Grid.Column="8" Content="-" Command="{Binding DataContext.RemoveSegmentCommand, ElementName=SetupScreen}" CommandParameter="{Binding .}" Visibility="{Binding DataContext.Ebula.EditMode, ElementName=SetupScreen, Converter={StaticResource BoolHide}}"/>
+                <ComboBox Grid.Column="9" ItemsSource="{Binding Destinations}" SelectedItem="{Binding SelectedDestination}" Visibility="{Binding Destinations, Converter={StaticResource NullHide}}" Grid.ColumnSpan="{Binding DataContext.Ebula.EditMode, ElementName=SetupScreen, Converter={StaticResource BoolNum}, ConverterParameter=1|4}">
+                    <ComboBox.ItemTemplate>
+                        <DataTemplate>
+                            <Label Content="{Binding Name}"/>
+                        </DataTemplate>
+                    </ComboBox.ItemTemplate>
+                </ComboBox>
+                <TextBlock Grid.Column="9" Text="{Binding DestinationText}" d:Text="München Pasing" FontSize="12" Visibility="{Binding Destination, Converter={StaticResource NullHide}}" Grid.ColumnSpan="{Binding DataContext.Ebula.EditMode, ElementName=SetupScreen, Converter={StaticResource BoolNum}, ConverterParameter=1|4}"/>
+                <Button Grid.Column="10" Content="+" Command="{Binding DataContext.AddDestinationCommand, ElementName=SetupScreen}" CommandParameter="{Binding .}" Visibility="{Binding DataContext.Ebula.EditMode, ElementName=SetupScreen, Converter={StaticResource BoolHide}}"/>
+                <Button Grid.Column="11" Content="E" Command="{Binding DataContext.EditDestinationCommand, ElementName=SetupScreen}" CommandParameter="{Binding .}" Visibility="{Binding DataContext.Ebula.EditMode, ElementName=SetupScreen, Converter={StaticResource BoolHide}}"/>
+                <Button Grid.Column="12" Content="-" Command="{Binding DataContext.RemoveDestinationCommand, ElementName=SetupScreen}" CommandParameter="{Binding .}" Visibility="{Binding DataContext.Ebula.EditMode, ElementName=SetupScreen, Converter={StaticResource BoolHide}}"/>
+            </Grid>
+        </DataTemplate>
+    </UserControl.Resources>
+    <DockPanel>
+        <DockPanel DockPanel.Dock="Top">
+            <Grid Grid.IsSharedSizeScope="True">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" SharedSizeGroup="Side"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto" SharedSizeGroup="Side"/>
+                </Grid.ColumnDefinitions>
+                <TextBlock Grid.Column="0" Text="{Binding Service}" Margin="5" FontSize="20"/>
+                <Rectangle Grid.Column="1" Width="3" Fill="#555"/>
+                <TextBlock Grid.Column="2" Text="{Binding ConfigName}"  TextAlignment="Center" VerticalAlignment="Center" Visibility="{Binding Ebula.NormalMode, Converter={StaticResource BoolHide}}"/>
+                <TextBox Grid.Column="2" Text="{Binding ConfigName, UpdateSourceTrigger=PropertyChanged}" Tag="Configuration Name" Template="{StaticResource HintBox}" TextAlignment="Center" VerticalAlignment="Center" Visibility="{Binding Ebula.EditMode, Converter={StaticResource BoolHide}}"/>
+                <Rectangle Grid.Column="3" Width="3" Fill="#555"/>
+                <TextBlock Grid.Column="4" Text="{Binding DepartureText}" Margin="5" FontSize="20"/>
+            </Grid>
+        </DockPanel>
+        <Rectangle DockPanel.Dock="Top" Height="3" Fill="#555"/>
+
+        <Grid DockPanel.Dock="Bottom" Height="37">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition/>
+                <ColumnDefinition/>
+                <ColumnDefinition/>
+                <ColumnDefinition/>
+                <ColumnDefinition/>
+                <ColumnDefinition/>
+                <ColumnDefinition/>
+                <ColumnDefinition/>
+                <ColumnDefinition/>
+                <ColumnDefinition/>
+            </Grid.ColumnDefinitions>
+
+            <Button Name="Button0" Grid.Column="0" Content="{Binding LoadLabel}"    Command="{Binding Ebula.NavigateCommand}" CommandParameter="{x:Static com:NavAction.BUTTON0}"/>
+            <Button Name="Button1" Grid.Column="1" Content="SAVE"                   Command="{Binding Ebula.NavigateCommand}" CommandParameter="{x:Static com:NavAction.BUTTON1}" Visibility="{Binding CanSave, Converter={StaticResource BoolHide}}" />
+            <Button Name="Button2" Grid.Column="2" Content=""                       Command="{Binding Ebula.NavigateCommand}" CommandParameter="{x:Static com:NavAction.BUTTON2}" Visibility="Hidden"/>
+            <Button Name="Button3" Grid.Column="3" Content="MODE"                   Command="{Binding Ebula.NavigateCommand}" CommandParameter="{x:Static com:NavAction.BUTTON3}"/>
+            <Button Name="Button4" Grid.Column="4" Content=""                       Command="{Binding Ebula.NavigateCommand}" CommandParameter="{x:Static com:NavAction.BUTTON4}" Visibility="Hidden"/>
+            <Button Name="Button5" Grid.Column="5" Content="SAVE RT"                Command="{Binding Ebula.NavigateCommand}" CommandParameter="{x:Static com:NavAction.BUTTON5}" Visibility="{Binding CanSaveRoute, Converter={StaticResource BoolHide}}"/>
+            <Button Name="Button6" Grid.Column="6" Content=""                       Command="{Binding Ebula.NavigateCommand}" CommandParameter="{x:Static com:NavAction.BUTTON6}" Visibility="Hidden"/>
+            <Button Name="Button7" Grid.Column="7" Content=""                       Command="{Binding Ebula.NavigateCommand}" CommandParameter="{x:Static com:NavAction.BUTTON7}" Visibility="Hidden"/>
+            <Button Name="Button8" Grid.Column="8" Content="ZUG"                    Command="{Binding Ebula.NavigateCommand}" CommandParameter="{x:Static com:NavAction.BUTTON8}"/>
+            <Button Name="Button9" Grid.Column="9" Content="ABFAHRT"                Command="{Binding Ebula.NavigateCommand}" CommandParameter="{x:Static com:NavAction.BUTTON9}"/>
+        </Grid>
+
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition/>
+                <ColumnDefinition/>
+            </Grid.ColumnDefinitions>
+            <DockPanel Grid.Row="1" Grid.Column="0" Visibility="{Binding UsingRoutes, Converter={StaticResource BoolHide}}" d:Visibility="Visible">
+                <TextBlock DockPanel.Dock="Top" Text="Available Routes"/>
+                <ListView ItemsSource="{Binding Routes}" SelectedItem="{Binding SelectedRoute}" d:ItemsSource="{d:SampleData}" ItemTemplate="{StaticResource RouteTemplate}"/>
+            </DockPanel>
+
+            <DockPanel Grid.Row="1" Grid.Column="1" Visibility="{Binding UsingRoutes, Converter={StaticResource BoolHide}}" d:Visibility="Visible">
+                <TextBlock DockPanel.Dock="Top" Text="Selected Route"/>
+                <ListView ItemsSource="{Binding RouteOverview}" d:ItemsSource="{d:SampleData}" ItemTemplate="{StaticResource OverviewTemplate}"/>
+            </DockPanel>
+
+            <DockPanel Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Visibility="{Binding UsingCustom, Converter={StaticResource BoolHide}}" d:Visibility="Hidden">
+                <TextBlock DockPanel.Dock="Top" Text="Setup Custom Route"/>
+                <Grid DockPanel.Dock="Top" Background="#333">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="2*"/>
+                        <ColumnDefinition Width="20"/>
+                        <ColumnDefinition/>
+                        <ColumnDefinition Width="2*"/>
+                        <ColumnDefinition Width="20"/>
+                        <ColumnDefinition Width="2*"/>
+                        <ColumnDefinition Width="20"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Text="Origin" Grid.ColumnSpan="2"/>
+                    <TextBlock Text="Departure" Grid.Column="2"/>
+                    <TextBlock Text="Segment" Grid.Column="3" Grid.ColumnSpan="2"/>
+                    <TextBlock Text="Destination" Grid.Column="5" Grid.ColumnSpan="2"/>
+                </Grid>
+                <ListView ItemsSource="{Binding CustomRoute}" d:ItemsSource="{d:SampleData}" ItemTemplate="{StaticResource CustomRouteTemplate}"/>
+            </DockPanel>
+        </Grid>
+    </DockPanel>
+</UserControl>

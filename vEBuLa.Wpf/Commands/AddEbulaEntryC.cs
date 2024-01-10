@@ -33,6 +33,7 @@ internal class AddEbulaEntryC : BaseC {
 
       marker.Screen.StartEntry += 1;
       marker.Screen.UpdateEntries();
+      marker.Screen.Ebula.MarkDirty();
     }
     else if (parameter is EbulaEntryVM entry) {
       Logger?.LogInformation("Adding new entry above {ExistingEntry}", entry);
@@ -46,6 +47,7 @@ internal class AddEbulaEntryC : BaseC {
 
       entry.Screen.StartEntry += 1;
       entry.Screen.UpdateEntries();
+      entry.Screen.Ebula.MarkDirty();
     }
     else return;
   }

@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 using System;
+using System.Linq;
 using System.Windows;
 using System.Windows.Input;
 using vEBuLa.Models;
@@ -36,6 +37,14 @@ public partial class EditEntryNameDialog : Window {
 
   private void Window_KeyDown(object sender, KeyEventArgs e) {
     if (e.Key != Key.Enter && e.Key != Key.Escape) return;
+
+    if (e.Key == Key.Enter && (Keyboard.IsKeyDown(Key.LeftShift) || Keyboard.IsKeyDown(Key.LeftCtrl))) {
+      var index = txtMain.CaretIndex;
+      txtMain.Text = txtMain.Text.Insert(index, "\r\n");
+      txtMain.CaretIndex = index + 2;
+      return;
+    }
+
     try {
       EntryName = txtMain.Text;
       Description = txtSecond.Text;

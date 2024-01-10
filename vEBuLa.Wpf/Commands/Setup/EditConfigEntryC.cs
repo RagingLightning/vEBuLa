@@ -12,7 +12,7 @@ using vEBuLa.Dialogs;
 using vEBuLa.Models;
 using vEBuLa.ViewModels;
 
-namespace vEBuLa.Commands;
+namespace vEBuLa.Commands.Setup;
 internal class EditConfigEntryC : BaseC {
   private ILogger<EditConfigEntryC>? Logger => App.GetService<ILogger<EditConfigEntryC>>();
   private bool IsStation, IsOrigin;
@@ -72,5 +72,6 @@ internal class EditConfigEntryC : BaseC {
       }
       departure += result.nextDeparture;
     }
+    entry.Screen.Ebula.MarkDirty();
   }
 }

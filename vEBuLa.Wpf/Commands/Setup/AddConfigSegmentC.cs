@@ -10,7 +10,7 @@ using vEBuLa.Dialogs;
 using vEBuLa.Models;
 using vEBuLa.ViewModels;
 
-namespace vEBuLa.Commands;
+namespace vEBuLa.Commands.Setup;
 internal class AddConfigSegmentC : BaseC {
   private ILogger<AddConfigSegmentC>? Logger => App.GetService<ILogger<AddConfigSegmentC>>();
 
@@ -44,5 +44,7 @@ internal class AddConfigSegmentC : BaseC {
       }
       departure += result.nextDeparture;
     }
+
+    entry.Screen.Ebula.MarkDirty();
   }
 }
