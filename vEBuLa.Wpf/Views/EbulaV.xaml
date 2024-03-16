@@ -38,7 +38,7 @@
             </Setter>
             <Style.Triggers>
                 <Trigger Property="IsMouseOver" Value="True">
-                    <Setter Property="Background" Value="#444"/>
+                    <Setter Property="Background" Value="#191919"/>
                 </Trigger>
             </Style.Triggers>
         </Style>
@@ -58,7 +58,6 @@
                         <Border Background="{TemplateBinding Background}" BorderBrush="#444" BorderThickness="3,0,0,3" CornerRadius="0,0,0,5">
                             <Border.Resources>
                                 <Style TargetType="Path">
-                                    <Setter Property="Stroke" Value="#777"/>
                                     <Setter Property="Stroke" Value="#777"/>
                                 </Style>
                             </Border.Resources>

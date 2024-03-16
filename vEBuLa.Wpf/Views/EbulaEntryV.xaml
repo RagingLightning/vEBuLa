@@ -104,37 +104,35 @@
             <ColumnDefinition Width="2*"/>
         </Grid.ColumnDefinitions>
 
-        <Rectangle Grid.Column="1" Fill="Black" Width="3"/>
-        <Rectangle Grid.Column="3" Fill="Black" Width="3"/>
-        <Rectangle Grid.Column="4" Fill="Black" Width="3" Panel.ZIndex="5"/>
-        <Rectangle Grid.Column="6" Fill="Black" Width="3"/>
-        <Rectangle Grid.Column="8" Fill="Black" Width="3"/>
-
+        <Rectangle Grid.Column="3" Fill="Black" Width="2" Panel.ZIndex="5"/>
 
         <DockPanel Grid.Column="0" Margin="0,0,5,0">
-            <Rectangle DockPanel.Dock="Left" Fill="Black" Width="9" Visibility="{Binding SpeedColumn2, Converter={StaticResource BoolHide}}"/>
-            <Rectangle DockPanel.Dock="Left" Fill="Black" Width="9" Visibility="{Binding SpeedColumn4, Converter={StaticResource BoolHide}}"/>
-            <Rectangle DockPanel.Dock="Left" Fill="Black" Width="9" Visibility="{Binding SpeedColumn6, Converter={StaticResource BoolHide}}"/>
-            <Rectangle DockPanel.Dock="Left" Fill="Black" Width="9" Visibility="{Binding SpeedColumn8, Converter={StaticResource BoolHide}}"/>
-            <Rectangle DockPanel.Dock="Left" Fill="Black" Width="9" Visibility="{Binding SpeedColumn10, Converter={StaticResource BoolHide}}"/>
-            <Rectangle DockPanel.Dock="Left" Fill="Black" Width="9" Visibility="{Binding SpeedColumn12, Converter={StaticResource BoolHide}}"/>
-            <Rectangle DockPanel.Dock="Left" Fill="Black" Width="9" Visibility="{Binding SpeedColumn14, Converter={StaticResource BoolHide}}"/>
-            <Rectangle DockPanel.Dock="Left" Fill="Black" Width="9" Visibility="{Binding SpeedColumn16, Converter={StaticResource BoolHide}}"/>
+            <Rectangle DockPanel.Dock="Left" Fill="Black" Width="4" Visibility="{Binding SpeedColumn1, Converter={StaticResource BoolHide}}"/>
+            <Rectangle DockPanel.Dock="Left" Fill="Black" Width="5" Visibility="{Binding SpeedColumn2, Converter={StaticResource BoolHide}}"/>
+            <Rectangle DockPanel.Dock="Left" Fill="Black" Width="4" Visibility="{Binding SpeedColumn3, Converter={StaticResource BoolHide}}"/>
+            <Rectangle DockPanel.Dock="Left" Fill="Black" Width="5" Visibility="{Binding SpeedColumn4, Converter={StaticResource BoolHide}}"/>
+            <Rectangle DockPanel.Dock="Left" Fill="Black" Width="4" Visibility="{Binding SpeedColumn5, Converter={StaticResource BoolHide}}"/>
+            <Rectangle DockPanel.Dock="Left" Fill="Black" Width="5" Visibility="{Binding SpeedColumn6, Converter={StaticResource BoolHide}}"/>
+            <Rectangle DockPanel.Dock="Left" Fill="Black" Width="4" Visibility="{Binding SpeedColumn7, Converter={StaticResource BoolHide}}"/>
+            <Rectangle DockPanel.Dock="Left" Fill="Black" Width="5" Visibility="{Binding SpeedColumn8, Converter={StaticResource BoolHide}}"/>
+            <Rectangle DockPanel.Dock="Left" Fill="Black" Width="4" Visibility="{Binding SpeedColumn9, Converter={StaticResource BoolHide}}"/>
+            <Rectangle DockPanel.Dock="Left" Fill="Black" Width="5" Visibility="{Binding SpeedColumn10, Converter={StaticResource BoolHide}}"/>
+            <Rectangle DockPanel.Dock="Left" Fill="Black" Width="4" Visibility="{Binding SpeedColumn11, Converter={StaticResource BoolHide}}"/>
+            <Rectangle DockPanel.Dock="Left" Fill="Black" Width="5" Visibility="{Binding SpeedColumn12, Converter={StaticResource BoolHide}}"/>
+            <Rectangle DockPanel.Dock="Left" Fill="Black" Width="4" Visibility="{Binding SpeedColumn13, Converter={StaticResource BoolHide}}"/>
+            <Rectangle DockPanel.Dock="Left" Fill="Black" Width="5" Visibility="{Binding SpeedColumn14, Converter={StaticResource BoolHide}}"/>
+            <Rectangle DockPanel.Dock="Left" Fill="Black" Width="4" Visibility="{Binding SpeedColumn15, Converter={StaticResource BoolHide}}"/>
+            <Rectangle DockPanel.Dock="Left" Fill="Black" Width="5" Visibility="{Binding SpeedColumn16, Converter={StaticResource BoolHide}}"/>
             <Button Style="{DynamicResource EditBtn}" DockPanel.Dock="Right" Command="{Binding EditSpeedCommand}" CommandParameter="{Binding .}">
-                <TextBlock Text="{Binding SpeedLimit}" d:Text="160" FontSize="20" TextAlignment="Right" FontWeight="Bold" VerticalAlignment="Bottom" Visibility="{Binding SpeedLimitDisplay, Converter={StaticResource BoolHide}}" HorizontalAlignment="Right" Foreground="{Binding SpeedColor}" Background="{Binding SpeedBackground}"/>
+                <TextBlock Text="{Binding SpeedLimitText}" d:Text="160" FontSize="20" TextAlignment="Right" FontWeight="Bold" VerticalAlignment="Bottom" Visibility="{Binding SpeedLimitDisplay, Converter={StaticResource BoolHide}}" HorizontalAlignment="Right" Foreground="{Binding SpeedColor}" Background="{Binding SpeedBackground}"/>
             </Button>
         </DockPanel>
-        <Rectangle Grid.Column="0" Height="3" Fill="Black" Visibility="{Binding SpeedLimitDisplay, Converter={StaticResource BoolHide}}" VerticalAlignment="Bottom"/>
+        <Rectangle Grid.Column="0" Height="3" Fill="Black" Visibility="{Binding SpeedLineDisplay, Converter={StaticResource BoolHide}}" VerticalAlignment="Bottom"/>
 
-        <Rectangle Grid.Column="1" Fill="Black" Width="11" Height="3" VerticalAlignment="Bottom" HorizontalAlignment="Left" Visibility="{Binding SpeedLimitDisplay, Converter={StaticResource BoolHide}}"/>
+        <Rectangle Grid.Column="1" Fill="Black" Width="11" Height="3" VerticalAlignment="Bottom" HorizontalAlignment="Left" Visibility="{Binding SpeedLineDisplay, Converter={StaticResource BoolHide}}"/>
         <Path Grid.Column="1" Data="{StaticResource Marker}" Fill="Black" HorizontalAlignment="Center" VerticalAlignment="Top" Visibility="{Binding IsCurrent, Converter={StaticResource BoolHide}}" RenderTransformOrigin="0.5,0.5">
             <Path.RenderTransform>
-                <TransformGroup>
-                    <ScaleTransform/>
-                    <SkewTransform/>
-                    <RotateTransform/>
-                    <TranslateTransform Y="15" X="0"/>
-                </TransformGroup>
+                <TranslateTransform Y="15" X="0"/>
             </Path.RenderTransform>
         </Path>
         <Rectangle Grid.Column="1" Width="11" Height="2" Fill="Black" Visibility="{Binding KilometerBreak, Converter={StaticResource BoolHide}}" VerticalAlignment="Bottom" HorizontalAlignment="Right"/>

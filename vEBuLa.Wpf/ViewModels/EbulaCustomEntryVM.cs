@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using vEBuLa.Models;
 
@@ -18,7 +19,7 @@ internal class EbulaCustomEntryVM : BaseVM {
     Origins = config.Stations.Values.Select(e => e.ToVM()).ToList();
     Departure = TimeSpan.Zero;
 
-    Screen.PropertyChanged += Screen_PropertyChanged;
+    Screen.PropertyChanged += Ebula_PropertyChanged;
   }
 
   public EbulaCustomEntryVM(SetupScreenVM screen, EbulaConfig config, EbulaStationVM origin, TimeSpan departure) {
@@ -31,7 +32,12 @@ internal class EbulaCustomEntryVM : BaseVM {
       Segments = config.FindSegments(origin.Model).Select(e => e.ToVM()).ToList();
     Departure = departure;
 
-    Screen.PropertyChanged += Screen_PropertyChanged;
+    Screen.Ebula.PropertyChanged += Ebula_PropertyChanged;
+  }
+
+  public override void Destroy() {
+    Screen.Ebula.PropertyChanged -= Ebula_PropertyChanged;
+    base.Destroy();
   }
 
   public (bool Valid, TimeSpan nextDeparture) Validate(TimeSpan departure) {
@@ -82,8 +88,7 @@ internal class EbulaCustomEntryVM : BaseVM {
     return (valid, departure + SelectedSegment?.Duration ?? TimeSpan.Zero);
   }
 
-  private void Screen_PropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e) {
-    if (e.PropertyName == nameof(Screen.Departure)) OnPropertyChanged(nameof(DepartureText));
+  private void Ebula_PropertyChanged(object? sender, PropertyChangedEventArgs e) {
     if (e.PropertyName == nameof(Screen.Ebula.EditMode)) {
       _modeChange = true;
       if (Screen.Ebula.EditMode) {
@@ -161,7 +166,7 @@ internal class EbulaCustomEntryVM : BaseVM {
     }
   }
 
-  public string DepartureText => (Departure + Screen.Departure).ToString("hh':'mm':'ss");
+  public string DepartureText => (Departure + Screen.Ebula.ServiceStartTime).ToString("hh':'mm':'ss");
 
   private List<EbulaSegmentVM>? _segments;
   public List<EbulaSegmentVM>? Segments {

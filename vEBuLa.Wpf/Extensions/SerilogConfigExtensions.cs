@@ -41,7 +41,7 @@ internal static class SerilogConfigExtensions {
       /* General */
       .Destructure.ByTransforming<Guid>((guid) => guid.ToString().BiCrop(5,5))
       /* Models */
-      .Destructure.ByTransforming<Ebula>(m => new { Config = m.Config, Departure = m.ServiceStartTime })
+      .Destructure.ByTransforming<Ebula>(m => new { Config = m.Config })
       .Destructure.ByTransforming<EbulaConfig>(m => new { Name = m.Name, Routes = m.Routes.Values, Segments = m.Segments.Values, Stations = m.Stations.Values })
       .Destructure.ByTransforming<EbulaEntry>(m => new { SpeedLimit = m.SpeedLimit, Location = m.Location, Label = m.LocationName })
       .Destructure.ByTransforming<EbulaRoute>(m => new { Id = m.Id, Name = m.Name, Route = m.RouteOverview, Segments = m.Segments.Select(s => s.Id) })
@@ -57,6 +57,6 @@ internal static class SerilogConfigExtensions {
       .Destructure.ByTransforming<EbulaSegmentVM>(vm => new { Model = vm.Model })
       .Destructure.ByTransforming<EbulaStationVM>(vm => new {Model = vm.Model})
       .Destructure.ByTransforming<EbulaVM>(vm => new {Model = vm.Model, Screen = vm.Screen, Active = vm.Active, EditMode = vm.EditMode})
-      .Destructure.ByTransforming<SetupScreenVM>(vm => new {UsingCustom = vm.UsingCustom, CustomRoute = vm.CustomRoute, PredefinedRoute = vm.SelectedRoute, Departure = vm.Departure});
+      .Destructure.ByTransforming<SetupScreenVM>(vm => new {UsingCustom = vm.UsingCustom, CustomRoute = vm.CustomRoute, PredefinedRoute = vm.SelectedRoute, Departure = vm.Ebula.ServiceStartTime});
   }
 }

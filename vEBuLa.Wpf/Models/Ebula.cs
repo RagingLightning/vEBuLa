@@ -11,7 +11,6 @@ internal class Ebula {
   private ILogger<Ebula>? Logger => App.GetService<ILogger<Ebula>>();
   public EbulaConfig Config { get; }
   public List<EbulaSegment> Segments { get; } = new();
-  public TimeSpan ServiceStartTime { get; private set; } = TimeSpan.Zero;
 
   public Ebula(string? configPath) {
     Logger?.LogInformation("Creating new EBuLa Model");
@@ -19,8 +18,7 @@ internal class Ebula {
     else Config = new EbulaConfig(configPath);
   }
 
-  internal void SetActiveSegments(IEnumerable<EbulaSegment> segments, TimeSpan departure) {
-    ServiceStartTime = departure;
+  internal void SetActiveSegments(IEnumerable<EbulaSegment> segments) {
     Segments.Clear();
     Segments.AddRange(segments);
   }

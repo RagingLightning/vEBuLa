@@ -63,7 +63,7 @@ internal class EditConfigEntryC : BaseC {
 
     Logger?.LogInformation("Name of {EditType} changed for Custom Route Entry {RouteEntry}", IsStation ? IsOrigin ? "Origin" : "Destination" : "Segment", entry);
 
-    TimeSpan departure = entry.Screen.Departure;
+    TimeSpan departure = entry.Screen.Ebula.ServiceStartTime;
     for (var i = 0; i < entry.Screen.CustomRoute.Count; i++) {
       var result = entry.Screen.CustomRoute[i].Validate(departure);
       if (!result.Valid) {

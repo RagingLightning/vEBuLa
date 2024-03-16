@@ -55,8 +55,9 @@ internal class EbulaRouteVM : BaseVM {
 
   internal IEnumerable<EbulaRouteEntryVM> GenerateOverview() {
     List<EbulaRouteEntryVM> result = new();
-    var previousEntry = new EbulaRouteEntryVM(Screen, Model.Segments[0].ToVM(), null);
+    var previousEntry = new EbulaRouteEntryVM(Screen.Ebula, Model.Segments[0].ToVM(), null);
     result.Add(previousEntry);
-    return Model.Segments.Select(e => previousEntry = new EbulaRouteEntryVM(Screen, e.ToVM(), previousEntry));
+    result.AddRange(Model.Segments.Select(e => previousEntry = new EbulaRouteEntryVM(Screen.Ebula, e.ToVM(), previousEntry)));
+    return result;
   }
 }

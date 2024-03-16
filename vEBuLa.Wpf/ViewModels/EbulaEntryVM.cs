@@ -14,6 +14,8 @@ internal class EbulaEntryVM : BaseVM {
   public EbulaEntry Model { get; }
   public EbulaScreenVM Screen { get; }
 
+  public override string ToString() => $"{Model.Location,6} | {Model.LocationName.Crop(16),-16} | {(Arrival is null ? "       " : $"{ArrivalHr}:{ArrivalMn}.{ArrivalFr}")} | {(Departure is null ? "       " : $"{DepartureHr}:{DepartureMn}.{DepartureFr}")}";
+
   public EbulaEntryVM(EbulaEntry entry, TimeSpan offset, EbulaEntryVM? prev, EbulaScreenVM screen) {
     Model = entry;
     Screen = screen;
@@ -46,7 +48,10 @@ internal class EbulaEntryVM : BaseVM {
     }
     if (e.PropertyName == nameof(Screen.StartEntry)) {
       ForceSpeedDisplay = Screen.ActiveEntries[^1] == this;
+      NoSpeedLine = Screen.ActiveEntries[^1] == this;
+      OnPropertyChanged(nameof(SpeedLimitDisplay));
       OnPropertyChanged(nameof(SpeedLimitText));
+      OnPropertyChanged(nameof(SpeedLineDisplay));
     }
   }
 
@@ -99,13 +104,21 @@ internal class EbulaEntryVM : BaseVM {
   public int Height => 31 * DisplayUnits;
 
   #region Column 1 - Speeds
-  public bool SpeedColumn2 => SpeedLimit > 0 && SpeedLimit < 40;
+  public bool SpeedColumn1 => SpeedLimit > 0 && SpeedLimit < 30;
+  public bool SpeedColumn2 => SpeedLimit > 19 && SpeedLimit < 40;
+  public bool SpeedColumn3 => SpeedLimit > 29 && SpeedLimit < 50;
   public bool SpeedColumn4 => SpeedLimit > 39 && SpeedLimit < 60;
+  public bool SpeedColumn5 => SpeedLimit > 49 && SpeedLimit < 70;
   public bool SpeedColumn6 => SpeedLimit > 59 && SpeedLimit < 80;
+  public bool SpeedColumn7 => SpeedLimit > 69 && SpeedLimit < 90;
   public bool SpeedColumn8 => SpeedLimit > 79 && SpeedLimit < 100;
+  public bool SpeedColumn9 => SpeedLimit > 89 && SpeedLimit < 110;
   public bool SpeedColumn10 => SpeedLimit > 99 && SpeedLimit < 120;
+  public bool SpeedColumn11 => SpeedLimit > 109 && SpeedLimit < 130;
   public bool SpeedColumn12 => SpeedLimit > 119 && SpeedLimit < 140;
+  public bool SpeedColumn13 => SpeedLimit > 129 && SpeedLimit < 150;
   public bool SpeedColumn14 => SpeedLimit > 139 && SpeedLimit < 160;
+  public bool SpeedColumn15 => SpeedLimit > 149;
   public bool SpeedColumn16 => SpeedLimit > 159;
 
   public int PrevSpeedLimit { get; } = 0;
@@ -115,13 +128,21 @@ internal class EbulaEntryVM : BaseVM {
     }
     set {
       Model.SpeedLimit = value;
+      OnPropertyChanged(nameof(SpeedColumn1));
       OnPropertyChanged(nameof(SpeedColumn2));
+      OnPropertyChanged(nameof(SpeedColumn3));
       OnPropertyChanged(nameof(SpeedColumn4));
+      OnPropertyChanged(nameof(SpeedColumn5));
       OnPropertyChanged(nameof(SpeedColumn6));
+      OnPropertyChanged(nameof(SpeedColumn7));
       OnPropertyChanged(nameof(SpeedColumn8));
+      OnPropertyChanged(nameof(SpeedColumn9));
       OnPropertyChanged(nameof(SpeedColumn10));
+      OnPropertyChanged(nameof(SpeedColumn11));
       OnPropertyChanged(nameof(SpeedColumn12));
+      OnPropertyChanged(nameof(SpeedColumn13));
       OnPropertyChanged(nameof(SpeedColumn14));
+      OnPropertyChanged(nameof(SpeedColumn15));
       OnPropertyChanged(nameof(SpeedColumn16));
       OnPropertyChanged(nameof(SpeedLimitText));
     }
@@ -129,7 +150,20 @@ internal class EbulaEntryVM : BaseVM {
 
   private bool ForceSpeedDisplay = false;
   public bool SpeedLimitDisplay => Model.SpeedLimit > 0 || ForceSpeedDisplay;
-  public string SpeedLimitText => SpeedLimitDisplay ? Math.Max(SpeedLimit, 160).ToString() : string.Empty;
+
+  private bool _noSpeedLine;
+  public bool NoSpeedLine {
+    get {
+      return _noSpeedLine;
+    }
+    set {
+      _noSpeedLine = value;
+      OnPropertyChanged(nameof(NoSpeedLine));
+      OnPropertyChanged(nameof(SpeedLineDisplay));
+    }
+  }
+  public bool SpeedLineDisplay => SpeedLimitDisplay && !NoSpeedLine;
+  public string SpeedLimitText => SpeedLimitDisplay ? Math.Min(SpeedLimit, 160).ToString() : string.Empty;
 
   public bool SpeedSigned {
     get {
@@ -348,6 +382,7 @@ internal class EbulaEntryVM : BaseVM {
   public string DepartureHr => Departure?.Hours.ToString("00") ?? string.Empty;
   public string DepartureMn => Departure?.Minutes.ToString("00") ?? string.Empty;
   public string DepartureFr => (Departure?.Seconds / 6)?.ToString("0") ?? string.Empty;
+
 
   #endregion
 

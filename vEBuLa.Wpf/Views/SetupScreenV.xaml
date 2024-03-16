@@ -228,12 +228,12 @@
                     <ColumnDefinition Width="Auto"/>
                     <ColumnDefinition Width="Auto" SharedSizeGroup="Side"/>
                 </Grid.ColumnDefinitions>
-                <TextBlock Grid.Column="0" Text="{Binding Service}" Margin="5" FontSize="20"/>
+                <TextBlock Grid.Column="0" Text="{Binding Ebula.ServiceName}" Margin="5" FontSize="20"/>
                 <Rectangle Grid.Column="1" Width="3" Fill="#555"/>
                 <TextBlock Grid.Column="2" Text="{Binding ConfigName}"  TextAlignment="Center" VerticalAlignment="Center" Visibility="{Binding Ebula.NormalMode, Converter={StaticResource BoolHide}}"/>
                 <TextBox Grid.Column="2" Text="{Binding ConfigName, UpdateSourceTrigger=PropertyChanged}" Tag="Configuration Name" Template="{StaticResource HintBox}" TextAlignment="Center" VerticalAlignment="Center" Visibility="{Binding Ebula.EditMode, Converter={StaticResource BoolHide}}"/>
                 <Rectangle Grid.Column="3" Width="3" Fill="#555"/>
-                <TextBlock Grid.Column="4" Text="{Binding DepartureText}" Margin="5" FontSize="20"/>
+                <TextBlock Grid.Column="4" Text="{Binding Ebula.FormattedServiceStartTime}" Margin="5" FontSize="20"/>
             </Grid>
         </DockPanel>
         <Rectangle DockPanel.Dock="Top" Height="3" Fill="#555"/>

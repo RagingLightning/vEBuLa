@@ -33,7 +33,7 @@ internal class DeleteConfigStationC : BaseC {
     else config.Stations.Remove(entry.SelectedDestination.Id);
     Logger?.LogInformation("Removed {StationType} station from Custom Route Entry {RouteEntry}", IsOrigin ? "Origin" : "Destination", entry);
 
-    TimeSpan departure = entry.Screen.Departure;
+    TimeSpan departure = entry.Screen.Ebula.ServiceStartTime;
     for (var i = 0; i < entry.Screen.CustomRoute.Count; i++) {
       var result = entry.Screen.CustomRoute[i].Validate(departure);
       if (!result.Valid) {

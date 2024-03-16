@@ -30,18 +30,19 @@ internal class NavigateSetupScreenC : NavigateScreenC {
         Logger?.LogWarning("No Route is selected. Remaining on Setup screen");
         return;
       }
-      Screen.Ebula.Model.SetActiveSegments(Screen.SelectedRoute.Model.Segments, Screen.Departure);
+      Screen.Ebula.Model.SetActiveSegments(Screen.SelectedRoute.Model.Segments);
     }
     else {
       if (Screen.CustomRoute.Where(e => e.SelectedSegment is not null).Count() == 0) {
         Logger?.LogWarning("Custom Route contains no Segments. Remaining on Setup screen.");
         return;
       }
-      Screen.Ebula.Model.SetActiveSegments(Screen.CustomRoute.Where(e => e.SelectedSegment is not null).Select(e => e.SelectedSegment.Model), Screen.Departure);
+      Screen.Ebula.Model.SetActiveSegments(Screen.CustomRoute.Where(e => e.SelectedSegment is not null).Select(e => e.SelectedSegment.Model));
     }
-    Logger?.LogDebug("EBuLa instance starts at {Departure} with Segments {Segments}", Screen.Ebula.Model.ServiceStartTime, Screen.Ebula.Model.Segments);
+    Logger?.LogDebug("EBuLa instance starts at {Departure} with Segments {Segments}", Screen.Ebula.ServiceStartTime, Screen.Ebula.Model.Segments);
 
     Screen.Ebula.Screen = new EbulaScreenVM(Screen.Ebula);
+    Screen.Ebula.RunServiceClock();
     Screen.Destroy();
   } // Start EBuLa with selection
 
@@ -133,30 +134,30 @@ internal class NavigateSetupScreenC : NavigateScreenC {
 
     Logger?.LogDebug("Changing Service Identifier");
     var mainWindow = Application.Current.MainWindow;
-    var dialog = new SimpleTextBoxPopup(Screen.Service, mainWindow.PointToScreen(new Point(700, 610)), new PopupOptions { Dark = true, CanResize = false, Height = 30, Width = 100, FontSize = 20, FontWeight = FontWeights.Bold });
+    var dialog = new SimpleTextBoxPopup(Screen.Ebula.ServiceName, mainWindow.PointToScreen(new Point(700, 610)), new PopupOptions { Dark = true, CanResize = false, Height = 30, Width = 100, FontSize = 20, FontWeight = FontWeights.Bold });
 
     if (dialog.ShowDialog() == false) {
       Logger?.LogDebug("Service Identifier change aborted");
       return;
     }
 
-    Screen.Service = dialog.Text;
-    Logger?.LogInformation("Service Identifier changed to {Service}", Screen.Service);
+    Screen.Ebula.ServiceName = dialog.Text;
+    Logger?.LogInformation("Service Identifier changed to {Service}", Screen.Ebula.ServiceName);
   } // Set Service Identifier
 
-  protected override void Button9() { // Set Service Departure time
+  protected override void Button9() { // Set Service Start time
     base.Button9();
 
-    Logger?.LogDebug("Changing Service Departure");
+    Logger?.LogDebug("Changing Service Start time");
     var mainWindow = Application.Current.MainWindow;
-    var dialog = new SimpleTextBoxPopup(Screen.DepartureText, mainWindow.PointToScreen(new Point(770, 610)), new PopupOptions { Dark = true, CanResize = false, Height = 30, Width = 100, FontSize = 20, FontWeight = FontWeights.Bold });
+    var dialog = new SimpleTextBoxPopup(Screen.Ebula.ServiceStartTime.ToString(@"hh\:mm\:ss"), mainWindow.PointToScreen(new Point(770, 610)), new PopupOptions { Dark = true, CanResize = false, Height = 30, Width = 100, FontSize = 20, FontWeight = FontWeights.Bold });
 
     if (dialog.ShowDialog() == false) {
-      Logger?.LogDebug("Service Departure change aborted");
+      Logger?.LogDebug("Service Start time change aborted");
       return;
     }
 
-    Screen.DepartureText = dialog.Text;
-    Logger?.LogInformation("Service Departure changed to {Departure}", Screen.Departure);
-  } // Set Service Departure time
+    Screen.Ebula.FormattedServiceStartTime = dialog.Text;
+    Logger?.LogInformation("Service Start time changed to {Departure}", Screen.Ebula.ServiceStartTime.ToString(@"hh\:mm\:ss"));
+  } // Set Service Start time
 }

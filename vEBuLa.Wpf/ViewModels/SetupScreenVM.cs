@@ -1,16 +1,15 @@
 ﻿using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Linq;
-using System.Text.RegularExpressions;
-using System.Windows;
 using vEBuLa.Commands;
 using vEBuLa.Commands.Setup;
 using vEBuLa.Extensions;
 using vEBuLa.Models;
 
 namespace vEBuLa.ViewModels;
-internal partial class SetupScreenVM : BaseVM {
+internal class SetupScreenVM : BaseVM {
   private ILogger<SetupScreenVM>? Logger => App.GetService<ILogger<SetupScreenVM>>();
   public EbulaVM Ebula { get; }
 
@@ -41,10 +40,13 @@ internal partial class SetupScreenVM : BaseVM {
     Ebula.ConfigDirtyChanged -= Ebula_ConfigDirtyChanged;
   }
 
-  private void Ebula_PropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e) {
-    if (e.PropertyName == nameof(Ebula.EditMode)) {
-      OnPropertyChanged(nameof(CanSaveRoute));
-      OnPropertyChanged(nameof(SelectedRoute));
+  private void Ebula_PropertyChanged(object? sender, PropertyChangedEventArgs e) {
+    if (sender != Ebula) return;
+    switch (e.PropertyName) {
+      case nameof(Ebula.EditMode):
+        OnPropertyChanged(nameof(CanSaveRoute));
+        OnPropertyChanged(nameof(SelectedRoute));
+        break;
     }
   }
 
@@ -83,8 +85,6 @@ internal partial class SetupScreenVM : BaseVM {
   public BaseC RemoveDestinationCommand { get; }
   public bool CanSaveRoute => Ebula.EditMode && UsingCustom;
   public BaseC SaveRouteCommand { get; }
-
-  private string _configName = string.Empty;
   public string ConfigName {
     get {
       return Ebula.Model.Config?.Name ?? string.Empty;
@@ -158,43 +158,6 @@ internal partial class SetupScreenVM : BaseVM {
   public ObservableCollection<EbulaRouteEntryVM> RouteOverview { get; } = new();
 
   public ObservableCollection<EbulaCustomEntryVM> CustomRoute { get; } = new();
-  public string Service {
-    get {
-      return Ebula.Service;
-    }
-    set {
-      Ebula.Service = value;
-      OnPropertyChanged(nameof(Service));
-    }
-  }
-
-  private TimeSpan _departure = TimeSpan.Zero;
-  public TimeSpan Departure {
-    get {
-      return _departure;
-    }
-    set {
-      _departure = value;
-      OnPropertyChanged(nameof(Departure));
-      OnPropertyChanged(nameof(DepartureText));
-    }
-  }
-  public string DepartureText {
-    get => Departure.ToString("hh':'mm':'ss");
-    set {
-      if (ShortTime().IsMatch(value) && TimeSpan.TryParse($"{value[..2]}:{value[2..4]}:{value[4..]}", out var t)
-        || Time().IsMatch(value) && TimeSpan.TryParse(value, out t)) {
-        Logger?.LogInformation("Departure time set to {DepartureTime}", t);
-        Departure = t;
-      }
-    }
-  }
-
-  [GeneratedRegex("\\d{2}:\\d{2}:\\d{2}")]
-  private static partial Regex Time();
-
-  [GeneratedRegex("\\d{6}")]
-  private static partial Regex ShortTime();
 
 
   #endregion

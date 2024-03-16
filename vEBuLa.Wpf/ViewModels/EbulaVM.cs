@@ -1,11 +1,13 @@
 ﻿using Microsoft.Extensions.Logging;
 using System;
 using System.ComponentModel;
+using System.Text.RegularExpressions;
+using System.Timers;
 using vEBuLa.Commands;
 using vEBuLa.Models;
 
 namespace vEBuLa.ViewModels;
-internal class EbulaVM : BaseVM {
+internal partial class EbulaVM : BaseVM {
   private ILogger<EbulaEntryVM>? Logger => App.GetService<ILogger<EbulaEntryVM>>();
   public Ebula Model { get; set; }
   public GlobalHotkeyHelper? Hotkeys { get; private set; }
@@ -35,6 +37,24 @@ internal class EbulaVM : BaseVM {
     Hotkeys = null;
   }
 
+  public void RunServiceClock() {
+    if (ServiceClock is null) {
+      ServiceClock = new Timer(TimeSpan.FromSeconds(0.5));
+      ServiceClock.AutoReset = true;
+      ServiceClock.Elapsed += (sender, e) => {
+        ServiceTime += e.SignalTime - LastTimeUpdate;
+        LastTimeUpdate = e.SignalTime;
+      };
+    }
+    LastTimeUpdate = DateTime.Now;
+    ServiceClock.Start();
+  }
+
+  public void StopServiceClock() {
+    if (ServiceClock is not null)
+      ServiceClock.Stop();
+  }
+
   public void MarkDirty() {
     if (Model.Config.IsDirty) return;
     Model.Config.MarkDirty();
@@ -49,6 +69,50 @@ internal class EbulaVM : BaseVM {
   public event Action ConfigDirtyChanged;
 
   #region Properties
+  private Timer? ServiceClock = null;
+  private DateTime LastTimeUpdate = DateTime.MinValue;
+  private TimeSpan _serviceStartTime = TimeSpan.Zero;
+  public TimeSpan ServiceStartTime {
+    get => _serviceStartTime;
+    set {
+      _serviceStartTime = value;
+      OnPropertyChanged(nameof(ServiceStartTime));
+      OnPropertyChanged(nameof(FormattedServiceStartTime));
+    }
+  }
+  public string FormattedServiceStartTime {
+    get => ServiceStartTime.ToString("hh':'mm':'ss");
+    set {
+      if (ShortTime().IsMatch(value) && TimeSpan.TryParse($"{value[..2]}:{value[2..4]}:{value[4..]}", out var t)
+        || Time().IsMatch(value) && TimeSpan.TryParse(value, out t)) {
+        ServiceStartTime = t;
+      }
+    }
+  }
+  public TimeSpan ServiceDelay { get; set; } = TimeSpan.Zero;
+  public TimeSpan ServiceElapsedTime { get; set; } = TimeSpan.Zero;
+  public TimeSpan ServiceTime {
+    get {
+      return ServiceStartTime + ServiceElapsedTime;
+    }
+    set {
+      ServiceElapsedTime = value - ServiceStartTime;
+      OnPropertyChanged(nameof(ServiceTime));
+      OnPropertyChanged(nameof(FormattedServiceTime));
+    }
+  }
+  public string FormattedServiceTime => ServiceTime.ToString(@"hh\:mm\:ss");
+
+  private string _serviceName = "000000";
+  public string ServiceName {
+    get {
+      return _serviceName;
+    }
+    set {
+      _serviceName = value;
+      OnPropertyChanged(nameof(ServiceName));
+    }
+  }
 
   private BaseVM _screen;
   public BaseVM Screen {
@@ -85,17 +149,6 @@ internal class EbulaVM : BaseVM {
   }
   public bool NormalMode => !EditMode;
 
-  private string _service = "000000";
-  public string Service {
-    get {
-      return _service.PadLeft(6);
-    }
-    set {
-      _service = value;
-      OnPropertyChanged(nameof(Service));
-    }
-  }
-
   #region Commands
 
   public BaseC ToggleEditCommand { get; }
@@ -115,5 +168,11 @@ internal class EbulaVM : BaseVM {
   #endregion
 
   #endregion
+
+  [GeneratedRegex("\\d{2}:\\d{2}:\\d{2}")]
+  private static partial Regex Time();
+
+  [GeneratedRegex("\\d{6}")]
+  private static partial Regex ShortTime();
 
 }
