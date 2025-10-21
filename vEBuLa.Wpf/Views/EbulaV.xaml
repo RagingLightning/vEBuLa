@@ -17,6 +17,9 @@
         <DataTemplate DataType="{x:Type vm:SetupScreenVM}">
             <local:SetupScreenV/>
         </DataTemplate>
+        <DataTemplate DataType="{x:Type vm:LoadingScreenVM}">
+            <local:LoadingScreenV/>
+        </DataTemplate>
         <Style TargetType="Button">
             <Setter Property="HorizontalAlignment" Value="Center"/>
             <Setter Property="VerticalAlignment" Value="Center"/>

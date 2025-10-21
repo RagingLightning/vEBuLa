@@ -23,7 +23,8 @@
             <RowDefinition/>
         </Grid.RowDefinitions>
 
-        <TextBlock Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="4" Text="Change Name" TextAlignment="Center" VerticalAlignment="Center" FontSize="22"/>
+        <TextBlock Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3" Text="Change Name" TextAlignment="Center" VerticalAlignment="Center" FontSize="22"/>
+        <CheckBox x:Name="cbxBox" Grid.Row="0" Grid.Column="3" Content="Box" FontSize="11" VerticalAlignment="Center" VerticalContentAlignment="Center"/>
 
         <Label Grid.Row="1" Content="Main: " FontSize="11" Margin="-4"/>
         <CheckBox x:Name="cbxMain" Grid.Row="2" Content="Bold" FontSize="11" VerticalAlignment="Center" VerticalContentAlignment="Center"/>

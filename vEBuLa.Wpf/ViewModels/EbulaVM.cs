@@ -1,22 +1,45 @@
 ﻿using Microsoft.Extensions.Logging;
+using Newtonsoft.Json.Linq;
 using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.IO;
+using System.Linq;
 using System.Text.RegularExpressions;
+using System.Threading;
 using System.Timers;
+using System.Windows;
 using vEBuLa.Commands;
+using vEBuLa.Extensions;
 using vEBuLa.Models;
+using Windows.Gaming.Input;
 
 namespace vEBuLa.ViewModels;
-internal partial class EbulaVM : BaseVM {
+internal class EbulaVM : BaseVM {
   private ILogger<EbulaEntryVM>? Logger => App.GetService<ILogger<EbulaEntryVM>>();
   public Ebula Model { get; set; }
+  public string ConfigFolder { get; private set; }
   public GlobalHotkeyHelper? Hotkeys { get; private set; }
 
   public EbulaVM() {
     Logger?.LogInformation("Loading EBuLa System");
-    Model = new Ebula(null);
+    if (Environment.GetEnvironmentVariable("vEbulaConfigPath") is string configPath)
+      ConfigFolder = configPath;
+    else
+      ConfigFolder = "config";
+    Logger?.LogInformation("Config Folder: {ConfigFolder}", new FileInfo(ConfigFolder).FullName);
+    if (!Directory.Exists(ConfigFolder))
+      Directory.CreateDirectory(ConfigFolder);
+    Model = new Ebula(ConfigFolder, false);
+
+    if (File.Exists(Path.Combine(ConfigFolder, "apiKey_TSW6.txt")))
+      GameApi = new EbulaTswApi(File.ReadAllText(Path.Combine(ConfigFolder, "apiKey_TSW6.txt")).Trim());
+
+    RunServiceClock();
+
     Logger?.LogDebug("Screen loading");
-    Screen = new SetupScreenVM(this);
+    Screen = new EbulaScreenVM(this);
     ToggleScreenCommand = new ToggleScreenC(this);
     ToggleEditCommand = new ToggleEditModeC(this);
     ExitAppCommand = new ExitAppC();
@@ -37,15 +60,68 @@ internal partial class EbulaVM : BaseVM {
     Hotkeys = null;
   }
 
+  internal void LoadService(IEbulaService service) {
+    Logger?.LogDebug("Loading Ebula for {Service}", service);
+
+    Service = service;
+    ServiceDelay = TimeSpan.Zero;
+
+    if (GameApi?.IsAvailable == true && GameApi.GetGameTime() is DateTime gameTime) {
+      ServiceStartDate = gameTime.Date + service.StartTime;
+    }
+    else {
+      ServiceStartDate = DateTime.Today + service.StartTime;
+    }
+
+    Screen.Destroy();
+    Screen = new LoadingScreenVM();
+
+    NavigateCommand = null;
+
+    new Thread(() => {
+      Thread.Sleep(3500);
+      Application.Current.Dispatcher.Invoke(() => {
+        Screen = new EbulaScreenVM(this);
+        RunServiceClock();
+      });
+    }).Start();
+  }
+
+  internal void LoadSegments(IEnumerable<EbulaSegment> segments, string serviceName, TimeSpan serviceStartTime) {
+    Logger?.LogDebug("Loading Ebula with {SegmentCount} segments", segments.Count());
+
+    LoadService(new EbulaCustomService(segments, serviceStartTime, serviceName));
+  }
+
   public void RunServiceClock() {
     if (ServiceClock is null) {
-      ServiceClock = new Timer(TimeSpan.FromSeconds(0.5));
+      ServiceClock = new System.Timers.Timer(TimeSpan.FromSeconds(0.5));
       ServiceClock.AutoReset = true;
       ServiceClock.Elapsed += (sender, e) => {
-        ServiceTime += e.SignalTime - LastTimeUpdate;
+        if (EditMode) {
+          CurrentDate = ServiceStartDate;
+          return;
+        }
+
+        if (TimerTicks == 0 && GameApi?.IsAvailable == true && GameApi.GetGameTime() is DateTime gameTime) {
+          CurrentDate = gameTime;
+        }
+        else {
+          CurrentDate += e.SignalTime - LastTimeUpdate;
+          TimerTicks = (TimerTicks+1) % 20;
+        }
         LastTimeUpdate = e.SignalTime;
+
+        var serviceDate = DateOnly.FromDateTime(ServiceStartDate);
+        var currentDate = DateOnly.FromDateTime(CurrentDate);
+        if (serviceDate != currentDate)
+          ServiceStartDate = new DateTime(currentDate, TimeOnly.FromDateTime(ServiceStartDate));
       };
     }
+
+    if (Service is not null)
+      CurrentDate = ServiceStartDate;
+
     LastTimeUpdate = DateTime.Now;
     ServiceClock.Start();
   }
@@ -56,63 +132,43 @@ internal partial class EbulaVM : BaseVM {
   }
 
   public void MarkDirty() {
-    if (Model.Config.IsDirty) return;
-    Model.Config.MarkDirty();
+    if (Model.Config is not EbulaConfig cfg || cfg.IsDirty) return;
+    cfg.MarkDirty();
     ConfigDirtyChanged?.Invoke();
   }
 
   public void MarkClean() {
-    if (Model.Config.IsDirty) return;
+    if (Model.Config is not EbulaConfig cfg || cfg.IsDirty) return;
     ConfigDirtyChanged?.Invoke();
   }
 
-  public event Action ConfigDirtyChanged;
+  public event Action? ConfigDirtyChanged;
 
   #region Properties
-  private Timer? ServiceClock = null;
+  public IEbulaGameApi? GameApi;
+  private System.Timers.Timer? ServiceClock = null;
+  private int TimerTicks = 0;
   private DateTime LastTimeUpdate = DateTime.MinValue;
-  private TimeSpan _serviceStartTime = TimeSpan.Zero;
-  public TimeSpan ServiceStartTime {
-    get => _serviceStartTime;
-    set {
-      _serviceStartTime = value;
-      OnPropertyChanged(nameof(ServiceStartTime));
-      OnPropertyChanged(nameof(FormattedServiceStartTime));
-    }
-  }
-  public string FormattedServiceStartTime {
-    get => ServiceStartTime.ToString("hh':'mm':'ss");
-    set {
-      if (ShortTime().IsMatch(value) && TimeSpan.TryParse($"{value[..2]}:{value[2..4]}:{value[4..]}", out var t)
-        || Time().IsMatch(value) && TimeSpan.TryParse(value, out t)) {
-        ServiceStartTime = t;
-      }
-    }
-  }
-  public TimeSpan ServiceDelay { get; set; } = TimeSpan.Zero;
-  public TimeSpan ServiceElapsedTime { get; set; } = TimeSpan.Zero;
-  public TimeSpan ServiceTime {
-    get {
-      return ServiceStartTime + ServiceElapsedTime;
-    }
-    set {
-      ServiceElapsedTime = value - ServiceStartTime;
-      OnPropertyChanged(nameof(ServiceTime));
-      OnPropertyChanged(nameof(FormattedServiceTime));
-    }
-  }
-  public string FormattedServiceTime => ServiceTime.ToString(@"hh\:mm\:ss");
 
-  private string _serviceName = "000000";
-  public string ServiceName {
-    get {
-      return _serviceName;
-    }
+  public ObservableCollection<EbulaSegmentVM> Segments { get; } = new();
+
+  public IEbulaService? Service { get; private set; }
+  public TimeSpan ServiceDelay { get; set; } = TimeSpan.Zero;
+  public DateTime ServiceStartDate { get; private set; } = DateTime.Today;
+
+  private DateTime _currentDate = DateTime.Now;
+  public DateTime CurrentDate {
+    get => _currentDate;
     set {
-      _serviceName = value;
-      OnPropertyChanged(nameof(ServiceName));
+      _currentDate = value;
+      OnPropertyChanged(nameof(CurrentDate));
+      OnPropertyChanged(nameof(FormattedDate));
+      OnPropertyChanged(nameof(FormattedTime));
     }
-  }
+  } 
+
+  public string FormattedDate => CurrentDate.ToString(@"dd\.MM\.yyyy");
+  public string FormattedTime => CurrentDate.ToString(@"HH\:mm\:ss");
 
   private BaseVM _screen;
   public BaseVM Screen {
@@ -135,8 +191,7 @@ internal partial class EbulaVM : BaseVM {
       OnPropertyChanged(nameof(Active));
     }
   }
-
-  private bool _editMode;
+  private bool _editMode = false;
   public bool EditMode {
     get {
       return _editMode;
@@ -145,9 +200,28 @@ internal partial class EbulaVM : BaseVM {
       _editMode = value;
       OnPropertyChanged(nameof(EditMode));
       OnPropertyChanged(nameof(NormalMode));
+      OnPropertyChanged(nameof(ServiceEditMode));
+      OnPropertyChanged(nameof(RouteEditMode));
     }
   }
   public bool NormalMode => !EditMode;
+
+  private bool _serviceEditMode;
+  public bool ServiceEditMode {
+    get {
+      return _serviceEditMode && _editMode;
+    }
+    set {
+      _serviceEditMode = value;
+      OnPropertyChanged(nameof(ServiceEditMode));
+      OnPropertyChanged(nameof(RouteEditMode));
+    }
+  }
+
+  public bool RouteEditMode {
+    get => !_serviceEditMode && _editMode;
+    set => ServiceEditMode = !value;
+  }
 
   #region Commands
 
@@ -168,11 +242,4 @@ internal partial class EbulaVM : BaseVM {
   #endregion
 
   #endregion
-
-  [GeneratedRegex("\\d{2}:\\d{2}:\\d{2}")]
-  private static partial Regex Time();
-
-  [GeneratedRegex("\\d{6}")]
-  private static partial Regex ShortTime();
-
 }

@@ -5,17 +5,15 @@ using vEBuLa.ViewModels;
 
 namespace vEBuLa.Commands;
 internal class AddEbulaEntryC : BaseC {
-  private ILogger<AddEbulaEntryC>? Logger => App.GetService<ILogger<AddEbulaEntryC>>();
-  private readonly EbulaVM Ebula;
+  internal static readonly AddEbulaEntryC INSTANCE = new();
 
-  internal AddEbulaEntryC(EbulaVM ebula) {
-    Ebula = ebula;
-  }
+  private ILogger<AddEbulaEntryC>? Logger => App.GetService<ILogger<AddEbulaEntryC>>();
 
   public override void Execute(object? parameter) {
     var newEntry = new EbulaEntry();
 
     if (parameter is EbulaMarkerEntryVM marker) {
+      if (marker.Screen.Ebula.Service is null) return;
       Logger?.LogInformation("Adding new entry above {ExistingMarker}", marker);
       Logger?.LogDebug("{MarkerEntry} is marker of type {MarkerType}", marker, marker.MarkerType);
       if (marker.MarkerType == EbulaMarkerType.PRE) {
@@ -36,8 +34,9 @@ internal class AddEbulaEntryC : BaseC {
       marker.Screen.Ebula.MarkDirty();
     }
     else if (parameter is EbulaEntryVM entry) {
+      if (entry.Screen.Ebula.Service is null) return;
       Logger?.LogInformation("Adding new entry above {ExistingEntry}", entry);
-      var index = Ebula.Model.Segments.Select(s => s.FindEntry(entry.Model)).FirstOrDefault(p => p is not null);
+      var index = entry.Screen.Ebula.Service.Segments.Select(s => s.FindEntry(entry.Model)).FirstOrDefault(p => p is not null);
       if (index is null) {
         Logger?.LogWarning("Unable to locate {ExistingEntry} in loaded sequence", entry);
         return;

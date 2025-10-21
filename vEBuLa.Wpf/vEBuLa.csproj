@@ -2,15 +2,17 @@
 
 	<PropertyGroup>
 		<OutputType>WinExe</OutputType>
-		<TargetFramework>net7.0-windows</TargetFramework>
+		<TargetFramework>net9.0-windows10.0.26100.0</TargetFramework>
 		<Nullable>enable</Nullable>
 		<UseWPF>true</UseWPF>
 		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 	</PropertyGroup>
 
 	<ItemGroup>
+		<None Remove="manualScroll.png" />
 		<None Remove="phone.png" />
 		<None Remove="serilog.json" />
+		<None Remove="timeScroll.png" />
 	</ItemGroup>
 
 	<ItemGroup>
@@ -20,20 +22,29 @@
 	<ItemGroup>
 		<PackageReference Include="Microsoft.Extensions.Configuration" Version="8.0.0" />
 		<PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="8.0.0" />
+		<PackageReference Include="Microsoft.Xaml.Behaviors.Wpf" Version="1.1.77" />
 		<PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
 		<PackageReference Include="Serilog.AspNetCore" Version="8.0.0" />
 		<PackageReference Include="Serilog.Enrichers.Thread" Version="3.1.0" />
 	</ItemGroup>
 
 	<ItemGroup>
+	  <Resource Include="manualScroll.png" />
 	  <Resource Include="phone.png" />
+	  <Resource Include="timeScroll.png" />
 	</ItemGroup>
 
 	<ItemGroup>
+	  <Compile Update="Dialogs\EditServiceDialog.xaml.cs">
+	    <SubType>Code</SubType>
+	  </Compile>
 	  <Compile Update="Dialogs\EditSavedRouteDialog.xaml.cs">
 	    <SubType>Code</SubType>
 	  </Compile>
 	  <Compile Update="Dialogs\EditStationDialog.xaml.cs">
+	    <SubType>Code</SubType>
+	  </Compile>
+	  <Compile Update="Dialogs\EditDateTimeDialog.xaml.cs">
 	    <SubType>Code</SubType>
 	  </Compile>
 	  <Compile Update="Dialogs\EditTimeSpanDialog.xaml.cs">
@@ -52,6 +63,9 @@
 	    <SubType>Code</SubType>
 	  </Compile>
 	  <Compile Update="Views\EbulaMarkerEntryV.xaml.cs">
+	    <SubType>Code</SubType>
+	  </Compile>
+	  <Compile Update="Views\Popup\SelectVehiclePopupV.xaml.cs">
 	    <SubType>Code</SubType>
 	  </Compile>
 	</ItemGroup>

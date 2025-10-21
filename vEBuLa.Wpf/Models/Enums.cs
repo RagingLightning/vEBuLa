@@ -14,3 +14,9 @@ public enum Gradient {
   BELOW_30,
   ABOVE_30
 }
+
+public enum EbulaScrollMode {
+  POSITION,
+  TIME,
+  MANUAL
+}

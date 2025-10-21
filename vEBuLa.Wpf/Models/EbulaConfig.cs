@@ -22,6 +22,8 @@ internal class EbulaConfig {
   public Dictionary<Guid, EbulaStation> Stations { get; private set; } = new();
   public Dictionary<Guid, EbulaSegment> Segments { get; private set; } = new();
   public Dictionary<Guid, EbulaRoute> Routes { get; private set; } = new();
+  public Dictionary<Guid, EbulaService> Services { get; private set; } = new();
+  public Dictionary<string, int> Vehicles { get; private set; } = new();
 
   public EbulaConfig() {
     Logger?.LogInformation("Using blank EBuLa Config");
@@ -46,6 +48,11 @@ internal class EbulaConfig {
     if (jRoutes is null) {
       Logger?.LogWarning("Config {Config} contains no Route entries", this);
       jRoutes = new JObject();
+    }
+    var jServices = jConfig.Value<JObject>(nameof(Services));
+    if (jServices is null) {
+      Logger?.LogWarning("Config {Config} contains no Service entries", this);
+      jServices = new JObject();
     }
 
     foreach (var jStation in jStations) {
@@ -88,6 +95,31 @@ internal class EbulaConfig {
       }
       Logger?.LogDebug("Adding Route {Route} to config", route);
       Routes[route.Id] = route;
+    }
+
+    foreach (var jService in jServices) {
+      if (jService.Value is not JObject) {
+        Logger?.LogWarning("Service {ServiceJson} failed to parse", jService);
+        continue;
+      }
+      var service = new EbulaService(this, Guid.Parse(jService.Key), (JObject) jService.Value);
+      if (Segments.TryGetValue(service.Id, out var svc)) {
+        Logger?.LogWarning("Service {Service} shares ID {ServiceId} with {ExistingService}", service, service.Id, svc);
+        continue;
+      }
+      Logger?.LogDebug("Adding Service {Service} to config", service);
+      Services[service.Id] = service;
+    }
+
+    Logger?.LogDebug("Collecting vehicle types");
+    foreach (var service in Services.Values) {
+      foreach (var vehicle in service.Vehicles) {
+        if (!Vehicles.TryGetValue(vehicle, out var count)) {
+          Logger?.LogTrace("New Vehicle type {VehicleType}", vehicle);
+          count = 0;
+        }
+        Vehicles[vehicle] = count+1;
+      }
     }
 
     Logger?.LogInformation("EBuLa Config {Config} fully loaded", this);
@@ -142,8 +174,21 @@ internal class EbulaConfig {
     foreach (var route in Routes) jRoutes[route.Key.ToString()] = JObject.FromObject(route.Value);
     jConfig[nameof(Routes)] = jRoutes;
 
+    var jServices = new JObject();
+    foreach (var service in Services) jServices[service.Key.ToString()] = JObject.FromObject(service.Value);
+    jConfig[nameof(Services)] = jServices;
+
     var jsonString = JsonConvert.SerializeObject(jConfig, Formatting.Indented);
     File.WriteAllText(fileName, jsonString);
     IsDirty = false;
+  }
+
+  internal EbulaService AddService(EbulaRoute selectedRoute, string serviceName, TimeSpan startTime, string description, List<string> vehicles) {
+    var id = Guid.NewGuid();
+    while (Services.ContainsKey(id)) id = Guid.NewGuid();
+    var service = new EbulaService(id, selectedRoute, serviceName, startTime, description, vehicles);
+    Services.Add(id, service);
+    IsDirty = true;
+    return service;
   }
 }

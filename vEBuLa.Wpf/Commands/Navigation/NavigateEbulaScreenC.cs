@@ -28,7 +28,7 @@ internal class NavigateEbulaScreenC : NavigateScreenC {
     Logger?.LogTrace("Ebula Navigation: {Button} - {Action}", "Cancel", "Restart");
     Screen.StartEntry = 0;
     Screen.CurrentEntry = 0;
-    Screen.Ebula.ServiceElapsedTime = TimeSpan.Zero;
+    Screen.Ebula.CurrentDate = Screen.Ebula.ServiceStartDate;
   }
 
   protected override void Accept() {
@@ -70,6 +70,10 @@ internal class NavigateEbulaScreenC : NavigateScreenC {
   protected override void St() {
     Screen.Ebula.Screen = new SetupScreenVM(Screen.Ebula);
     Screen.Destroy();
+  }
+
+  protected override void Button0() {
+    Screen.PopupWindow = new ServiceNumberPopupVM(Screen, Screen.Ebula.Model);
   }
 
   protected override void Button6() {

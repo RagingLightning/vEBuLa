@@ -14,17 +14,26 @@ internal class EditEbulaEntryStationC : BaseC {
 
     Logger?.LogInformation("Starting {EditType} edit for EbulaEntry {EbulaEntry}", "Station", entry);
 
-    var mainWindow = Application.Current.MainWindow;
-    var dialog = new EditEntryNameDialog(entry.MainLabel, entry.SecondaryLabel, entry.MainBold, entry.SecondaryBold, mainWindow.PointToScreen(Mouse.GetPosition(mainWindow))-new Point(75,50));
-
-    if (dialog.ShowDialog() == false) {
-      Logger?.LogDebug("{EditType} edit aborted by user", "Station");
-      return;
+    if (entry.Screen.Ebula.ServiceEditMode) {
+      entry.MainBold = !entry.MainBold;
     }
-    entry.MainLabel = EditEntryNameDialog.EntryName;
-    entry.SecondaryLabel = EditEntryNameDialog.Description;
-    entry.MainBold = EditEntryNameDialog.NameBold;
-    entry.SecondaryBold = EditEntryNameDialog.DescriptionBold;
+    else {
+
+      var mainWindow = Application.Current.MainWindow;
+      var dialog = new EditEntryNameDialog(entry.MainLabel, entry.SecondaryLabel, entry.MainBold, entry.SecondaryBold, entry.LabelBox, mainWindow.PointToScreen(Mouse.GetPosition(mainWindow)) - new Point(75, 50));
+
+      if (dialog.ShowDialog() == false) {
+        Logger?.LogDebug("{EditType} edit aborted by user", "Station");
+        return;
+      }
+
+      entry.MainLabel = EditEntryNameDialog.EntryName;
+      entry.SecondaryLabel = EditEntryNameDialog.Description;
+      entry.MainBold = EditEntryNameDialog.NameBold;
+      entry.SecondaryBold = EditEntryNameDialog.DescriptionBold;
+      entry.LabelBox = EditEntryNameDialog.LabelBox;
+
+    }
 
     Logger?.LogInformation("{EditType} edit for EbulaEntry {EbulaEntry} complete", "Station", entry);
 

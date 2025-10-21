@@ -2,7 +2,7 @@
   "Serilog": {
     "Using": [ "Serilog.Sinks.Console", "Serilog.Sinks.File", "Serilog.Enrichers.Thread" ],
     "MinimumLevel": {
-      "Default": "Verbose",
+      "Default": "Debug",
       "Override": {
         "Microsoft": "Warning",
         "System": "Warning"
@@ -35,14 +35,14 @@
         "Args": {
           "outputTemplate": "[{Timestamp:G} {Level:u3}] {Message:lj}     <s:{SourceContext}>{NewLine}{Exception}"
         }
-      },
+      }/*,
       "ClefSink": {
         "Name": "File",
         "Args": {
           "path": "d:/temp/",
           "formatter": "Serilog.Formatting.Compact.CompactJsonFormatter, Serilog.Formatting.Compact"
         }
-      }
+      }*/
     }
   }
 }

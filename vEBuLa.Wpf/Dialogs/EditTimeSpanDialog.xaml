@@ -22,7 +22,7 @@
             <RowDefinition/>
         </Grid.RowDefinitions>
 
-        <TextBlock x:Name="Header" Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="6" d:Text="Change Departure" TextAlignment="Center" VerticalAlignment="Center" FontSize="22"/>
+        <TextBlock x:Name="Header" Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="6" Text="Change Duration" TextAlignment="Center" VerticalAlignment="Center" FontSize="22"/>
 
         <TextBlock Text="T+" Grid.Row="1" FontSize="22" VerticalAlignment="Center"/>
         <TextBox x:Name="txtHour" Grid.Row="1" Grid.Column="1" FontSize="22" TabIndex="1" FocusManager.GotFocus="Focus" VerticalContentAlignment="Center"/>

@@ -1,4 +1,5 @@
 ﻿using vEBuLa.Commands.Navigation;
+using vEBuLa.Models;
 
 namespace vEBuLa.ViewModels;
 class EbulaControlPopupVM : BaseVM {
@@ -7,7 +8,7 @@ class EbulaControlPopupVM : BaseVM {
 		Screen = screen;
 		ScrollBackwards = Screen.ScrollBackwards;
 		_delay = Screen.ServiceDelay;
-		TimeScrolling = Screen.TimeScrolling;
+		ScrollMode = Screen.ScrollMode;
 
 		Screen.Ebula.NavigateCommand = new NavigateControlPopupC(this, Screen);
 
@@ -17,7 +18,7 @@ class EbulaControlPopupVM : BaseVM {
 	internal void Close(bool submit) {
 		if (submit) {
 			Screen.ScrollBackwards = ScrollBackwards;
-			Screen.TimeScrolling = TimeScrolling;
+			Screen.ScrollMode = ScrollMode;
 			Screen.FindNextTarget();
 			Screen.ServiceDelay = _delay;
 		}
@@ -42,19 +43,37 @@ class EbulaControlPopupVM : BaseVM {
   }
 
   internal void NextSetting() {
-		if (DelayFocus) return;
+		if (DelayFocus)
+			return;
 
-		if (DirectionFocus) ScrollBackwards = ScrollForwards;
+		if (DirectionFocus) {
+			ScrollBackwards = ScrollForwards;
+			return;
+		}
 
-		if (ScrollModeFocus) TimeScrolling = ManualScrolling;
+		ScrollMode = ScrollMode switch {
+			EbulaScrollMode.POSITION => EbulaScrollMode.TIME,
+			EbulaScrollMode.TIME => EbulaScrollMode.MANUAL,
+			EbulaScrollMode.MANUAL => EbulaScrollMode.POSITION,
+			_ => EbulaScrollMode.POSITION
+		};
   }
 
   internal void PrevSetting() {
-    if (DelayFocus) return;
+    if (DelayFocus)
+			return;
 
-    if (DirectionFocus) ScrollBackwards = ScrollForwards;
+		if (DirectionFocus) {
+			ScrollBackwards = ScrollForwards;
+			return;
+		}
 
-    if (ScrollModeFocus) TimeScrolling = ManualScrolling;
+    ScrollMode = ScrollMode switch {
+      EbulaScrollMode.MANUAL => EbulaScrollMode.TIME,
+      EbulaScrollMode.TIME => EbulaScrollMode.POSITION,
+      EbulaScrollMode.POSITION => EbulaScrollMode.MANUAL,
+      _ => EbulaScrollMode.MANUAL
+    };
   }
 
 	internal void AppendDigit(int digit) {
@@ -99,25 +118,56 @@ class EbulaControlPopupVM : BaseVM {
 				_delay = delay;
 			OnPropertyChanged(nameof(Delay));
 		}
-	}
+  }
 
-	private bool _timeScrolling;
-	public bool ManualScrolling => !_timeScrolling;
-	public bool TimeScrolling {
-		get {
-			return _timeScrolling;
-		}
-		set {
-			_timeScrolling = value;
-			OnPropertyChanged(nameof(TimeScrolling));
-			OnPropertyChanged(nameof(ManualScrolling));
-      OnPropertyChanged(nameof(ScrollAutoFocus));
+  private EbulaScrollMode _scrollMode;
+  public EbulaScrollMode ScrollMode {
+    get {
+      return _scrollMode;
+    }
+    set {
+      _scrollMode = value;
+      OnPropertyChanged(nameof(PositionScrolling));
+      OnPropertyChanged(nameof(TimeScrolling));
+      OnPropertyChanged(nameof(ManualScrolling));
+      OnPropertyChanged(nameof(ScrollPositionFocus));
+      OnPropertyChanged(nameof(ScrollTimeFocus));
       OnPropertyChanged(nameof(ScrollManualFocus));
     }
-	}
+  }
 
-	#region Focus Control
-	private bool _directionFocus;
+	public bool PositionScrolling {
+		get {
+			return ScrollMode == EbulaScrollMode.POSITION;
+		}
+		set {
+			if (value)
+				ScrollMode = EbulaScrollMode.POSITION;
+		}
+  }
+
+	public bool TimeScrolling {
+		get {
+			return ScrollMode == EbulaScrollMode.TIME;
+    }
+		set {
+			if (value)
+				ScrollMode = EbulaScrollMode.TIME;
+		}
+  }
+
+	public bool ManualScrolling {
+		get {
+			return ScrollMode == EbulaScrollMode.MANUAL;
+    }
+		set {
+			if (value)
+				ScrollMode = EbulaScrollMode.MANUAL;
+    }
+  }
+
+  #region Focus Control
+  private bool _directionFocus;
 	public bool DirectionFocus {
 		get {
 			return _directionFocus;
@@ -155,15 +205,17 @@ class EbulaControlPopupVM : BaseVM {
 		set {
 			_scrollModeFocus = value;
 			OnPropertyChanged(nameof(ScrollModeFocus));
-      OnPropertyChanged(nameof(ScrollAutoFocus));
+      OnPropertyChanged(nameof(ScrollPositionFocus));
+      OnPropertyChanged(nameof(ScrollTimeFocus));
       OnPropertyChanged(nameof(ScrollManualFocus));
     }
 	}
 
-	public bool ScrollAutoFocus => ScrollModeFocus && TimeScrolling;
+  public bool ScrollPositionFocus => ScrollModeFocus && PositionScrolling;
+  public bool ScrollTimeFocus => ScrollModeFocus && TimeScrolling;
 	public bool ScrollManualFocus => ScrollModeFocus && ManualScrolling;
 
-	#endregion
+  #endregion
 
-	#endregion
+  #endregion
 }

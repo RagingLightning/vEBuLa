@@ -15,7 +15,7 @@ internal class EditSegmentDurationC : BaseC {
     Logger?.LogInformation("Starting {EditType} edit for EbulaSegment {EbulaSegment}", "Duration", entry.Segment);
 
     var mainWindow = Application.Current.MainWindow;
-    var dialog = new EditTimeSpanDialog(entry.Segment.Duration, TimeSpanDialogType.DURATION, mainWindow.PointToScreen(Mouse.GetPosition(mainWindow)) - new Point(75, 50));
+    var dialog = new EditTimeSpanDialog(entry.Segment.Duration, mainWindow.PointToScreen(Mouse.GetPosition(mainWindow)) - new Point(75, 50));
 
     if (dialog.ShowDialog() == false) {
       Logger?.LogDebug("{EditType} edit aborted by user", "Duration");

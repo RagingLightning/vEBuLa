@@ -7,7 +7,7 @@
              xmlns:vm="clr-namespace:vEBuLa.ViewModels"
              xmlns:ext="clr-namespace:vEBuLa.Extensions"
              mc:Ignorable="d" 
-             d:DesignHeight="600" d:DesignWidth="800">
+             Height="600" Width="800">
     <UserControl.Resources>
         <BooleanToVisibilityConverter x:Key="BoolVis"/>
         <ControlTemplate x:Key="BorderRadio" TargetType="RadioButton">
@@ -19,7 +19,8 @@
     </UserControl.Resources>
     <Canvas Panel.ZIndex="100" Background="Transparent" IsHitTestVisible="False" d:DataContext="{d:DesignInstance vm:EbulaControlPopupVM}">
         <!-- Time Settings -->
-        <DockPanel d:Visibility="Visible" Canvas.Left="480" Canvas.Top="80" Background="LightGray" Width="320" Height="450" LastChildFill="False">
+        <Border Canvas.Left="476" Canvas.Top="78" BorderThickness="2" BorderBrush="LightGray">
+        <DockPanel d:Visibility="Visible" Background="LightGray" Width="320" Height="450" LastChildFill="False">
             <TextBlock DockPanel.Dock="Top" Text="Steuerungsart" Background="DarkBlue" Foreground="White" FontSize="16"/>
             <Grid DockPanel.Dock="Right">
                 <UniformGrid Columns="1" Rows="6" VerticalAlignment="Center">
@@ -58,8 +59,8 @@
                 </GroupBox>
                 <GroupBox Header="Blättermodus" Grid.Row="3" Margin="0,0,40,0" FontSize="16">
                     <UniformGrid Columns="1" Rows="3">
-                        <Rectangle/>
-                        <RadioButton Content="Zeit" GroupName="scrollmode" VerticalAlignment="Center" IsChecked="{Binding TimeScrolling, Mode=OneWay}" AllowDrop="{Binding ScrollAutoFocus}" Template="{StaticResource BorderRadio}"/>
+                            <RadioButton Content="GPS" GroupName="scrollmode" VerticalAlignment="Center" IsChecked="{Binding PositionScrolling, Mode=OneWay}" AllowDrop="{Binding ScrollPositionFocus}" Template="{StaticResource BorderRadio}"/>
+                            <RadioButton Content="Zeit" GroupName="scrollmode" VerticalAlignment="Center" IsChecked="{Binding TimeScrolling, Mode=OneWay}" AllowDrop="{Binding ScrollTimeFocus}" Template="{StaticResource BorderRadio}"/>
                         <RadioButton Content="manuell" GroupName="scrollmode" VerticalAlignment="Center" IsChecked="{Binding ManualScrolling, Mode=OneWay}" AllowDrop="{Binding ScrollManualFocus}" Template="{StaticResource BorderRadio}"/>
                     </UniformGrid>
                 </GroupBox>
@@ -70,5 +71,6 @@
                 </TextBlock>
             </Grid>
         </DockPanel>
+        </Border>
     </Canvas>
 </UserControl>

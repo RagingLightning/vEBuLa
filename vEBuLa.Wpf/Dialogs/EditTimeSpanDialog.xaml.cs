@@ -10,22 +10,17 @@ namespace vEBuLa.Dialogs;
 /// Interaktionslogik für EditSpeedDialog.xaml
 /// </summary>
 public partial class EditTimeSpanDialog : Window {
-  private ILogger<EditTimeSpanDialog>? Logger => App.GetService<ILogger<EditTimeSpanDialog>>();
+  private ILogger<EditDateTimeDialog>? Logger => App.GetService<ILogger<EditDateTimeDialog>>();
   public static TimeSpan? Time { get; private set; } = null;
-  public EditTimeSpanDialog(TimeSpan? timeSpan, TimeSpanDialogType type, Vector startupLocation) {
+  public EditTimeSpanDialog(TimeSpan? timeSpan, Vector startupLocation) {
     InitializeComponent();
 
-    Header.Text = type switch {
-      TimeSpanDialogType.ARRIVAL => "Change Arrival",
-      TimeSpanDialogType.DEPARTURE => "Change Departure",
-      TimeSpanDialogType.DURATION => "Change Duration",
-      _ => "Change Time"
-    };
-
     Time = timeSpan;
-    txtHour.Text = Time?.Hours.ToString() ?? string.Empty;
-    txtMinute.Text = Time?.Minutes.ToString() ?? string.Empty;
-    txtSecond.Text = Time?.Seconds.ToString() ?? string.Empty;
+    if (timeSpan is TimeSpan ts) {
+      txtHour.Text = (ts.Hours + 24 * ts.Days).ToString() ?? string.Empty;
+      txtMinute.Text = ts.Minutes.ToString() ?? string.Empty;
+      txtSecond.Text = ts.Seconds.ToString() ?? string.Empty;
+    }
 
     Left = startupLocation.X;
     Top = startupLocation.Y;
@@ -45,7 +40,8 @@ public partial class EditTimeSpanDialog : Window {
       Logger?.LogDebug("Dialog dismissed, success: {DialogSuccess}", e.Key == Key.Enter);
 
       DialogResult = e.Key == Key.Enter;
-    } catch (Exception ex) {
+    }
+    catch (Exception ex) {
       Logger?.LogWarning(ex, "Exception during Dialog submission");
       DialogResult = false;
     }
@@ -54,10 +50,4 @@ public partial class EditTimeSpanDialog : Window {
   private void Focus(object sender, RoutedEventArgs e) {
     if (sender is TextBox box) box.SelectAll();
   }
-}
-
-public enum TimeSpanDialogType {
-  ARRIVAL,
-  DEPARTURE,
-  DURATION
 }

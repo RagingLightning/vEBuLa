@@ -13,7 +13,10 @@ internal class ToggleEditModeC : BaseC {
   private readonly EbulaVM Ebula;
   public ToggleEditModeC(EbulaVM ebula) { Ebula = ebula; }
   public override void Execute(object? parameter) {
-    Ebula.EditMode = !Ebula.EditMode;
+    if (Ebula.Model.Config is not null)
+      Ebula.EditMode = !Ebula.EditMode;
+    else
+      Ebula.EditMode = false;
 
     if (Ebula.EditMode) Logger?.LogInformation("Edit Mode activated");
     else Logger?.LogInformation("Edit Mode deactivated");

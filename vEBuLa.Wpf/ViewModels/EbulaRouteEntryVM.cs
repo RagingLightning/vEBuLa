@@ -4,13 +4,13 @@ using System.ComponentModel;
 namespace vEBuLa.ViewModels;
 
 internal class EbulaRouteEntryVM : BaseVM {
-  private EbulaVM Ebula { get; }
+  private SetupScreenVM Screen { get; }
   private EbulaSegmentVM Segment { get; }
-  public EbulaRouteEntryVM(EbulaVM ebula, EbulaSegmentVM segment, EbulaRouteEntryVM? prev) {
-    Ebula = ebula;
+  public EbulaRouteEntryVM(SetupScreenVM screen, EbulaSegmentVM segment, EbulaRouteEntryVM? prev) {
+    Screen = screen;
     Segment = segment;
 
-    Ebula.PropertyChanged += Ebula_PropertyChanged;
+    Screen.PropertyChanged += Screen_PropertyChanged;
 
     if (prev is null) {
       Name = segment.Origin.Station?.Name ?? segment.Origin.Key.ToString();
@@ -22,15 +22,15 @@ internal class EbulaRouteEntryVM : BaseVM {
 
   public override void Destroy() {
     base.Destroy();
-    Ebula.PropertyChanged -= Ebula_PropertyChanged;
+    Screen.PropertyChanged -= Screen_PropertyChanged;
   }
 
-  private void Ebula_PropertyChanged(object? sender, PropertyChangedEventArgs e) {
-    if (e.PropertyName == nameof(Ebula.ServiceStartTime)) OnPropertyChanged(nameof(DepartureText));
+  private void Screen_PropertyChanged(object? sender, PropertyChangedEventArgs e) {
+    if (e.PropertyName == nameof(SetupScreenVM.ServiceStart)) OnPropertyChanged(nameof(DepartureText));
   }
 
   public string Name { get; }
 
   public TimeSpan Departure { get; }
-  public string DepartureText => Departure.Add(Ebula.ServiceStartTime).ToString(@"hh\:mm\:ss");
+  public string DepartureText => Departure.Add(Screen.ServiceStart).ToString(@"hh\:mm\:ss");
 }

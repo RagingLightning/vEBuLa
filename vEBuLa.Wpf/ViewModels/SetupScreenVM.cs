@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
@@ -13,11 +14,12 @@ internal class SetupScreenVM : BaseVM {
   private ILogger<SetupScreenVM>? Logger => App.GetService<ILogger<SetupScreenVM>>();
   public EbulaVM Ebula { get; }
 
-  public SetupScreenVM(EbulaVM ebula){
+  public SetupScreenVM(EbulaVM ebula) {
     Ebula = ebula;
     Ebula.NavigateCommand = new NavigateSetupScreenC(this);
 
     EditRouteCommand = new EditPredefinedRouteC(this);
+    EditServiceCommand = new EditServiceC(this);
 
     AddOriginCommand = AddConfigStationC.ORIGIN;
     EditOriginCommand = EditConfigEntryC.ORIGIN;
@@ -30,14 +32,12 @@ internal class SetupScreenVM : BaseVM {
     RemoveDestinationCommand = DeleteConfigStationC.DESTINATION;
 
     Ebula.PropertyChanged += Ebula_PropertyChanged;
-    Ebula.ConfigDirtyChanged += Ebula_ConfigDirtyChanged;
 
     LoadConfig();
   }
 
   public override void Destroy() {
     Ebula.PropertyChanged -= Ebula_PropertyChanged;
-    Ebula.ConfigDirtyChanged -= Ebula_ConfigDirtyChanged;
   }
 
   private void Ebula_PropertyChanged(object? sender, PropertyChangedEventArgs e) {
@@ -46,18 +46,14 @@ internal class SetupScreenVM : BaseVM {
       case nameof(Ebula.EditMode):
         OnPropertyChanged(nameof(CanSaveRoute));
         OnPropertyChanged(nameof(SelectedRoute));
+        OnPropertyChanged(nameof(CanAddService));
         break;
     }
-  }
-
-  private void Ebula_ConfigDirtyChanged() {
-    OnPropertyChanged(nameof(CanSave));
   }
 
   public void LoadConfig() {
     if (Ebula.Model.Config is not EbulaConfig config) return;
     OnPropertyChanged(nameof(LoadLabel));
-    OnPropertyChanged(nameof(CanSave));
     Logger?.LogDebug("Loading UI values from EBuLa Config {Config}", Ebula.Model.Config);
     ConfigName = config.Name;
 
@@ -72,11 +68,11 @@ internal class SetupScreenVM : BaseVM {
 
   #region Properties
   public BaseC EditRouteCommand { get; }
-  public string LoadLabel => Ebula.Model.Config.IsEmpty ? "LOAD" : "NEW";
-  public bool CanSave => Ebula.Model.Config.IsDirty;
+  public string LoadLabel => Ebula.Model.LoadedConfigs.Count == 1 ? Ebula.Model.Config.IsEmpty ? "LOAD" : "NEW" : "NEW";
   public BaseC AddOriginCommand { get; }
   public BaseC EditOriginCommand { get; }
   public BaseC RemoveOriginCommand { get; }
+  public BaseC EditServiceCommand { get; }
   public BaseC AddSegmentCommand { get; }
   public BaseC EditSegmentCommand { get; }
   public BaseC RemoveSegmentCommand { get; }
@@ -87,7 +83,11 @@ internal class SetupScreenVM : BaseVM {
   public BaseC SaveRouteCommand { get; }
   public string ConfigName {
     get {
-      return Ebula.Model.Config?.Name ?? string.Empty;
+      if (Ebula.Model.Config is EbulaConfig cfg)
+        return cfg.Name;
+      if (Ebula.Model.LoadedConfigs.Count > 1)
+        return $"Config collection ({Ebula.Model.LoadedConfigs.Count})";
+      return string.Empty;
     }
     set {
       if (Ebula.Model.Config is not null)
@@ -107,6 +107,9 @@ internal class SetupScreenVM : BaseVM {
       else Logger?.LogDebug("Switching to custom route view");
       OnPropertyChanged(nameof(UsingRoutes));
       OnPropertyChanged(nameof(UsingCustom));
+      OnPropertyChanged(nameof(UsingServices));
+      OnPropertyChanged(nameof(CanAddService));
+      OnPropertyChanged(nameof(UsingOverview));
       OnPropertyChanged(nameof(CanSaveRoute));
     }
   }
@@ -120,27 +123,94 @@ internal class SetupScreenVM : BaseVM {
       else Logger?.LogDebug("Switching to predefined route view");
       OnPropertyChanged(nameof(UsingRoutes));
       OnPropertyChanged(nameof(UsingCustom));
+      OnPropertyChanged(nameof(UsingServices));
+      OnPropertyChanged(nameof(CanAddService));
+      OnPropertyChanged(nameof(UsingOverview));
       OnPropertyChanged(nameof(CanSaveRoute));
     }
   }
 
+  public bool CanAddService => UsingServices && Ebula.EditMode && _selectedRoute is not null;
+  private bool _usingServices = false;
+  public bool UsingServices {
+    get => _usingServices && _usingRoutes;
+    set {
+      _usingServices = value;
+      OnPropertyChanged(nameof(UsingServices));
+      OnPropertyChanged(nameof(CanAddService));
+      OnPropertyChanged(nameof(UsingOverview));
+      OnPropertyChanged(nameof(ServiceLabel));
+    }
+  }
+
+  public bool UsingOverview {
+    get => !_usingServices && _usingRoutes;
+    set {
+      _usingServices = !value;
+      OnPropertyChanged(nameof(UsingServices));
+      OnPropertyChanged(nameof(CanAddService));
+      OnPropertyChanged(nameof(UsingOverview));
+      OnPropertyChanged(nameof(ServiceLabel));
+    }
+  }
+
+  public string ServiceLabel => UsingServices ? "OVERVIEW" : "SERVICES";
   public ObservableCollection<EbulaRouteVM> Routes { get; } = new();
+
+  private EbulaServiceVM? _selectedService;
+  public EbulaServiceVM? SelectedService {
+    get {
+      return _selectedService;
+    }
+    set {
+      _selectedService = value;
+      ServiceStart = value?.StartTime ?? TimeSpan.Zero;
+      ServiceName = value?.Name ?? "000000";
+      OnPropertyChanged(nameof(SelectedService));
+    }
+  }
+
+  private TimeSpan _serviceStart = TimeSpan.Zero;
+  public TimeSpan ServiceStart {
+    get {
+      return _serviceStart;
+    }
+    set {
+      _serviceStart = value;
+      OnPropertyChanged(nameof(ServiceStart));
+      OnPropertyChanged(nameof(FormattedServiceStart));
+    }
+  }
+
+  public string FormattedServiceStart => ServiceStart.ToString("hh':'mm':'ss");
+
+  private string _serviceName = "000000";
+  public string ServiceName {
+    get {
+      return _serviceName;
+    }
+    set {
+      _serviceName = value;
+      OnPropertyChanged(nameof(ServiceName));
+    }
+  }
 
   private EbulaRouteVM? _selectedRoute;
   public EbulaRouteVM? SelectedRoute {
     get {
-      return Ebula.EditMode ? null : _selectedRoute;
+      return _selectedRoute;
     }
     set {
       _selectedRoute = value;
       RouteOverview.Clear();
+      RouteServices.Clear();
       if (value is not null) {
         Logger?.LogInformation("Predefined Route {Route} selected", value);
         RouteOverview.AddRange(value.GenerateOverview());
+        RouteServices.AddRange(value.ListServices());
       }
-      if (Ebula.EditMode)
-        EditRouteCommand.Execute(value);
       OnPropertyChanged(nameof(SelectedRoute));
+      OnPropertyChanged(nameof(CanAddService));
     }
   }
 
@@ -155,7 +225,18 @@ internal class SetupScreenVM : BaseVM {
     }
   }
 
+  public string ApiLabel => GameApi is null ? "- API -" : "+ API +";
+  public IEbulaGameApi? GameApi {
+    get => Ebula.GameApi;
+    set {
+      Ebula.GameApi = value;
+      OnPropertyChanged(nameof(ApiLabel));
+    }
+  }
+
   public ObservableCollection<EbulaRouteEntryVM> RouteOverview { get; } = new();
+
+  public ObservableCollection<EbulaServiceVM> RouteServices { get; } = new();
 
   public ObservableCollection<EbulaCustomEntryVM> CustomRoute { get; } = new();
 

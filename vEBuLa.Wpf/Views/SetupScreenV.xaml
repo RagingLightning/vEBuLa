@@ -66,6 +66,19 @@
                 </Trigger>
             </Style.Triggers>
         </Style>
+        <Style x:Key="EditBtn" TargetType="Button">
+            <Setter Property="IsEnabled" Value="{Binding Screen.Ebula.EditMode}"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Grid>
+                            <Rectangle Fill="Transparent" Panel.ZIndex="1"/>
+                            <ContentPresenter Panel.ZIndex="2"/>
+                        </Grid>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
         <Style TargetType="ListView">
             <Setter Property="Background" Value="#333"/>
             <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
@@ -91,18 +104,20 @@
                     <Setter Property="TextAlignment" Value="Center" />
                 </Style>
             </DataTemplate.Resources>
-            <StackPanel Width="{TemplateBinding ActualWidth}">
-                <DockPanel>
-                    <TextBlock DockPanel.Dock="Right" Text="{Binding DurationText}" d:Text="00:32:30"/>
-                    <Rectangle DockPanel.Dock="Right" Width="2" Fill="#666" Margin="5,0"/>
-                    <TextBlock DockPanel.Dock="Right" Text="{Binding StationCount}" d:Text="13"/>
-                    <Rectangle DockPanel.Dock="Right" Width="2" Fill="#666" Margin="5,0"/>
-                    <TextBlock DockPanel.Dock="Right" Text="{Binding Name}" d:Text="Hbf-Melsungen S-Bahn" ToolTip="{Binding Description}" ToolTipService.InitialShowDelay="250"/>
-                </DockPanel>
-                <Rectangle Height="2" Fill="#666"/>
-                <TextBlock Text="{Binding RouteOverview}" d:Text="Hbf S - Achim - Donau - Melsungen"/>
-                <Rectangle Height="5" Fill="#666"/>
-            </StackPanel>
+            <Button Style="{StaticResource EditBtn}" Command="{Binding EditCommand}" CommandParameter="{Binding .}" Click="Route_Click">
+                <StackPanel Width="{TemplateBinding ActualWidth}">
+                    <DockPanel>
+                        <TextBlock DockPanel.Dock="Right" Text="{Binding DurationText}" d:Text="00:32:30"/>
+                        <Rectangle DockPanel.Dock="Right" Width="2" Fill="#666" Margin="5,0"/>
+                        <TextBlock DockPanel.Dock="Right" Text="{Binding StationCount}" d:Text="13"/>
+                        <Rectangle DockPanel.Dock="Right" Width="2" Fill="#666" Margin="5,0"/>
+                        <TextBlock DockPanel.Dock="Right" Text="{Binding Name}" d:Text="Hbf-Melsungen S-Bahn" ToolTip="{Binding Description}" ToolTipService.InitialShowDelay="250"/>
+                    </DockPanel>
+                    <Rectangle Height="2" Fill="#666"/>
+                    <TextBlock Text="{Binding RouteOverview}" d:Text="Hbf S - Achim - Donau - Melsungen"/>
+                    <Rectangle Height="5" Fill="#666"/>
+                </StackPanel>
+            </Button>
         </DataTemplate>
         <DataTemplate x:Key="OverviewTemplate">
             <DataTemplate.Resources>
@@ -121,6 +136,29 @@
                 <TextBlock Text="{Binding Name}" d:Text="München Hbf S"/>
                 <TextBlock Grid.Column="1" Text="{Binding DepartureText}" d:Text="00:00:00"/>
             </Grid>
+        </DataTemplate>
+        <DataTemplate x:Key="ServiceTemplate">
+            <DataTemplate.Resources>
+                <Style TargetType="TextBlock">
+                    <Setter Property="Foreground" Value="White"/>
+                    <Setter Property="FontSize" Value="15"/>
+                    <Setter Property="FontWeight" Value="Bold"/>
+                    <Setter Property="TextAlignment" Value="Center"/>
+                    <Setter Property="VerticalAlignment" Value="Center"/>
+                </Style>
+            </DataTemplate.Resources>
+            <Button Style="{DynamicResource EditBtn}" Command="{Binding EditCommand}" CommandParameter="{Binding .}" Click="Service_Click">
+                <Grid ToolTip="{Binding StopInfo}">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="3*"/>
+                        <ColumnDefinition/>
+                        <ColumnDefinition/>
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Text="{Binding Description}" d:Text="RE 57031 - Aschaffenburg Hbf"/>
+                    <TextBlock Grid.Column="1" Text="{Binding FormattedStartTime}" d:Text="13:12:00"/>
+                    <TextBlock Grid.Column="2" Text="{Binding FormattedDuration}" d:Text="00:54:00"/>
+                </Grid>
+            </Button>
         </DataTemplate>
         <DataTemplate x:Key="CustomRouteTemplate">
             <DataTemplate.Resources>
@@ -228,12 +266,12 @@
                     <ColumnDefinition Width="Auto"/>
                     <ColumnDefinition Width="Auto" SharedSizeGroup="Side"/>
                 </Grid.ColumnDefinitions>
-                <TextBlock Grid.Column="0" Text="{Binding Ebula.ServiceName}" Margin="5" FontSize="20"/>
+                <TextBlock Grid.Column="0" Text="{Binding ServiceName}" Margin="5" FontSize="20"/>
                 <Rectangle Grid.Column="1" Width="3" Fill="#555"/>
                 <TextBlock Grid.Column="2" Text="{Binding ConfigName}"  TextAlignment="Center" VerticalAlignment="Center" Visibility="{Binding Ebula.NormalMode, Converter={StaticResource BoolHide}}"/>
                 <TextBox Grid.Column="2" Text="{Binding ConfigName, UpdateSourceTrigger=PropertyChanged}" Tag="Configuration Name" Template="{StaticResource HintBox}" TextAlignment="Center" VerticalAlignment="Center" Visibility="{Binding Ebula.EditMode, Converter={StaticResource BoolHide}}"/>
                 <Rectangle Grid.Column="3" Width="3" Fill="#555"/>
-                <TextBlock Grid.Column="4" Text="{Binding Ebula.FormattedServiceStartTime}" Margin="5" FontSize="20"/>
+                <TextBlock Grid.Column="4" Text="{Binding FormattedServiceStart}" Margin="5" FontSize="20"/>
             </Grid>
         </DockPanel>
         <Rectangle DockPanel.Dock="Top" Height="3" Fill="#555"/>
@@ -252,16 +290,16 @@
                 <ColumnDefinition/>
             </Grid.ColumnDefinitions>
 
-            <Button Name="Button0" Grid.Column="0" Content="{Binding LoadLabel}"    Command="{Binding Ebula.NavigateCommand}" CommandParameter="{x:Static com:NavAction.BUTTON0}"/>
-            <Button Name="Button1" Grid.Column="1" Content="SAVE"                   Command="{Binding Ebula.NavigateCommand}" CommandParameter="{x:Static com:NavAction.BUTTON1}" Visibility="{Binding CanSave, Converter={StaticResource BoolHide}}" />
-            <Button Name="Button2" Grid.Column="2" Content=""                       Command="{Binding Ebula.NavigateCommand}" CommandParameter="{x:Static com:NavAction.BUTTON2}" Visibility="Hidden"/>
-            <Button Name="Button3" Grid.Column="3" Content="MODE"                   Command="{Binding Ebula.NavigateCommand}" CommandParameter="{x:Static com:NavAction.BUTTON3}"/>
-            <Button Name="Button4" Grid.Column="4" Content=""                       Command="{Binding Ebula.NavigateCommand}" CommandParameter="{x:Static com:NavAction.BUTTON4}" Visibility="Hidden"/>
-            <Button Name="Button5" Grid.Column="5" Content="SAVE RT"                Command="{Binding Ebula.NavigateCommand}" CommandParameter="{x:Static com:NavAction.BUTTON5}" Visibility="{Binding CanSaveRoute, Converter={StaticResource BoolHide}}"/>
-            <Button Name="Button6" Grid.Column="6" Content=""                       Command="{Binding Ebula.NavigateCommand}" CommandParameter="{x:Static com:NavAction.BUTTON6}" Visibility="Hidden"/>
-            <Button Name="Button7" Grid.Column="7" Content=""                       Command="{Binding Ebula.NavigateCommand}" CommandParameter="{x:Static com:NavAction.BUTTON7}" Visibility="Hidden"/>
-            <Button Name="Button8" Grid.Column="8" Content="ZUG"                    Command="{Binding Ebula.NavigateCommand}" CommandParameter="{x:Static com:NavAction.BUTTON8}"/>
-            <Button Name="Button9" Grid.Column="9" Content="ABFAHRT"                Command="{Binding Ebula.NavigateCommand}" CommandParameter="{x:Static com:NavAction.BUTTON9}"/>
+            <Button Name="Button0" Grid.Column="0" Content="{Binding LoadLabel}"        Command="{Binding Ebula.NavigateCommand}" CommandParameter="{x:Static com:NavAction.BUTTON0}"/>
+            <Button Name="Button1" Grid.Column="1" Content="SAVE"                       Command="{Binding Ebula.NavigateCommand}" CommandParameter="{x:Static com:NavAction.BUTTON1}" Visibility="{Binding Ebula.EditMode, Converter={StaticResource BoolHide}}" />
+            <Button Name="Button3" Grid.Column="2" Content="MODE"                       Command="{Binding Ebula.NavigateCommand}" CommandParameter="{x:Static com:NavAction.BUTTON2}"/>
+            <Button Name="Button4" Grid.Column="3" Content="{Binding ServiceLabel}"     Command="{Binding Ebula.NavigateCommand}" CommandParameter="{x:Static com:NavAction.BUTTON3}" Visibility="{Binding UsingRoutes, Converter={StaticResource BoolHide}}"/>
+            <Button Name="Button2" Grid.Column="4" Content="ADD SRVC"                   Command="{Binding Ebula.NavigateCommand}" CommandParameter="{x:Static com:NavAction.BUTTON4}" Visibility="{Binding CanAddService, Converter={StaticResource BoolHide}}"/>
+            <Button Name="Button5" Grid.Column="5" Content="SAVE RT"                    Command="{Binding Ebula.NavigateCommand}" CommandParameter="{x:Static com:NavAction.BUTTON5}" Visibility="{Binding CanSaveRoute, Converter={StaticResource BoolHide}}"/>
+            <Button Name="Button6" Grid.Column="6" Content=""                           Command="{Binding Ebula.NavigateCommand}" CommandParameter="{x:Static com:NavAction.BUTTON6}" Visibility="Hidden"/>
+            <Button Name="Button7" Grid.Column="7" Content="{Binding ApiLabel}"         Command="{Binding Ebula.NavigateCommand}" CommandParameter="{x:Static com:NavAction.BUTTON7}"/>
+            <Button Name="Button8" Grid.Column="8" Content="ZUG"                        Command="{Binding Ebula.NavigateCommand}" CommandParameter="{x:Static com:NavAction.BUTTON8}"/>
+            <Button Name="Button9" Grid.Column="9" Content="ABFAHRT"                    Command="{Binding Ebula.NavigateCommand}" CommandParameter="{x:Static com:NavAction.BUTTON9}"/>
         </Grid>
 
         <Grid>
@@ -274,9 +312,14 @@
                 <ListView ItemsSource="{Binding Routes}" SelectedItem="{Binding SelectedRoute}" d:ItemsSource="{d:SampleData}" ItemTemplate="{StaticResource RouteTemplate}"/>
             </DockPanel>
 
-            <DockPanel Grid.Row="1" Grid.Column="1" Visibility="{Binding UsingRoutes, Converter={StaticResource BoolHide}}" d:Visibility="Visible">
+            <DockPanel Grid.Row="1" Grid.Column="1" Visibility="{Binding UsingOverview, Converter={StaticResource BoolHide}}" d:Visibility="Hidden">
                 <TextBlock DockPanel.Dock="Top" Text="Selected Route"/>
                 <ListView ItemsSource="{Binding RouteOverview}" d:ItemsSource="{d:SampleData}" ItemTemplate="{StaticResource OverviewTemplate}"/>
+            </DockPanel>
+
+            <DockPanel Grid.Row="1" Grid.Column="1" Visibility="{Binding UsingServices, Converter={StaticResource BoolHide}}" d:Visibility="Visible">
+                <TextBlock DockPanel.Dock="Top" Text="Services"/>
+                <ListView ItemsSource="{Binding RouteServices}" SelectedItem="{Binding SelectedService}" d:ItemsSource="{d:SampleData}" ItemTemplate="{StaticResource ServiceTemplate}"/>
             </DockPanel>
 
             <DockPanel Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Visibility="{Binding UsingCustom, Converter={StaticResource BoolHide}}" d:Visibility="Hidden">

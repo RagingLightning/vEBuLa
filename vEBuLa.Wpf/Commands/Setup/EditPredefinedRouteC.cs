@@ -13,12 +13,13 @@ internal class EditPredefinedRouteC : BaseC {
     Screen = screen;
   }
   public override void Execute(object? parameter) {
+    if (!Screen.Ebula.EditMode) return;
     if (Screen.UsingCustom) return;
     if (parameter is not EbulaRouteVM route) return;
     Logger?.LogInformation("Starting {EditType} edit for predefined Route {Route}", "Route Info", route);
 
     var mainWindow = Application.Current.MainWindow;
-    var dialog = new EditSavedRouteDialog(route.Name, route.Description, route.StationCount, route.Duration, route.RouteOverview, mainWindow.PointToScreen(Mouse.GetPosition(mainWindow)) - new Point(150, 20));
+    var dialog = new EditSavedRouteDialog(route.Name, route.Description, route.StationCount, route.Duration, route.RouteOverview, mainWindow.PointToScreen(Mouse.GetPosition(mainWindow)) - new Point(120, 120));
 
     if (dialog.ShowDialog() == false) {
       Logger?.LogDebug("{EditType} edit aborted by user", "Route Info");

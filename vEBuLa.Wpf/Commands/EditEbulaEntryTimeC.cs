@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
+using System;
 using System.Windows;
 using System.Windows.Input;
 using vEBuLa.Dialogs;
@@ -18,15 +19,19 @@ internal class EditEbulaEntryTimeC : BaseC {
     Logger?.LogInformation("Starting {EditType} edit for EbulaEntry {EbulaEntry}", IsDeparture ? "Departure Time" : "Arrival Time", entry);
 
     var mainWindow = Application.Current.MainWindow;
-    var dialog = new EditTimeSpanDialog(IsDeparture ? entry.Departure : entry.Arrival, IsDeparture ? TimeSpanDialogType.DEPARTURE : TimeSpanDialogType.ARRIVAL, mainWindow.PointToScreen(Mouse.GetPosition(mainWindow))-new Point(75,50));
+    var dialog = new EditDateTimeDialog(IsDeparture ? entry.Departure : entry.Arrival, IsDeparture ? DateTimeDialogType.DEPARTURE : DateTimeDialogType.ARRIVAL, mainWindow.PointToScreen(Mouse.GetPosition(mainWindow))-new Point(75,50));
 
     if (dialog.ShowDialog() == false) {
       Logger?.LogDebug("{EditType} edit aborted by user", IsDeparture ? "Departure Time" : "Arrival Time");
       return;
     }
 
-    if (IsDeparture) entry.Departure = EditTimeSpanDialog.Time;
-    else entry.Arrival = EditTimeSpanDialog.Time;
+    if (IsDeparture) entry.Departure = EditDateTimeDialog.Date;
+    else {
+      if (entry.Arrival is DateTime a && entry.Departure is DateTime d && EditDateTimeDialog.Date is DateTime n)
+        entry.Departure = d.Add(n.Subtract(a));
+      entry.Arrival = EditDateTimeDialog.Date;
+    }
 
     Logger?.LogInformation("{EditType} edit on EbulaEntry {EbulaEntry} complete", IsDeparture ? "Departure Time" : "Arrival Time", entry);
 

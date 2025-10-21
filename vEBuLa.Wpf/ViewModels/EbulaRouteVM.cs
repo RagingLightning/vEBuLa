@@ -2,12 +2,13 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using vEBuLa.Commands;
 
 namespace vEBuLa.ViewModels;
 
 internal class EbulaRouteVM : BaseVM {
   public override string ToString() => $"[{Model}]";
-  private SetupScreenVM Screen { get; }
+  public SetupScreenVM Screen { get; }
   public EbulaRoute Model { get; }
 
   public EbulaRouteVM(SetupScreenVM screen, EbulaRoute route) {
@@ -15,6 +16,7 @@ internal class EbulaRouteVM : BaseVM {
     Model = route;
   }
 
+  public BaseC EditCommand => Screen.EditRouteCommand;
   public string Name {
     get => Model.Name;
     set {
@@ -55,9 +57,13 @@ internal class EbulaRouteVM : BaseVM {
 
   internal IEnumerable<EbulaRouteEntryVM> GenerateOverview() {
     List<EbulaRouteEntryVM> result = new();
-    var previousEntry = new EbulaRouteEntryVM(Screen.Ebula, Model.Segments[0].ToVM(), null);
+    var previousEntry = new EbulaRouteEntryVM(Screen, Model.Segments[0].ToVM(), null);
     result.Add(previousEntry);
-    result.AddRange(Model.Segments.Select(e => previousEntry = new EbulaRouteEntryVM(Screen.Ebula, e.ToVM(), previousEntry)));
+    result.AddRange(Model.Segments.Select(e => previousEntry = new EbulaRouteEntryVM(Screen, e.ToVM(), previousEntry)));
     return result;
+  }
+
+  internal IEnumerable<EbulaServiceVM> ListServices() {
+    return Screen.Ebula.Model.Config.Services.Values.Where(s => s.Route == Model).Select(e => e.ToVM(Screen.EditServiceCommand, Screen));
   }
 }

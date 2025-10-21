@@ -1,0 +1,26 @@
+﻿<UserControl x:Class="vEBuLa.Views.NoServicePopupV"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:vEBuLa.Views"
+             xmlns:vm="clr-namespace:vEBuLa.ViewModels"
+             mc:Ignorable="d" 
+             Height="600" Width="800">
+    <Grid Panel.ZIndex="100" Background="Transparent" IsHitTestVisible="False" d:DataContext="{d:DesignInstance vm:NoServicePopupVM}">
+        <Border VerticalAlignment="Center" HorizontalAlignment="Center" BorderThickness="2" BorderBrush="LightGray">
+            <DockPanel d:Visibility="Visible" Background="LightGray" Height="90" Width="580">
+                <TextBlock DockPanel.Dock="Top" Text="Zugnummerneingabe" Background="DarkBlue" Foreground="White" FontSize="16"/>
+                <Border DockPanel.Dock="Right" VerticalAlignment="Center" HorizontalAlignment="Right" BorderThickness="1,1,0,0" BorderBrush="Black" Margin="0,0,15,0">
+                    <Border BorderThickness="0,0,1,1" BorderBrush="White">
+                        <Button Width="25" Height="25" Content="E"/>
+                    </Border>
+                </Border>
+                <TextBlock Text="Dialog schließen" DockPanel.Dock="Right" TextAlignment="Right" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                <TextBlock Text="Es konnte kein Fahrplan für Zugnummer '" VerticalAlignment="Center" Margin="15,0,0,0"/>
+                <TextBlock Text="{Binding ServiceNumber}" VerticalAlignment="Center"/>
+                <TextBlock Text="' gefunden werden." VerticalAlignment="Center"/>
+            </DockPanel>
+        </Border>
+    </Grid>
+</UserControl>

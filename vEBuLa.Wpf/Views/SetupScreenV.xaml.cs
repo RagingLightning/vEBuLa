@@ -12,6 +12,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using vEBuLa.ViewModels;
 
 namespace vEBuLa.Views;
 /// <summary>
@@ -20,5 +21,17 @@ namespace vEBuLa.Views;
 public partial class SetupScreenV : UserControl {
   public SetupScreenV() {
     InitializeComponent();
+  }
+
+  private void Service_Click(object sender, RoutedEventArgs e) {
+    if (DataContext is not SetupScreenVM vm) return;
+    if (sender is not Button b || b.DataContext is not EbulaServiceVM service) return;
+    vm.SelectedService = service;
+  }
+
+  private void Route_Click(object sender, RoutedEventArgs e) {
+    if (DataContext is not SetupScreenVM vm) return;
+    if (sender is not Button b || b.DataContext is not EbulaRouteVM route) return;
+    vm.SelectedRoute = route;
   }
 }

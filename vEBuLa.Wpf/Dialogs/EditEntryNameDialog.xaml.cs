@@ -15,18 +15,21 @@ public partial class EditEntryNameDialog : Window {
   public static bool NameBold { get; private set; } = false;
   public static string Description { get; private set; } = string.Empty;
   public static bool DescriptionBold { get; private set; } = false;
-  public EditEntryNameDialog(string name, string description, bool nameBold, bool descBold, Vector startupLocation) {
+  public static bool LabelBox { get; private set; } = false;
+  public EditEntryNameDialog(string name, string description, bool nameBold, bool descBold, bool box, Vector startupLocation) {
     InitializeComponent();
 
     EntryName = name;
     Description = description;
     NameBold = nameBold;
     DescriptionBold = descBold;
+    LabelBox = box;
 
     txtMain.Text = name;
     txtSecond.Text = description;
     cbxMain.IsChecked = nameBold;
     cbxSecond.IsChecked = descBold;
+    cbxBox.IsChecked = box;
 
     Left = startupLocation.X;
     Top = startupLocation.Y;
@@ -50,6 +53,7 @@ public partial class EditEntryNameDialog : Window {
       Description = txtSecond.Text;
       NameBold = cbxMain.IsChecked == true;
       DescriptionBold = cbxSecond.IsChecked == true;
+      LabelBox = cbxBox.IsChecked == true;
       Logger?.LogDebug("Dialog dismissed, success: {DialogSuccess}", e.Key == Key.Enter);
       DialogResult = e.Key == Key.Enter;
     } catch (Exception ex) {

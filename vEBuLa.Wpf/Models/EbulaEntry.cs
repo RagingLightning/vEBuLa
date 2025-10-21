@@ -3,7 +3,7 @@ using vEBuLa.Extensions;
 
 namespace vEBuLa.Models;
 internal class EbulaEntry {
-  public override string ToString() => $"{SpeedLimit,3} | {Location,6} | {LocationName.Crop(15),-17} | {Arrival,5:mm':'ss} | {Departure,5:mm':'ss}";
+  public override string ToString() => $"{SpeedLimit,3} | {Location,6} | {LocationName.Crop(15),-17}";
   public static EbulaEntry PreMarker(EbulaSegment segment) => new EbulaEntry{ SpeedLimit = -1, LocationName = $"-- PRE {segment.Origin} --" };
   public static readonly EbulaEntry StartMarker = new EbulaEntry { SpeedLimit = -1, LocationName = "-- START --" };
   public static readonly EbulaEntry PostMarker = new EbulaEntry { SpeedLimit = -1, LocationName = "-- POST --" };
@@ -18,8 +18,7 @@ internal class EbulaEntry {
   public string LocationNotes { get; set; } = string.Empty;
   public bool LocationNotesBold { get; set; } = false;
   public Gradient Gradient { get; set; } = Gradient.BELOW_10;
-  public TimeSpan? Arrival { get; set; } = null;
-  public TimeSpan? Departure { get; set; } = null;
   public bool TunnelStart { get; set; } = false;
   public bool TunnelEnd { get; set; } = false;
+  public bool LabelBox { get; set; } = false;
 }

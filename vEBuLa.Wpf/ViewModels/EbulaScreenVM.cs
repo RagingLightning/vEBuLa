@@ -3,12 +3,14 @@ using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
+using System.Reflection.Metadata.Ecma335;
 using System.Timers;
 using System.Windows;
 using System.Windows.Media;
 using System.Windows.Threading;
 using vEBuLa.Commands;
 using vEBuLa.Extensions;
+using vEBuLa.Models;
 
 namespace vEBuLa.ViewModels;
 internal class EbulaScreenVM : BaseVM {
@@ -18,11 +20,13 @@ internal class EbulaScreenVM : BaseVM {
 
   public EbulaScreenVM(EbulaVM ebula) {
     Ebula = ebula;
+    ValidRoute = Ebula.Service is EbulaService;
     Ebula.NavigateCommand = new NavigateEbulaScreenC(this);
 
-    AddEntryCommand = new AddEbulaEntryC(ebula);
-    RemoveEntryCommand = new RemoveEbulaEntryC(ebula);
+    AddEntryCommand = AddEbulaEntryC.INSTANCE;
+    RemoveEntryCommand = RemoveEbulaEntryC.INSTANCE;
 
+    Ebula.ServiceEditMode = false;
     ebula.PropertyChanged += Ebula_PropertyChanged;
 
     UpdateEntries();
@@ -34,39 +38,79 @@ internal class EbulaScreenVM : BaseVM {
 
   public void Ebula_PropertyChanged(object? sender, PropertyChangedEventArgs e) {
     if (sender != Ebula) return;
-    else if (e.PropertyName == nameof(Ebula.EditMode)) UpdateEntries();
-    else if (e.PropertyName == nameof(Ebula.ServiceTime)) TimeScroll();
+    switch (e.PropertyName) {
+      case nameof(Ebula.EditMode):
+        UpdateEntries();
+        break;
+      case nameof(Ebula.CurrentDate):
+        TimeScroll();
+        UpdateDelay(true);
+        break;
+    }
   }
 
   public void UpdateEntries() {
     Logger?.LogDebug("Updating EbulaScreen entries, with EditMode={EditMode}", Ebula.EditMode);
     Entries.Clear();
+    if (Ebula.Service is null) return;
     EbulaEntryVM? ebulaEntry = null;
+    int ebulaEntryIndex = 0;
     TimeSpan departureOffset = TimeSpan.Zero;
-    if (Ebula.EditMode) {
-      var preMarker = new EbulaMarkerEntryVM(this, Ebula.Model.Segments[0], EbulaMarkerType.PRE);
+
+    if (Ebula.RouteEditMode) {
+      var preMarker = new EbulaMarkerEntryVM(this, Ebula.Service.Segments[0], EbulaMarkerType.PRE);
       Entries.Add(preMarker);
-      Logger?.LogTrace("Added EbulaMarker {Marker} for Segment {Segment} Pre stage; Count={EntryCount}", preMarker, Ebula.Model.Segments[0], Entries.Count);
+      Logger?.LogTrace("Added EbulaMarker {Marker} for Segment {Segment} Pre stage; Count={EntryCount}", preMarker, Ebula.Service.Segments[0], Entries.Count);
     }
-    Entries.AddRange(Ebula.Model.Segments[0].PreEntries.Select(e => ebulaEntry = new EbulaEntryVM(e, Ebula.ServiceStartTime + departureOffset, ebulaEntry, this)));
-    Logger?.LogTrace("Added {AddCount} EbulaEntries from Segment {Segment} Pre stage; Count={EntryCount}", Ebula.Model.Segments[0].Entries.Count, Ebula.Model.Segments[0], Entries.Count);
-    foreach (var segment in Ebula.Model.Segments) {
-      if (Ebula.EditMode) {
+
+    foreach (var entry in Ebula.Service.Segments[0].PreEntries) {
+      var stop = Ebula.Service.Stops.FirstOrDefault(s => s.EntryIndex == ebulaEntryIndex);
+      if (stop is null) {
+        stop = new EbulaServiceStop(ebulaEntryIndex);
+        Ebula.Service.Stops.Add(stop);
+      }
+      ebulaEntryIndex += 1;
+      Entries.Add(ebulaEntry = new EbulaEntryVM(entry, ebulaEntry, stop, Ebula.ServiceStartDate + departureOffset, this));
+    }
+    Logger?.LogTrace("Added {AddCount} EbulaEntries from Segment {Segment} Pre stage; Count={EntryCount}", Ebula.Service.Segments[0].Entries.Count, Ebula.Service.Segments[0], Entries.Count);
+
+    foreach (var segment in Ebula.Service.Segments) {
+      if (Ebula.RouteEditMode) {
         var mainMarker = new EbulaMarkerEntryVM(this, segment, EbulaMarkerType.MAIN);
         Entries.Add(mainMarker);
         Logger?.LogTrace("Added EbulaMarker {Marker} for Segment {Segment} Main stage; Count={EntryCount}", mainMarker, segment, Entries.Count);
       }
-      Entries.AddRange(segment.Entries.Select(e => ebulaEntry = new EbulaEntryVM(e, Ebula.ServiceStartTime + departureOffset, ebulaEntry, this)));
+
+      foreach (var entry in segment.Entries) {
+        var stop = Ebula.Service.Stops.FirstOrDefault(s => s.EntryIndex == ebulaEntryIndex);
+        if (stop is null) {
+          stop = new EbulaServiceStop(ebulaEntryIndex);
+          Ebula.Service.Stops.Add(stop);
+        }
+        ebulaEntryIndex += 1;
+        Entries.Add(ebulaEntry = new EbulaEntryVM(entry, ebulaEntry, stop, Ebula.ServiceStartDate + departureOffset, this));
+      }
       departureOffset += segment.Duration;
       Logger?.LogTrace("Added {AddCount} EbulaEntries from Segment {Segment} Main stage; Count={EntryCount}", segment.Entries.Count, segment, Entries.Count);
     }
-    if (Ebula.EditMode) {
-      var postMarker = new EbulaMarkerEntryVM(this, Ebula.Model.Segments[^1], EbulaMarkerType.POST);
+
+    if (Ebula.RouteEditMode) {
+      var postMarker = new EbulaMarkerEntryVM(this, Ebula.Service.Segments[^1], EbulaMarkerType.POST);
       Entries.Add(postMarker);
-      Logger?.LogTrace("Added EbulaMarker {Marker} for Segment {Segment} Post stage; Count={EntryCount}", postMarker, Ebula.Model.Segments[^1], Entries.Count);
+      Logger?.LogTrace("Added EbulaMarker {Marker} for Segment {Segment} Post stage; Count={EntryCount}", postMarker, Ebula.Service.Segments[^1], Entries.Count);
     }
-    Entries.AddRange(Ebula.Model.Segments[^1].PostEntries.Select(e => ebulaEntry = new EbulaEntryVM(e, Ebula.ServiceStartTime + departureOffset, ebulaEntry, this)));
-    Logger?.LogTrace("Added {AddCount} EbulaEntries from Segment {Segment} Post stage; Count={EntryCount}", Ebula.Model.Segments[^1].Entries.Count, Ebula.Model.Segments[^1], Entries.Count);
+
+    foreach (var entry in Ebula.Service.Segments[^1].PostEntries) {
+      var stop = Ebula.Service.Stops.FirstOrDefault(s => s.EntryIndex == ebulaEntryIndex);
+      if (stop is null) {
+        stop = new EbulaServiceStop(ebulaEntryIndex);
+        Ebula.Service.Stops.Add(stop);
+      }
+      ebulaEntryIndex += 1;
+      Entries.Add(ebulaEntry = new EbulaEntryVM(entry, ebulaEntry, stop, Ebula.ServiceStartDate + departureOffset, this));
+    }
+    Logger?.LogTrace("Added {AddCount} EbulaEntries from Segment {Segment} Post stage; Count={EntryCount}", Ebula.Service.Segments[^1].Entries.Count, Ebula.Service.Segments[^1], Entries.Count);
+
     if (!Ebula.EditMode)
       CurrentEntry = 0;
     UpdateList();
@@ -75,7 +119,29 @@ internal class EbulaScreenVM : BaseVM {
   public void UpdateList() {
     Logger?.LogDebug("Updating EbulaScreen display list, starting at index {StartIndex}", StartEntry);
     ActiveEntries.Clear();
-    ActiveEntries.AddRange(Entries.Skip(StartEntry).Take(15).Reverse());
+
+    foreach (var entry in Entries) {
+      if (entry is not EbulaEntryVM ee) continue;
+      ee.ForceSpeedDisplay = false;
+      ee.NoSpeedLine = false;
+    }
+    var displayUnits = 0;
+    if (Ebula.NormalMode)
+      ActiveEntries.AddRange(Entries.Skip(StartEntry).TakeWhile(e => {
+        if (e is not EbulaEntryVM ee)
+          displayUnits += 1;
+        else
+          displayUnits += ee.DisplayUnits;
+        return displayUnits <= 15;
+      }).Reverse());
+    else
+      ActiveEntries.AddRange(Entries.Reverse());
+
+    if (ActiveEntries[^1] is EbulaEntryVM ae) {
+      ae.ForceSpeedDisplay = true;
+      ae.NoSpeedLine = true;
+    }
+
     CreatePreviewInfo();
   }
 
@@ -85,7 +151,7 @@ internal class EbulaScreenVM : BaseVM {
       StopInfo = null;
     }
     bool speedFound = false, stopFound = false;
-    foreach (var entry in Entries.Skip(StartEntry+15)) {
+    foreach (var entry in Entries.Skip(StartEntry + 15)) {
       if (entry is not EbulaEntryVM vm) continue;
       if (!speedFound && vm.SpeedLimit != vm.PrevSpeedLimit) {
         SpeedInfo = $"ab km {vm.LocationInt},{vm.LocationFrac}: {vm.SpeedLimit} km/h";
@@ -103,33 +169,79 @@ internal class EbulaScreenVM : BaseVM {
   }
 
   private void TimeScroll() {
+    if (Ebula.EditMode) return;
     if (!TimeScrolling) return;
-    Logger?.LogTrace("Processing time-based scrolling: {CurrentEntry} > {TargetEntry}, +{Delay}", Entries[CurrentEntry], Entries[TimerJumpTarget], Ebula.ServiceDelay.TotalMinutes);
-    if (Entries[CurrentEntry] is EbulaEntryVM ee1 && ee1.Arrival is not null && ee1.Departure is not null && ee1.Departure + Ebula.ServiceDelay < Ebula.ServiceTime - TimeSpan.FromSeconds(15)) {
-      Logger?.LogDebug("Departure Time of {CurrentEntry} passed", Entries[CurrentEntry]);
+    if (Entries[CurrentEntry] is not EbulaEntryVM ce) return;
+    if (Entries[TimerJumpTarget] is not EbulaEntryVM te) {
+      FindNextTarget();
+      return;
+    }
+
+    Logger?.LogTrace("Processing time-based scrolling: {CurrentEntry} > {TargetEntry}, +{Delay}", ce, te, Ebula.ServiceDelay.TotalMinutes);
+    if (ce.Arrival is not null && ce.Departure is not null && Ebula.CurrentDate - ce.Departure > TimeSpan.FromSeconds(15) + Ebula.ServiceDelay) {
+      Logger?.LogDebug("Departure Time of {CurrentEntry} passed", ce);
       CurrentEntry++;
-      FindNextTarget();
     }
-
-    if (Entries[TimerJumpTarget] is EbulaEntryVM ee2 && ee2.Arrival is not null && ee2.Arrival + Ebula.ServiceDelay < Ebula.ServiceTime - TimeSpan.FromSeconds(2)) {
-      Logger?.LogDebug("Arrival Time of {TargetEntry} reached, +{Delay}", Entries[TimerJumpTarget], Ebula.ServiceDelay.TotalMinutes);
+    else if (te.Arrival is not null && Ebula.CurrentDate - te.Arrival > TimeSpan.FromSeconds(2) + Ebula.ServiceDelay) {
+      Logger?.LogDebug("Arrival Time of {TargetEntry} reached, +{Delay}", te, Ebula.ServiceDelay.TotalMinutes);
       CurrentEntry = TimerJumpTarget;
-      FindNextTarget();
     }
-
-    if (Entries[TimerJumpTarget] is EbulaEntryVM ee3 && ee3.Arrival is null && ee3.Departure is not null && ee3.Departure + Ebula.ServiceDelay < Ebula.ServiceTime - TimeSpan.FromSeconds(2)) {
-      Logger?.LogDebug("Departure Time of {CurrentEntry} reached, +{Delay}", Entries[TimerJumpTarget], Ebula.ServiceDelay.TotalMinutes);
+    else if (te.Arrival is null && te.Departure is not null && Ebula.CurrentDate - te.Departure < TimeSpan.FromSeconds(2) + Ebula.ServiceDelay) {
+      Logger?.LogDebug("Passing Time of {CurrentEntry} reached, +{Delay}", te, Ebula.ServiceDelay.TotalMinutes);
       CurrentEntry = TimerJumpTarget;
     }
   }
 
   public void FindNextTarget() {
-    for (int i = CurrentEntry+1; i < Entries.Count; i++) {
+    for (int i = CurrentEntry + 1; i < Entries.Count; i++) {
       if (Entries[i] is not EbulaEntryVM ee) continue;
       TimerJumpTarget = i;
-      if (ee.Departure is not null && ee.Departure + Ebula.ServiceDelay > Ebula.ServiceTime) break;
-      if (ee.Arrival is not null && ee.Arrival + Ebula.ServiceDelay > Ebula.ServiceTime) break;
+      if (ee.Departure is not null && ee.Departure + Ebula.ServiceDelay > Ebula.CurrentDate) break;
+      if (ee.Arrival is not null && ee.Arrival + Ebula.ServiceDelay > Ebula.CurrentDate) break;
     }
+  }
+
+  internal void UpdateDelay(bool time) {
+    if (Ebula.EditMode) return;
+    if (TimeScrolling && time) return;
+    if (!Entries.Any()) return;
+
+    if (CurrentEntry >= DelayFrame.to || CurrentEntry < DelayFrame.from) 
+      UpdateDelayFrame();
+    else if (!time) return;
+
+    var delayEntry = Entries[DelayFrame.from] as EbulaEntryVM;
+
+    if (delayEntry?.Arrival is DateTime a1)
+      Ebula.ServiceDelay = Ebula.CurrentDate - a1;
+    else if (delayEntry?.Departure is DateTime d2)
+      Ebula.ServiceDelay = Ebula.CurrentDate - d2;
+    else return;
+    OnPropertyChanged(nameof(ServiceDelay));
+    OnPropertyChanged(nameof(HasDelay));
+    OnPropertyChanged(nameof(PositiveDelay));
+  }
+
+  private void UpdateDelayFrame() {
+    if (!Entries.Any()) return;
+
+    var delayFrom = 0;
+    for (int i = CurrentEntry; i >= 0; i--) {
+      if (Entries[i] is not EbulaEntryVM ee) continue;
+      if (ee.Arrival is null && ee.Departure is null) continue;
+      delayFrom = i;
+      break;
+    }
+
+    var delayTo = Entries.Count;
+    for (int i = CurrentEntry + 1; i < Entries.Count; i++) {
+      if (Entries[i] is not EbulaEntryVM ee) continue;
+      if (ee.Arrival is null && ee.Departure is null) continue;
+      delayTo = i;
+      break;
+    }
+
+    DelayFrame = (delayFrom, delayTo);
   }
 
   #region Properties
@@ -180,23 +292,38 @@ internal class EbulaScreenVM : BaseVM {
       Ebula.ServiceDelay = TimeSpan.FromMinutes(value);
       Logger?.LogDebug("Service Delay {Minutes} min", value);
       OnPropertyChanged(nameof(ServiceDelay));
+      OnPropertyChanged(nameof(HasDelay));
+      OnPropertyChanged(nameof(PositiveDelay));
+    }
+  }
+  public bool HasDelay => ServiceDelay != 0;
+  public bool PositiveDelay => ServiceDelay > 0;
+  public (int from, int to) DelayFrame { get; set; } = (int.MaxValue, int.MinValue);
+
+  private EbulaScrollMode _scrollMode = EbulaScrollMode.POSITION;
+  public EbulaScrollMode ScrollMode {
+    get {
+      return _scrollMode;
+    }
+    set {
+      _scrollMode = value;
+
+      Logger?.LogDebug("{ScrollMode} Scrolling Mode", value switch {
+        EbulaScrollMode.POSITION => "POSITION",
+        EbulaScrollMode.TIME => "TIME-BASED",
+        EbulaScrollMode.MANUAL => "MANUAL",
+        _ => "UNKNOWN"
+      });
+      
+      OnPropertyChanged(nameof(ScrollMode));
+      OnPropertyChanged(nameof(TimeScrolling));
+      OnPropertyChanged(nameof(ManualScrolling));
     }
   }
 
-  private bool _timeScrolling;
-  public bool TimeScrolling {
-    get {
-      return _timeScrolling;
-    }
-    set {
-      _timeScrolling = value;
-      if (value)
-        Logger?.LogDebug("{ScrollMode} Scrolling Mode", "time-based");
-      else
-        Logger?.LogDebug("{ScrollMode} Scrolling Mode", "manual");
-      OnPropertyChanged(nameof(TimeScrolling));
-    }
-  }
+  public bool PositionScrolling => _scrollMode == EbulaScrollMode.POSITION;
+  public bool TimeScrolling => _scrollMode == EbulaScrollMode.TIME;
+  public bool ManualScrolling => _scrollMode == EbulaScrollMode.MANUAL;
 
   #endregion
 
@@ -214,17 +341,6 @@ internal class EbulaScreenVM : BaseVM {
     }
   }
   public bool InvalidRoute => !ValidRoute;
-
-  private string _date = DateTime.Today.ToString("d");
-  public string Date {
-    get {
-      return _date;
-    }
-    set {
-      _date = value;
-      OnPropertyChanged(nameof(Date));
-    }
-  }
 
   private string? _speedInfo = null;
   public string? SpeedInfo {
@@ -390,7 +506,9 @@ internal class EbulaScreenVM : BaseVM {
       now.IsCurrent = true;
 
       if (CurrentEntry < StartEntry) StartEntry = CurrentEntry;
-      if (CurrentEntry > StartEntry+9) StartEntry = CurrentEntry;
+      if (CurrentEntry > StartEntry + 9) StartEntry = CurrentEntry;
+      UpdateDelay(false);
+      FindNextTarget();
     }
   }
 

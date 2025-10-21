@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "vEBuLa": {
+      "commandName": "Project",
+      "environmentVariables": {
+        "vEbulaConfigPath": "D:\\Users\\RagingLightning\\source\\resources\\vEbuLa\\config"
+      }
+    }
+  }
+}

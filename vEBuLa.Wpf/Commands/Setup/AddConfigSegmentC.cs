@@ -35,7 +35,7 @@ internal class AddConfigSegmentC : BaseC {
     entry.SelectedSegment = segment.ToVM();
     Logger?.LogInformation("Segment {EbulaSegment} added for Custom Route Entry {RouteEntry}", segment, entry);
 
-    TimeSpan departure = entry.Screen.Ebula.ServiceStartTime;
+    TimeSpan departure = entry.Screen.ServiceStart;
     for (var i = 0; i < entry.Screen.CustomRoute.Count; i++) {
       var result = entry.Screen.CustomRoute[i].Validate(departure);
       if (!result.Valid) {

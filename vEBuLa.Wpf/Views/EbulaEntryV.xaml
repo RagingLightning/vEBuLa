@@ -11,13 +11,14 @@
         <conv:BoolHideConverter x:Key="BoolHide"/>
         <conv:BoolBoldConverter x:Key="BoolBold"/>
         <conv:NullHideConverter x:Key="NullHide"/>
+        <conv:BoolNumConverter x:Key="BoolNum"/>
         <PathGeometry x:Key="Marker" Figures="M0,0 l10,-10 l10,10 l-10,10 Z"/>
         <PathGeometry x:Key="ZigZag" Figures="M0,-1 L7,7 L0,15 L7,23 L0,31"/>
         <PathGeometry x:Key="TunnelStart" Figures="M0,11 L0,-13 L15,-13 L15,11 L14,11 L12,-2 L3,-2 L1,11 Z"/>
         <PathGeometry x:Key="TunnelMid" Figures="M0,3 L0,13 L1,13 L1,3 Z M0,29 L0,19 L1,19 L1,29 Z M15,3 L15,13 L14,13 L14,3 Z M15,29 L15,19 L14,19 L14,29 Z"/>
         <PathGeometry x:Key="TunnelEnd" Figures="M0,-15 L0,9 L15,9 L15,-15 L14,-15 L12,-2 L3,-2 L1,-15 Z"/>
         <PathGeometry x:Key="YMarker" Figures="M2,-15 L7,-15 L11,-4 L15,-15 L20,-15 L16,-4 L22,-4 L22,-1 L14,-1 L14,2 L22,2 L22,5 L14,5 L14,9 L8,9 L8,5 L0,5 L0,2 L8,2 L8,-1 L0,-1 L0,-4 L6,-4 Z"/>
-        <PathGeometry x:Key="TriangleMarker" Figures="M0,-15 L22,-15 L11,-4 Z"/>
+        <PathGeometry x:Key="TriangleMarker" Figures="M0,-6 L22,-6 L11,6 Z"/>
         <PathGeometry x:Key="TMarker" Figures="M0,-15 L0,5 M0,-5 L25,-5"/>
         <Style TargetType="TextBlock">
             <Setter Property="Height" Value="31" />
@@ -61,14 +62,14 @@
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate>
-                        <TextBlock Text="{Binding}" d:Text="Herchener Tunnel" Height="31" FontSize="20" Foreground="Black" Margin="10,0,10,-2" FontWeight="{Binding DataContext.MainBold, RelativeSource={RelativeSource AncestorType=ListView}, Converter={StaticResource BoolBold}}" VerticalAlignment="Center" HorizontalAlignment="Left"/>
+                        <TextBlock Text="{Binding}" d:Text="Herchener Tunnel" FontSize="20" Margin="1,-3,1,1" Foreground="Black" FontWeight="{Binding DataContext.MainBold, RelativeSource={RelativeSource AncestorType=ListView}, Converter={StaticResource BoolBold}}" VerticalAlignment="Center" HorizontalAlignment="Left"/>
                     </ControlTemplate>
                 </Setter.Value>
             </Setter>
         </Style>
         <Style x:Key="RawList" TargetType="ListView">
             <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="IsHitTestVisible" Value="False" />
+            <Setter Property="IsHitTestVisible" Value="False"/>
             <Setter Property="Padding" Value="-1"/>
             <Setter Property="Background" Value="{x:Null}"/>
             <Setter Property="HorizontalAlignment" Value="Center"/>
@@ -77,7 +78,6 @@
             <Setter Property="ScrollViewer.HorizontalScrollBarVisibility" Value="Disabled"/>
         </Style>
         <Style x:Key="EditBtn" TargetType="Button">
-            <Setter Property="IsEnabled" Value="{Binding Screen.Ebula.EditMode}"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
@@ -90,7 +90,7 @@
             </Setter>
         </Style>
     </UserControl.Resources>
-    <Grid Background="White">
+    <Grid d:Background="White">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="3*"/>
             <ColumnDefinition Width="22"/>
@@ -123,7 +123,7 @@
             <Rectangle DockPanel.Dock="Left" Fill="Black" Width="5" Visibility="{Binding SpeedColumn14, Converter={StaticResource BoolHide}}"/>
             <Rectangle DockPanel.Dock="Left" Fill="Black" Width="4" Visibility="{Binding SpeedColumn15, Converter={StaticResource BoolHide}}"/>
             <Rectangle DockPanel.Dock="Left" Fill="Black" Width="5" Visibility="{Binding SpeedColumn16, Converter={StaticResource BoolHide}}"/>
-            <Button Style="{DynamicResource EditBtn}" DockPanel.Dock="Right" Command="{Binding EditSpeedCommand}" CommandParameter="{Binding .}">
+            <Button Style="{DynamicResource EditBtn}" IsEnabled="{Binding Screen.Ebula.RouteEditMode}" DockPanel.Dock="Right" Command="{Binding EditSpeedCommand}" CommandParameter="{Binding .}">
                 <TextBlock Text="{Binding SpeedLimitText}" d:Text="160" FontSize="20" TextAlignment="Right" FontWeight="Bold" VerticalAlignment="Bottom" Visibility="{Binding SpeedLimitDisplay, Converter={StaticResource BoolHide}}" HorizontalAlignment="Right" Foreground="{Binding SpeedColor}" Background="{Binding SpeedBackground}"/>
             </Button>
         </DockPanel>
@@ -142,7 +142,7 @@
             <ListView Style="{StaticResource RawList}" ItemContainerStyle="{StaticResource ZigZagStyle}" Margin="-2,0,0,0" DockPanel.Dock="Right" ItemsSource="{Binding ZigZag1}" d:ItemsSource="{d:SampleData ItemCount=2}"/>
             <ListView Style="{StaticResource RawList}" ItemContainerStyle="{StaticResource ZigZagStyle}" Margin="-2,0,0,0" DockPanel.Dock="Right" ItemsSource="{Binding ZigZag2}" d:ItemsSource="{d:SampleData ItemCount=2}"/>
             <ListView Style="{StaticResource RawList}" ItemContainerStyle="{StaticResource ZigZagStyle}" DockPanel.Dock="Right" ItemsSource="{Binding ZigZag3}" d:ItemsSource="{d:SampleData ItemCount=2}"/>
-            <Button Style="{DynamicResource EditBtn}" DockPanel.Dock="Left" Command="{Binding EditLocationCommand}" CommandParameter="{Binding .}">
+            <Button Style="{DynamicResource EditBtn}" IsEnabled="{Binding Screen.Ebula.RouteEditMode}" DockPanel.Dock="Left" Command="{Binding EditLocationCommand}" CommandParameter="{Binding .}">
                 <StackPanel Orientation="Horizontal" VerticalAlignment="Top" Visibility="{Binding Location, Converter={StaticResource NullHide}}">
                     <TextBlock Text="{Binding LocationInt}" d:Text="287" FontSize="20" VerticalAlignment="Center"/>
                     <TextBlock Text="," FontSize="15" Height="20" VerticalAlignment="Center"/>
@@ -153,7 +153,7 @@
 
         <Rectangle Grid.Column="3" Width="3" Height="2" Fill="Black" Visibility="{Binding KilometerBreak, Converter={StaticResource BoolHide}}" VerticalAlignment="Bottom" HorizontalAlignment="Left"/>
 
-        <Button Style="{DynamicResource EditBtn}" Grid.Column="4" Command="{Binding EditTunnelCommand}" CommandParameter="{Binding .}">
+        <Button Style="{DynamicResource EditBtn}" IsEnabled="{Binding Screen.Ebula.RouteEditMode}" Grid.Column="4" Command="{Binding EditTunnelCommand}" CommandParameter="{Binding .}">
             <Grid>
                 <Path Data="{StaticResource TunnelStart}" Stroke="Black" Fill="Black" HorizontalAlignment="Center" VerticalAlignment="Top" Visibility="{Binding TunnelStart, Converter={StaticResource BoolHide}}"/>
                 <ListView Style="{StaticResource RawList}" ItemContainerStyle="{StaticResource TunnelStyle}" ItemsSource="{Binding TunnelMid}" d:ItemsSource="{d:SampleData ItemCount=2}"/>
@@ -162,22 +162,27 @@
         </Button>
 
         <DockPanel Grid.Column="5" Margin="5,0,20,0">
-            <Button Style="{DynamicResource EditBtn}" DockPanel.Dock="Left" Command="{Binding EditSymbolCommand}" CommandParameter="{Binding .}">
+            <Button Style="{DynamicResource EditBtn}" IsEnabled="{Binding Screen.Ebula.RouteEditMode}" DockPanel.Dock="Left" Command="{Binding EditSymbolCommand}" CommandParameter="{Binding .}">
                 <Grid Width="25" VerticalAlignment="Top">
                     <Path Data="{StaticResource YMarker}" Stroke="Black" Fill="Black" HorizontalAlignment="Center" VerticalAlignment="Center" Visibility="{Binding YMarker, Converter={StaticResource BoolHide}}"/>
                     <Image Source="../phone.png" HorizontalAlignment="Center" VerticalAlignment="Center" Visibility="{Binding PhoneMarker, Converter={StaticResource BoolHide}}"/>
-                    <Path Data="{StaticResource TriangleMarker}" Stroke="Black" HorizontalAlignment="Center" VerticalAlignment="center" Margin="0,7,0,0" Visibility="{Binding TriangleMarker, Converter={StaticResource BoolHide}}"/>
+                    <Path Data="{StaticResource TriangleMarker}" Stroke="Black" HorizontalAlignment="Center" VerticalAlignment="center" Visibility="{Binding TriangleMarker, Converter={StaticResource BoolHide}}"/>
                     <Path Data="{StaticResource TMarker}" Stroke="Black" StrokeThickness="2" HorizontalAlignment="Center" VerticalAlignment="center" Visibility="{Binding TMarker, Converter={StaticResource BoolHide}}"/>
                 </Grid>
             </Button>
             <Rectangle DockPanel.Dock="Bottom" Height="2" Fill="LightGray" Margin="5,0"/>
             <TextBlock DockPanel.Dock="Right" Text="{Binding SecondaryLabel}" d:Text="E60" FontSize="20" Margin="5,0,5,-2" FontWeight="{Binding SecondaryBold, Converter={StaticResource BoolBold}}" VerticalAlignment="Top"/>
-            <Button Style="{DynamicResource EditBtn}" DockPanel.Dock="Left" Command="{Binding EditStationCommand}" CommandParameter="{Binding .}">
-                <ListView Style="{StaticResource RawList}" ItemContainerStyle="{StaticResource LabelStyle}" ItemsSource="{Binding MainLabels}" d:ItemsSource="{d:SampleData ItemCount=2}" HorizontalAlignment="Left"/>
+            <Button Style="{DynamicResource EditBtn}" IsEnabled="{Binding Screen.Ebula.EditMode}" DockPanel.Dock="Left" Command="{Binding EditStationCommand}" CommandParameter="{Binding .}">
+                <DockPanel>
+                    <Border BorderBrush="{Binding LabelBoxColor}" BorderThickness="1" Margin="9,0,9,0" VerticalAlignment="Center" DockPanel.Dock="Left">
+                        <ListView Style="{StaticResource RawList}" ItemContainerStyle="{StaticResource LabelStyle}" ItemsSource="{Binding MainLabels}" d:ItemsSource="{d:SampleData ItemCount=2}" HorizontalAlignment="Left"/>
+                    </Border>
+                    <Rectangle/>
+                </DockPanel>
             </Button>
         </DockPanel>
 
-        <Button Style="{DynamicResource EditBtn}" Grid.Column="7" Command="{Binding EditArrivalCommand}" CommandParameter="{Binding .}">
+        <Button Style="{DynamicResource EditBtn}" IsEnabled="{Binding Screen.Ebula.ServiceEditMode}" Grid.Column="7" Command="{Binding EditArrivalCommand}" CommandParameter="{Binding .}">
             <StackPanel Orientation="Horizontal" VerticalAlignment="Top" HorizontalAlignment="Center" Visibility="{Binding HasArrival, Converter={StaticResource BoolHide}}">
                 <TextBlock Text="{Binding ArrivalHr}" d:Text="07" FontSize="20" FontWeight="{Binding ArrivalBold, Converter={StaticResource BoolBold}}" VerticalAlignment="Center"/>
                 <TextBlock Text=":" FontSize="20" FontWeight="{Binding ArrivalBold, Converter={StaticResource BoolBold}}" VerticalAlignment="Center" Margin="0,0,0,-1"/>
@@ -187,7 +192,7 @@
             </StackPanel>
         </Button>
 
-        <Button Style="{DynamicResource EditBtn}" Grid.Column="9" Command="{Binding EditDepartureCommand}" CommandParameter="{Binding .}">
+        <Button Style="{DynamicResource EditBtn}" IsEnabled="{Binding Screen.Ebula.ServiceEditMode}" Grid.Column="9" Command="{Binding EditDepartureCommand}" CommandParameter="{Binding .}">
             <StackPanel Grid.Column="9" Orientation="Horizontal" VerticalAlignment="Top" HorizontalAlignment="Center" Visibility="{Binding HasDeparture, Converter={StaticResource BoolHide}}">
                 <TextBlock Text="{Binding DepartureHr}" d:Text="07" FontSize="20" FontWeight="{Binding ArrivalBold, Converter={StaticResource BoolBold}}" VerticalAlignment="Center"/>
                 <TextBlock Text=":" FontSize="20" FontWeight="{Binding ArrivalBold, Converter={StaticResource BoolBold}}" VerticalAlignment="Center" Margin="0,0,0,-1"/>

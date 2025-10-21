@@ -13,17 +13,18 @@ internal class EbulaEntryVM : BaseVM {
   private ILogger<EbulaEntryVM>? Logger => App.GetService<ILogger<EbulaEntryVM>>();
   public EbulaEntry Model { get; }
   public EbulaScreenVM Screen { get; }
+  public EbulaServiceStop Stop { get; }
+  private DateTime ServiceStartTime { get; }
 
   public override string ToString() => $"{Model.Location,6} | {Model.LocationName.Crop(16),-16} | {(Arrival is null ? "       " : $"{ArrivalHr}:{ArrivalMn}.{ArrivalFr}")} | {(Departure is null ? "       " : $"{DepartureHr}:{DepartureMn}.{DepartureFr}")}";
 
-  public EbulaEntryVM(EbulaEntry entry, TimeSpan offset, EbulaEntryVM? prev, EbulaScreenVM screen) {
+  public EbulaEntryVM(EbulaEntry entry, EbulaEntryVM? prev, EbulaServiceStop stop, DateTime serviceStartTime, EbulaScreenVM screen) {
     Model = entry;
     Screen = screen;
-    TimeOffset = offset;
+    Stop = stop;
+    ServiceStartTime = serviceStartTime;
 
     DisplayUnits = entry.LocationName.Where(c => c == '\n').Count() + 1;
-
-    Screen.PropertyChanged += Screen_PropertyChanged;
 
     EditSpeedCommand = EditEbulaEntrySpeedC.INSTANCE;
     EditLocationCommand = EditEbulaEntryLocationC.INSTANCE;
@@ -41,20 +42,6 @@ internal class EbulaEntryVM : BaseVM {
     SetTunnel();
   }
 
-  private void Screen_PropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e) {
-    if (sender is EbulaScreenVM s && s != Screen) {
-      s.PropertyChanged -= Screen_PropertyChanged;
-      return;
-    }
-    if (e.PropertyName == nameof(Screen.StartEntry)) {
-      ForceSpeedDisplay = Screen.ActiveEntries[^1] == this;
-      NoSpeedLine = Screen.ActiveEntries[^1] == this;
-      OnPropertyChanged(nameof(SpeedLimitDisplay));
-      OnPropertyChanged(nameof(SpeedLimitText));
-      OnPropertyChanged(nameof(SpeedLineDisplay));
-    }
-  }
-
   private void SetGradient() {
     if (Gradient < Gradient.BELOW_20)
       ZigZag1.Clear();
@@ -66,13 +53,13 @@ internal class EbulaEntryVM : BaseVM {
       ZigZag2.Clear();
     else
       while (ZigZag2.Count < DisplayUnits)
-        ZigZag1.Add(new());
+        ZigZag2.Add(new());
     OnPropertyChanged(nameof(ZigZag2));
     if (Gradient < Gradient.ABOVE_30)
       ZigZag3.Clear();
     else
       while (ZigZag3.Count < DisplayUnits)
-        ZigZag1.Add(new());
+        ZigZag3.Add(new());
     OnPropertyChanged(nameof(ZigZag3));
   }
 
@@ -148,7 +135,17 @@ internal class EbulaEntryVM : BaseVM {
     }
   }
 
-  private bool ForceSpeedDisplay = false;
+  private bool _forceSpeedDisplay = false;
+  public bool ForceSpeedDisplay {
+    get {
+      return _forceSpeedDisplay;
+    }
+    set {
+      _forceSpeedDisplay = value;
+      OnPropertyChanged(nameof(SpeedLimitDisplay));
+    }
+  }
+
   public bool SpeedLimitDisplay => Model.SpeedLimit > 0 || ForceSpeedDisplay;
 
   private bool _noSpeedLine;
@@ -158,7 +155,6 @@ internal class EbulaEntryVM : BaseVM {
     }
     set {
       _noSpeedLine = value;
-      OnPropertyChanged(nameof(NoSpeedLine));
       OnPropertyChanged(nameof(SpeedLineDisplay));
     }
   }
@@ -286,6 +282,17 @@ internal class EbulaEntryVM : BaseVM {
 
   public bool TMarker => Symbol == EbulaSymbol.STUMPFGLEIS;
 
+  public bool LabelBox {
+    get => Model.LabelBox;
+    set {
+      Model.LabelBox = value;
+      OnPropertyChanged(nameof(LabelBox));
+      OnPropertyChanged(nameof(LabelBoxColor));
+    }
+  }
+
+  public Brush LabelBoxColor => Model.LabelBox ? Brushes.Black : Brushes.White;
+
   public string MainLabel {
     get {
       return Model.LocationName;
@@ -302,11 +309,15 @@ internal class EbulaEntryVM : BaseVM {
 
   public bool MainBold {
     get {
-      return Model.LocationNameBold;
+      return Model.LocationNameBold || Stop.Bold;
     }
     set {
-      Model.LocationNameBold = value;
+      if (Screen.Ebula.RouteEditMode)
+        Model.LocationNameBold = value;
+      else
+        Stop.Bold = value;
       OnPropertyChanged(nameof(MainBold));
+      OnPropertyChanged(nameof(SecondaryBold));
       OnPropertyChanged(nameof(ArrivalBold));
       OnPropertyChanged(nameof(DepartureBold));
     }
@@ -324,10 +335,14 @@ internal class EbulaEntryVM : BaseVM {
 
   public bool SecondaryBold {
     get {
-      return Model.LocationNotesBold;
+      return Model.LocationNotesBold || Stop.Bold;
     }
     set {
-      Model.LocationNotesBold = value;
+      if (Screen.Ebula.RouteEditMode)
+        Model.LocationNotesBold = value;
+      else
+        Stop.Bold = value;
+      OnPropertyChanged(nameof(MainBold));
       OnPropertyChanged(nameof(SecondaryBold));
       OnPropertyChanged(nameof(ArrivalBold));
       OnPropertyChanged(nameof(DepartureBold));
@@ -336,18 +351,16 @@ internal class EbulaEntryVM : BaseVM {
 
   #endregion
 
-  private readonly TimeSpan TimeOffset;
-
   #region Column 4 - Arrival
 
   public bool ArrivalBold => MainBold || SecondaryBold;
 
-  public TimeSpan? Arrival {
+  public DateTime? Arrival {
     get {
-      return Model.Arrival?.Add(TimeOffset);
+      return Stop.Arrival;
     }
     set {
-      Model.Arrival = value?.Subtract(TimeOffset);
+      Stop.Arrival = value;
       OnPropertyChanged(nameof(Arrival));
       OnPropertyChanged(nameof(HasArrival));
       OnPropertyChanged(nameof(ArrivalHr));
@@ -356,21 +369,21 @@ internal class EbulaEntryVM : BaseVM {
     }
   }
   public bool HasArrival => Arrival is not null;
-  public string ArrivalHr => Arrival?.Hours.ToString("00") ?? string.Empty;
-  public string ArrivalMn => Arrival?.Minutes.ToString("00") ?? string.Empty;
-  public string ArrivalFr => (Arrival?.Seconds / 6)?.ToString("0") ?? string.Empty;
+  public string ArrivalHr => Arrival?.Hour.ToString("00") ?? string.Empty;
+  public string ArrivalMn => Arrival?.Minute.ToString("00") ?? string.Empty;
+  public string ArrivalFr => (Arrival?.Second / 6)?.ToString("0") ?? string.Empty;
 
   #endregion
 
   #region Column 5 - Departure
   public bool DepartureBold => MainBold || SecondaryBold;
 
-  public TimeSpan? Departure {
+  public DateTime? Departure {
     get {
-      return Model.Departure?.Add(TimeOffset);
+      return Stop.Departure;
     }
     set {
-      Model.Departure = value?.Subtract(TimeOffset);
+      Stop.Departure = value;
       OnPropertyChanged(nameof(Departure));
       OnPropertyChanged(nameof(HasDeparture));
       OnPropertyChanged(nameof(DepartureHr));
@@ -379,9 +392,10 @@ internal class EbulaEntryVM : BaseVM {
     }
   }
   public bool HasDeparture => Departure is not null;
-  public string DepartureHr => Departure?.Hours.ToString("00") ?? string.Empty;
-  public string DepartureMn => Departure?.Minutes.ToString("00") ?? string.Empty;
-  public string DepartureFr => (Departure?.Seconds / 6)?.ToString("0") ?? string.Empty;
+
+  public string DepartureHr => Departure?.Hour.ToString("00") ?? string.Empty;
+  public string DepartureMn => Departure?.Minute.ToString("00") ?? string.Empty;
+  public string DepartureFr => (Departure?.Second / 6)?.ToString("0") ?? string.Empty;
 
 
   #endregion

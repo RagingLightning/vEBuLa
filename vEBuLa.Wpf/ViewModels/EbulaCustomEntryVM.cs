@@ -19,7 +19,7 @@ internal class EbulaCustomEntryVM : BaseVM {
     Origins = config.Stations.Values.Select(e => e.ToVM()).ToList();
     Departure = TimeSpan.Zero;
 
-    Screen.PropertyChanged += Ebula_PropertyChanged;
+    Screen.Ebula.PropertyChanged += Ebula_PropertyChanged;
   }
 
   public EbulaCustomEntryVM(SetupScreenVM screen, EbulaConfig config, EbulaStationVM origin, TimeSpan departure) {
@@ -166,7 +166,7 @@ internal class EbulaCustomEntryVM : BaseVM {
     }
   }
 
-  public string DepartureText => (Departure + Screen.Ebula.ServiceStartTime).ToString("hh':'mm':'ss");
+  public string DepartureText => (Departure + Screen.ServiceStart).ToString("hh':'mm':'ss");
 
   private List<EbulaSegmentVM>? _segments;
   public List<EbulaSegmentVM>? Segments {

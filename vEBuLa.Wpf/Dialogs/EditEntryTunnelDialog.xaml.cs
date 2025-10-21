@@ -13,6 +13,9 @@ public partial class EditEntryTunnelDialog : Window {
   public static bool TunnelEnd { get; private set; } = false;
   public EditEntryTunnelDialog(bool tunnelStart, bool tunnelEnd, Vector startupLocation) {
     InitializeComponent();
+    Left = startupLocation.X;
+    Top = startupLocation.Y;
+
     TunnelStart = tunnelStart;
     TunnelEnd = tunnelEnd;
     if (TunnelStart) btnStart.IsEnabled = false;
