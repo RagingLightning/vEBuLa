@@ -6,7 +6,7 @@ using vEBuLa.Commands;
 
 namespace vEBuLa.ViewModels;
 
-internal class EbulaRouteVM : BaseVM {
+public class EbulaRouteVM : BaseVM {
   public override string ToString() => $"[{Model}]";
   public SetupScreenVM Screen { get; }
   public EbulaRoute Model { get; }

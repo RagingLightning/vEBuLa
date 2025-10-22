@@ -7,7 +7,8 @@ using vEBuLa.Commands;
 using vEBuLa.ViewModels;
 
 namespace vEBuLa.Models;
-internal interface IEbulaService {
+
+public interface IEbulaService {
 
   public EbulaServiceVM ToVM(BaseC? editCommand = null, SetupScreenVM screen = null);
 

@@ -7,7 +7,7 @@ using vEBuLa.Models;
 
 namespace vEBuLa.ViewModels;
 
-internal class EbulaCustomEntryVM : BaseVM {
+public class EbulaCustomEntryVM : BaseVM {
   private ILogger<EbulaCustomEntryVM>? Logger = App.GetService<ILogger<EbulaCustomEntryVM>>();
   public SetupScreenVM Screen { get; }
   private EbulaConfig Config { get; }

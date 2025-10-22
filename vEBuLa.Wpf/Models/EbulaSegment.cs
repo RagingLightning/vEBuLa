@@ -6,7 +6,8 @@ using System.Collections.Generic;
 using vEBuLa.Extensions;
 
 namespace vEBuLa.Models;
-internal class EbulaSegment {
+
+public class EbulaSegment {
   private readonly ILogger<EbulaSegment>? Logger;
   public override string ToString() => $"{Id.ToString().BiCrop(5,5)}: {Origin.Station?.Name.Crop(30)} > {Destination.Station?.Name.Crop(30)}";
 

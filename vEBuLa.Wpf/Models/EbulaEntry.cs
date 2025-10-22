@@ -1,8 +1,10 @@
 ﻿using System;
+using System.Numerics;
 using vEBuLa.Extensions;
 
 namespace vEBuLa.Models;
-internal class EbulaEntry {
+
+public class EbulaEntry {
   public override string ToString() => $"{SpeedLimit,3} | {Location,6} | {LocationName.Crop(15),-17}";
   public static EbulaEntry PreMarker(EbulaSegment segment) => new EbulaEntry{ SpeedLimit = -1, LocationName = $"-- PRE {segment.Origin} --" };
   public static readonly EbulaEntry StartMarker = new EbulaEntry { SpeedLimit = -1, LocationName = "-- START --" };
@@ -11,6 +13,7 @@ internal class EbulaEntry {
   public int SpeedLimit { get; set; } = 0;
   public bool SpeedSigned { get; set; } = true;
   public int? Location { get; set; } = 0;
+  public Vector2? GpsLocation { get; set; } = null;
   public bool KilometerBreak { get; set; } = false;
   public EbulaSymbol Symbol { get; set; } = EbulaSymbol.NONE;
   public string LocationName { get; set; } = string.Empty;

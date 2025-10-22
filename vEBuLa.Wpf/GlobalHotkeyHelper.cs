@@ -18,7 +18,8 @@ internal class GlobalHotkeyHelper {
   private ILogger<GlobalHotkeyHelper>? Logger => App.GetService<ILogger<GlobalHotkeyHelper>>();
   private HwndSource _source;
   private readonly Random IdGenerator = new Random();
-  private readonly Dictionary<int, Action> HotkeyHandlers = new();
+  private readonly Dictionary<int, Action> HotkeyHandlers = [];
+  public int Count => HotkeyHandlers.Count;
 
   public GlobalHotkeyHelper() {
     var helper = new WindowInteropHelper(Application.Current.MainWindow);

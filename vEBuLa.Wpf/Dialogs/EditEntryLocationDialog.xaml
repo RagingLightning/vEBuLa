@@ -14,21 +14,29 @@
             <ColumnDefinition/>
             <ColumnDefinition/>
             <ColumnDefinition/>
+            <ColumnDefinition/>
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
+            <RowDefinition Height="2*"/>
+            <RowDefinition/>
             <RowDefinition/>
             <RowDefinition/>
             <RowDefinition/>
         </Grid.RowDefinitions>
 
-        <TextBlock Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="4" Text="Change Location" TextAlignment="Center" VerticalAlignment="Center" FontSize="22"/>
+        <TextBlock Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="5" Text="Change Location" TextAlignment="Center" VerticalAlignment="Center" FontSize="22"/>
 
-        <TextBox x:Name="txtLocation" Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="3" FontSize="22" TabIndex="1"/>
-        <CheckBox x:Name="cbxBreak" Grid.Row="1" Grid.Column="3" Content="BR" VerticalContentAlignment="Center" TabIndex="2"/>
+        <TextBox x:Name="txtLocation" Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="3" Grid.RowSpan="2" FontSize="22" TabIndex="1"/>
+        <CheckBox x:Name="cbxBreak" Grid.Row="1" Grid.Column="3" Grid.RowSpan="2" Content="BR" VerticalContentAlignment="Center" TabIndex="2"/>
 
-        <RadioButton GroupName="gradient" x:Name="rbtGradient0" Grid.Row="2" Grid.Column="0" Content="0" FontSize="22" VerticalAlignment="Center" VerticalContentAlignment="Center" HorizontalAlignment="Center" TabIndex="3"/>
-        <RadioButton GroupName="gradient" x:Name="rbtGradient1" Grid.Row="2" Grid.Column="1" Content="1" FontSize="22" VerticalAlignment="Center" VerticalContentAlignment="Center" HorizontalAlignment="Center" TabIndex="4"/>
-        <RadioButton GroupName="gradient" x:Name="rbtGradient2" Grid.Row="2" Grid.Column="2" Content="2" FontSize="22" VerticalAlignment="Center" VerticalContentAlignment="Center" HorizontalAlignment="Center" TabIndex="5"/>
-        <RadioButton GroupName="gradient" x:Name="rbtGradient3" Grid.Row="2" Grid.Column="3" Content="3" FontSize="22" VerticalAlignment="Center" VerticalContentAlignment="Center" HorizontalAlignment="Center" TabIndex="6"/>
+        <RadioButton GroupName="gradient" x:Name="rbtGradient0" Grid.Row="3" Grid.RowSpan="2" Grid.Column="0" Content="0" FontSize="22" VerticalAlignment="Center" VerticalContentAlignment="Center" HorizontalAlignment="Center" TabIndex="3"/>
+        <RadioButton GroupName="gradient" x:Name="rbtGradient1" Grid.Row="3" Grid.RowSpan="2" Grid.Column="1" Content="1" FontSize="22" VerticalAlignment="Center" VerticalContentAlignment="Center" HorizontalAlignment="Center" TabIndex="4"/>
+        <RadioButton GroupName="gradient" x:Name="rbtGradient2" Grid.Row="3" Grid.RowSpan="2" Grid.Column="2" Content="2" FontSize="22" VerticalAlignment="Center" VerticalContentAlignment="Center" HorizontalAlignment="Center" TabIndex="5"/>
+        <RadioButton GroupName="gradient" x:Name="rbtGradient3" Grid.Row="3" Grid.RowSpan="2" Grid.Column="3" Content="3" FontSize="22" VerticalAlignment="Center" VerticalContentAlignment="Center" HorizontalAlignment="Center" TabIndex="6"/>
+
+        <Button Grid.Row="1" Grid.Column="4" Content="+ GPS" Click="SetGpsLocation" FontSize="8"/>
+        <TextBlock x:Name="txtLat" Grid.Row="2" Grid.Column="4" d:Text="52.123456789" FontSize="8" VerticalAlignment="Center"/>
+        <TextBlock x:Name="txtLng" Grid.Row="3" Grid.Column="4" d:Text="9.123456789" FontSize="8" VerticalAlignment="Center"/>
+        <Button Grid.Row="4" Grid.Column="4" Content="- GPS" Click="DelGpsLocation" FontSize="8"/>
     </Grid>
 </Window>

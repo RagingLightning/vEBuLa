@@ -70,7 +70,7 @@ internal partial class NavigateSetupScreenC : NavigateScreenC {
         FileName = "vEBuLa",
         DefaultExt = ".ebula",
         Filter = "vEBuLa config files|*.ebula|Json-Files|*.json|All Files|*.*",
-        InitialDirectory = Screen.Ebula.ConfigFolder
+        InitialDirectory = App.ConfigFolder
       };
 
       if (dialog.ShowDialog() != true) return;
@@ -102,7 +102,7 @@ internal partial class NavigateSetupScreenC : NavigateScreenC {
       FileName = "vEBuLa",
       DefaultExt = ".ebula",
       Filter = "vEBuLa config files|*.ebula|Json-Files|*.json|All Files|*.*",
-      InitialDirectory = Screen.Ebula.ConfigFolder
+      InitialDirectory = App.ConfigFolder
     };
 
     if (dialog.ShowDialog() != true) return;
@@ -182,6 +182,17 @@ internal partial class NavigateSetupScreenC : NavigateScreenC {
     Logger?.LogInformation("Saved Custom Route as {Route}", route);
     Screen.Ebula.MarkDirty();
   } // Save custom route as predefined route
+
+  protected override void Button6() {
+    if (Screen.Ebula.Hotkeys) {
+      Logger?.LogInformation("Disabling global hotkeys");
+      Screen.Ebula.UnsetHotkeys();
+    }
+    else {
+      Logger?.LogInformation("Enabling global hotkeys");
+      Screen.Ebula.SetHotkeys();
+    }
+  }
 
   protected override void Button7() { // Toggle API functionality
     if (Screen.GameApi is IEbulaGameApi api) {

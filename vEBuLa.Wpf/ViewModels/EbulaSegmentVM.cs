@@ -6,7 +6,7 @@ namespace vEBuLa.ViewModels;
 
 internal static class EbulaSegmentExtension { public static EbulaSegmentVM ToVM(this EbulaSegment segment) => new(segment); }
 
-internal class EbulaSegmentVM : BaseVM {
+public class EbulaSegmentVM : BaseVM {
   public EbulaSegment Model { get; }
   public override string ToString() => $"[{Model}]";
   public EbulaSegmentVM(EbulaSegment segment) { Model = segment; }

@@ -172,8 +172,9 @@
                     <ColumnDefinition Width="Auto"/>
                     <ColumnDefinition Width="3.3*"/>
                 </Grid.ColumnDefinitions>
+                <Image Source="../gpsScroll.png" HorizontalAlignment="Left" VerticalAlignment="Top" Width="21" Height="26" Margin="3,4,0,0" d:Visibility="Visible" Visibility="{Binding PositionScrolling, Converter={StaticResource BoolHide}}" SnapsToDevicePixels="True"/>
                 <Image Source="../timeScroll.png" HorizontalAlignment="Left" VerticalAlignment="Top" Width="20" Height="22" Margin="2,2,0,0" d:Visibility="Hidden" Visibility="{Binding TimeScrolling, Converter={StaticResource BoolHide}}" SnapsToDevicePixels="True"/>
-                <Image Source="../manualScroll.png" HorizontalAlignment="Left" VerticalAlignment="Top" Width="21" Height="26" Margin="3,1,0,0" d:Visibility="Visible" Visibility="{Binding ManualScrolling, Converter={StaticResource BoolHide}}" SnapsToDevicePixels="True"/>
+                <Image Source="../manualScroll.png" HorizontalAlignment="Left" VerticalAlignment="Top" Width="21" Height="26" Margin="3,1,0,0" d:Visibility="Hidden" Visibility="{Binding ManualScrolling, Converter={StaticResource BoolHide}}" SnapsToDevicePixels="True"/>
 
                 <TextBlock Grid.Column="2" VerticalAlignment="Center" Text="RW /r" FontSize="16"/>
                 <Border Grid.Column="3" BorderThickness="1" BorderBrush="Black" Margin="2">

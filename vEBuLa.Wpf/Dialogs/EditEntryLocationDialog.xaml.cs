@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 using System;
+using System.Numerics;
 using System.Windows;
 using System.Windows.Input;
 using vEBuLa.Models;
@@ -12,12 +13,24 @@ namespace vEBuLa.Dialogs;
 public partial class EditEntryLocationDialog : Window {
   private ILogger<EditEntryLocationDialog>? Logger => App.GetService<ILogger<EditEntryLocationDialog>>();
   public static int? Location { get; private set; } = 0;
+  public static Vector2? GpsLocation { get; private set; } = null;
+  public static double? Longitude { get; private set; } = null;
   public static Gradient Gradient { get; private set; } = 0;
   public static bool KilometerBreak { get; private set; } = false;
 
-  public EditEntryLocationDialog(int? location, bool kilometerBreak, Gradient gradient, Vector startupLocation) {
+  private IEbulaGameApi? Api { get; }
+
+  public EditEntryLocationDialog(int? location, Vector2? gps,  bool kilometerBreak, Gradient gradient, System.Windows.Vector startupLocation, IEbulaGameApi? api) {
     InitializeComponent();
+    Api = api;
+
+    Location = location;
     txtLocation.Text = location is null ? string.Empty : location.ToString();
+
+    GpsLocation = gps;
+    txtLat.Text = gps is null ? "N/A" : gps?.X.ToString("F6");
+    txtLng.Text = gps is null ? "N/A" : gps?.Y.ToString("F6");
+
     cbxBreak.IsChecked = kilometerBreak;
     if (gradient == Gradient.BELOW_10) rbtGradient0.IsChecked = true;
     else if (gradient == Gradient.BELOW_20) rbtGradient1.IsChecked = true;
@@ -46,5 +59,22 @@ public partial class EditEntryLocationDialog : Window {
       Logger?.LogWarning(ex, "Exception during Dialog submission");
       DialogResult = false;
     }
+  }
+
+  private void SetGpsLocation(object sender, RoutedEventArgs e) {
+    if (Api is null || !Api.IsAvailable) return;
+
+    if (Api.GetPosition() is not Vector2 newGps) return;
+
+    GpsLocation = newGps;
+    txtLat.Text = newGps.X.ToString("F6");
+    txtLng.Text = newGps.Y.ToString("F6");
+  }
+
+  private void DelGpsLocation(object sender, RoutedEventArgs e) {
+    GpsLocation = null;
+    txtLat.Text = "N/A";
+    txtLng.Text = "N/A";
+
   }
 }

@@ -3,6 +3,7 @@ using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Numerics;
 using System.Windows.Media;
 using vEBuLa.Commands;
 using vEBuLa.Extensions;
@@ -204,9 +205,24 @@ internal class EbulaEntryVM : BaseVM {
   public string LocationInt => Location is not int l ? string.Empty : (l / 1000).ToString();
   public string LocationFrac => Location is not int l ? string.Empty : (l % 1000 / 100).ToString();
 
-  public ObservableCollection<object> ZigZag1 { get; } = new();
-  public ObservableCollection<object> ZigZag2 { get; } = new();
-  public ObservableCollection<object> ZigZag3 { get; } = new();
+  public Vector2? GpsLocation {
+    get {
+      return Model.GpsLocation;
+    }
+    set {
+      Model.GpsLocation = value;
+      OnPropertyChanged(nameof(GpsLocation));
+      OnPropertyChanged(nameof(Latitude));
+      OnPropertyChanged(nameof(Longitude));
+    }
+  }
+
+  public double? Latitude => GpsLocation?.X;
+  public double? Longitude => GpsLocation?.Y;
+
+  public ObservableCollection<object> ZigZag1 { get; } = [];
+  public ObservableCollection<object> ZigZag2 { get; } = [];
+  public ObservableCollection<object> ZigZag3 { get; } = [];
 
   public Gradient Gradient {
     get {

@@ -11,7 +11,8 @@ using vEBuLa.Extensions;
 using vEBuLa.ViewModels;
 
 namespace vEBuLa.Models;
-internal class EbulaConfig {
+
+public class EbulaConfig {
   private ILogger<EbulaConfig>? Logger => App.AppHost?.Services.GetRequiredService<ILogger<EbulaConfig>>();
   public override string ToString() => $"{Name.Crop(30)} ({Stations.Count}/{Segments.Count}/{Routes.Count})";
 

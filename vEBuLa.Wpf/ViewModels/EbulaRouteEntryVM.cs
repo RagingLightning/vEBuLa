@@ -3,7 +3,7 @@ using System.ComponentModel;
 
 namespace vEBuLa.ViewModels;
 
-internal class EbulaRouteEntryVM : BaseVM {
+public class EbulaRouteEntryVM : BaseVM {
   private SetupScreenVM Screen { get; }
   private EbulaSegmentVM Segment { get; }
   public EbulaRouteEntryVM(SetupScreenVM screen, EbulaSegmentVM segment, EbulaRouteEntryVM? prev) {

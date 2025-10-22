@@ -10,7 +10,8 @@ using vEBuLa.Extensions;
 using vEBuLa.Models;
 
 namespace vEBuLa.ViewModels;
-internal class SetupScreenVM : BaseVM {
+
+public class SetupScreenVM : BaseVM {
   private ILogger<SetupScreenVM>? Logger => App.GetService<ILogger<SetupScreenVM>>();
   public EbulaVM Ebula { get; }
 
@@ -47,6 +48,9 @@ internal class SetupScreenVM : BaseVM {
         OnPropertyChanged(nameof(CanSaveRoute));
         OnPropertyChanged(nameof(SelectedRoute));
         OnPropertyChanged(nameof(CanAddService));
+        break;
+      case nameof(Ebula.Hotkeys):
+        OnPropertyChanged(nameof(HotkeyLabel));
         break;
     }
   }
@@ -225,7 +229,9 @@ internal class SetupScreenVM : BaseVM {
     }
   }
 
-  public string ApiLabel => GameApi is null ? "- API -" : "+ API +";
+  public string HotkeyLabel => Ebula.Hotkeys ? "+ HK +" : "- HK -";
+
+  public string ApiLabel => GameApi is not null ? "+ API +" : "- API -";
   public IEbulaGameApi? GameApi {
     get => Ebula.GameApi;
     set {

@@ -10,7 +10,7 @@ using vEBuLa.ViewModels;
 
 namespace vEBuLa;
 
-internal class EbulaRoute {
+public class EbulaRoute {
   public override string ToString() => $"{Id.ToString().BiCrop(5, 5)} | {Name.Crop(30)}";
   private ILogger<EbulaRoute>? Logger => App.GetService<ILogger<EbulaRoute>>();
 

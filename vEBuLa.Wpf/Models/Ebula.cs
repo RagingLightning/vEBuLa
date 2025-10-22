@@ -9,7 +9,8 @@ using System.Security.Policy;
 using vEBuLa.Views;
 
 namespace vEBuLa.Models;
-internal class Ebula {
+
+public class Ebula {
   private ILogger<Ebula>? Logger => App.GetService<ILogger<Ebula>>();
   public EbulaConfig? Config => LoadedConfigs.Count == 1 ? LoadedConfigs[0] : null;
   public List<EbulaConfig> LoadedConfigs { get; } = new();

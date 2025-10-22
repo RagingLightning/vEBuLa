@@ -9,6 +9,7 @@ using System.Windows;
 using System.Windows.Media;
 using System.Windows.Threading;
 using vEBuLa.Commands;
+using vEBuLa.Events;
 using vEBuLa.Extensions;
 using vEBuLa.Models;
 
@@ -17,6 +18,7 @@ internal class EbulaScreenVM : BaseVM {
   private ILogger<EbulaEntryVM>? Logger => App.GetService<ILogger<EbulaEntryVM>>();
   public override string ToString() => $"EbulaScreen";
   public EbulaVM Ebula { get; }
+  private IEbulaGameApi? Api;
 
   public EbulaScreenVM(EbulaVM ebula) {
     Ebula = ebula;
@@ -29,11 +31,17 @@ internal class EbulaScreenVM : BaseVM {
     Ebula.ServiceEditMode = false;
     ebula.PropertyChanged += Ebula_PropertyChanged;
 
+    Api = ebula.GameApi;
+    if (Api is not null)
+      Api.PositionPassed += GameApi_PositionPassed;
+
     UpdateEntries();
   }
 
   public override void Destroy() {
     Ebula.PropertyChanged -= Ebula_PropertyChanged;
+    if (Api is not null)
+      Api.PositionPassed -= GameApi_PositionPassed;
   }
 
   public void Ebula_PropertyChanged(object? sender, PropertyChangedEventArgs e) {
@@ -46,7 +54,30 @@ internal class EbulaScreenVM : BaseVM {
         TimeScroll();
         UpdateDelay(true);
         break;
+      case nameof(Ebula.GameApi):
+        if (Api is not null)
+          Api.PositionPassed -= GameApi_PositionPassed;
+        Api = Ebula.GameApi;
+        if (Api is not null)
+          Api.PositionPassed += GameApi_PositionPassed;
+        break;
     }
+  }
+
+  private void GameApi_PositionPassed(object? sender, PositionPassedEventArgs args) {
+    if (Ebula.EditMode) return;
+    if (!PositionScrolling) return;
+    if (!Entries.Any()) return;
+
+    var entryVM = Entries.OfType<EbulaEntryVM>().FirstOrDefault(vm => vm.Model == args.Entry);
+
+    if (entryVM is null) {
+      Logger?.LogWarning("Failed to find view model for {Entry}", args.Entry);
+      return;
+    }
+
+    Logger?.LogDebug("Scrolling to {Entry}", entryVM);
+    CurrentEntry = Entries.IndexOf(entryVM);
   }
 
   public void UpdateEntries() {
@@ -171,6 +202,7 @@ internal class EbulaScreenVM : BaseVM {
   private void TimeScroll() {
     if (Ebula.EditMode) return;
     if (!TimeScrolling) return;
+    if (Entries.Count == 0 || CurrentEntry == 0 || TimerJumpTarget == 0) return;
     if (Entries[CurrentEntry] is not EbulaEntryVM ce) return;
     if (Entries[TimerJumpTarget] is not EbulaEntryVM te) {
       FindNextTarget();
@@ -206,7 +238,7 @@ internal class EbulaScreenVM : BaseVM {
     if (TimeScrolling && time) return;
     if (!Entries.Any()) return;
 
-    if (CurrentEntry >= DelayFrame.to || CurrentEntry < DelayFrame.from) 
+    if (CurrentEntry >= DelayFrame.to || CurrentEntry < DelayFrame.from)
       UpdateDelayFrame();
     else if (!time) return;
 
@@ -314,7 +346,7 @@ internal class EbulaScreenVM : BaseVM {
         EbulaScrollMode.MANUAL => "MANUAL",
         _ => "UNKNOWN"
       });
-      
+
       OnPropertyChanged(nameof(ScrollMode));
       OnPropertyChanged(nameof(TimeScrolling));
       OnPropertyChanged(nameof(ManualScrolling));

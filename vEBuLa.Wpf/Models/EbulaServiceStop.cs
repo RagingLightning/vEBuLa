@@ -9,7 +9,7 @@ namespace vEBuLa.Models;
 /// Is paired to an <seealso cref="EbulaEntry"/> of an <seealso cref="EbulaSegment"/>
 /// </summary>
 
-internal class EbulaServiceStop {
+public class EbulaServiceStop {
 
   public EbulaServiceStop(int entryIndex, bool bold = false, DateTime? arrival = null, DateTime? departure = null) {
     EntryIndex = entryIndex;

@@ -3,6 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Serilog;
 using System;
+using System.IO;
 using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Navigation;
@@ -26,6 +27,8 @@ public partial class App : Application {
 
   internal static IHost? AppHost { get; private set; }
   private readonly IConfigurationRoot? _serilogConfig;
+  internal static string ConfigFolder { get; private set; } = "config";
+  internal static ProgramConfig Configuration { get; private set; }
 
   internal static T? GetService<T>() where T : notnull => AppHost is null ? default : AppHost.Services.GetService<T>();
 
@@ -64,14 +67,23 @@ public partial class App : Application {
       if (AppHost is null) throw new Exception(".NET hosting failed to initialize");
       AppHost.Start();
 
-      var Ebula = new EbulaVM();
+      if (Environment.GetEnvironmentVariable("vEbulaConfigPath") is string configPath)
+        ConfigFolder = configPath;
+      Log.Information("Config Folder: {ConfigFolder}", new FileInfo(ConfigFolder).FullName);
+      if (!Directory.Exists(ConfigFolder))
+        Directory.CreateDirectory(ConfigFolder);
+
+      Configuration = new ProgramConfig(Path.Combine(ConfigFolder, "EbulaConfig.cfg"));
+
+      var Ebula = new EbulaVM(Configuration);
 
       var MainWindow = new MainWindow() {
         DataContext = Ebula
       };
       MainWindow.Show();
 
-      Ebula.SetHotkeys();
+      if (Configuration.GlobalHotkeys)
+        Ebula.SetHotkeys();
     }
     catch (Exception ex) {
       Log.Fatal(ex, "An exception occurred during application startup");

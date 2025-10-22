@@ -296,7 +296,7 @@
             <Button Name="Button4" Grid.Column="3" Content="{Binding ServiceLabel}"     Command="{Binding Ebula.NavigateCommand}" CommandParameter="{x:Static com:NavAction.BUTTON3}" Visibility="{Binding UsingRoutes, Converter={StaticResource BoolHide}}"/>
             <Button Name="Button2" Grid.Column="4" Content="ADD SRVC"                   Command="{Binding Ebula.NavigateCommand}" CommandParameter="{x:Static com:NavAction.BUTTON4}" Visibility="{Binding CanAddService, Converter={StaticResource BoolHide}}"/>
             <Button Name="Button5" Grid.Column="5" Content="SAVE RT"                    Command="{Binding Ebula.NavigateCommand}" CommandParameter="{x:Static com:NavAction.BUTTON5}" Visibility="{Binding CanSaveRoute, Converter={StaticResource BoolHide}}"/>
-            <Button Name="Button6" Grid.Column="6" Content=""                           Command="{Binding Ebula.NavigateCommand}" CommandParameter="{x:Static com:NavAction.BUTTON6}" Visibility="Hidden"/>
+            <Button Name="Button6" Grid.Column="6" Content="{Binding HotkeyLabel}"      Command="{Binding Ebula.NavigateCommand}" CommandParameter="{x:Static com:NavAction.BUTTON6}"/>
             <Button Name="Button7" Grid.Column="7" Content="{Binding ApiLabel}"         Command="{Binding Ebula.NavigateCommand}" CommandParameter="{x:Static com:NavAction.BUTTON7}"/>
             <Button Name="Button8" Grid.Column="8" Content="ZUG"                        Command="{Binding Ebula.NavigateCommand}" CommandParameter="{x:Static com:NavAction.BUTTON8}"/>
             <Button Name="Button9" Grid.Column="9" Content="ABFAHRT"                    Command="{Binding Ebula.NavigateCommand}" CommandParameter="{x:Static com:NavAction.BUTTON9}"/>

@@ -7,7 +7,7 @@ using vEBuLa.Models;
 
 namespace vEBuLa.ViewModels;
 
-internal partial class EbulaServiceVM : BaseVM {
+public partial class EbulaServiceVM : BaseVM {
   public IEbulaService Model { get; }
   public SetupScreenVM? Screen { get; }
   public EbulaServiceVM(IEbulaService ebulaService, BaseC? editCommand = null, SetupScreenVM? screen = null) {

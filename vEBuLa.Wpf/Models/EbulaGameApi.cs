@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Numerics;
 using System.Security.Cryptography.Xml;
 using System.Threading;
 using System.Threading.Tasks;
@@ -18,14 +19,14 @@ namespace vEBuLa.Models;
 public interface IEbulaGameApi : IDisposable {
   bool IsAvailable { get; }
 
-  Position? GetPosition();
-  void MonitorPositions(IEnumerable<Position> positions);
+  Vector2? GetPosition();
+  void MonitorPositions(IEnumerable<EbulaEntry> positions);
   event PositionPassedEventHandler? PositionPassed;
 
   DateTime? GetGameTime();
 }
 
-internal class EbulaTswApi : IEbulaGameApi {
+public class EbulaTswApi : IEbulaGameApi {
   private static readonly string ENDPOINT_PLAYER_DATA = "DriverAid.PlayerInfo";
   private static readonly string ENDPOINT_TIME_DATA = "TimeOfDay.Data";
 
@@ -49,42 +50,61 @@ internal class EbulaTswApi : IEbulaGameApi {
     return _lastGameTime;
   }
 
-  public Position? GetPosition() {
+  public Vector2? GetPosition() {
     return _lastPosition;
   }
 
-  public void MonitorPositions(IEnumerable<Position> positions) {
-    _monitoringQueue = new Queue<Position>(positions);
-    Logger?.LogDebug("Monitoring {count} positions", _monitoringQueue.Count);
+  public void MonitorPositions(IEnumerable<EbulaEntry> entries) {
+    _monitoringList.Clear();
+    _monitoringList.AddRange(entries.Where(e => e.GpsLocation is not null));
+    Logger?.LogDebug("Monitoring {count} positions", _monitoringList.Count);
   }
 
   private void CheckPosition(JObject positionData) {
-    Position position;
+    Vector2 position;
     if (positionData["geoLocation"] is not JObject geoData
       || geoData["latitude"] is not JToken latToken
       || geoData["longitude"] is not JToken lngToken) {
       Logger?.LogWarning("Invalid position data: {data}", positionData);
       return;
-    } else {
-      position = new Position(latToken.Value<double>(), lngToken.Value<double>());
+    }
+    else {
+      position = new Vector2(latToken.Value<float>(), lngToken.Value<float>());
     }
 
-    Logger?.LogTrace("Checking {position}", position);
-    if (_monitoringQueue is not Queue<Position> queue || queue.Count == 0
-      || _lastPosition is not Position lastPosition) {
+    if (_monitoringList.Count == 0
+      || _lastPosition is not Vector2 lastPosition) {
       _lastPosition = position;
       return;
     }
 
-    var targetPos = _monitoringQueue.Peek();
-    var distance = MathEx.Distance(position, targetPos);
-    var lastDistance = MathEx.Distance(lastPosition, targetPos);
-    Logger?.LogTrace("Target {target} distance was {oldDistance}, is now {newDistance}", targetPos, lastDistance, distance);
+    EbulaEntry? targetEntry = null;
+    var orderedList = _monitoringList.OrderBy(e => Vector2.Distance(position, e.GpsLocation ?? Vector2.Zero));
+    foreach (var entry in orderedList) {
+      if (entry.GpsLocation is not null) {
+        targetEntry = entry;
+        break;
+      }
+    }
 
-    if (lastDistance < distance && distance < 100) {
-      Logger?.LogDebug("Position {target} passed", targetPos);
-      PositionPassed?.Invoke(this, new(targetPos));
-      _monitoringQueue.Dequeue();
+    if (targetEntry is null || targetEntry.GpsLocation is not Vector2 targetPos) {
+      Logger?.LogWarning("No target entry to compare against!");
+      return;
+    }
+
+    var distance = Vector2.Distance(position, targetPos);
+    var passingScore = MathEx.SymmtricLinePointPassingScore(lastPosition, position, targetPos);
+    Logger?.LogTrace("Checking {position} for {Entry}", position, targetEntry);
+    Logger?.LogTrace("Entry Position: {Position}", targetPos);
+    Logger?.LogTrace("Passing Score: {Score}, Distance: {Distance}", passingScore, distance);
+
+    if (Math.Abs(passingScore) < 1.1 && distance < 0.001) {
+      Logger?.LogDebug("{Entry} passed at {Position} (Score of {Score})", targetEntry, position, passingScore);
+      PositionPassed?.Invoke(this, new(targetEntry, position));
+    }
+    else if (distance < 0.00005) {
+      Logger?.LogDebug("{Entry} reached at {Position} (Distance of {Distance})", targetEntry, position, distance);
+      PositionPassed?.Invoke(this, new(targetEntry, position));
     }
 
     _lastPosition = position;
@@ -98,8 +118,8 @@ internal class EbulaTswApi : IEbulaGameApi {
       return;
     }
 
-    var time = localTimeToken.Value<DateTime>();
-     _lastGameTime = time;
+    var time = localTimeToken.Value<DateTime>().ToLocalTime();
+    _lastGameTime = time;
     Logger?.LogTrace("Game Time is: {gameTime}", time);
   }
 
@@ -108,15 +128,13 @@ internal class EbulaTswApi : IEbulaGameApi {
       try {
         var nowAvail = IsAvailable;
 
-        if (!_isSetUp) {
-          _isSetUp = await SetupSubscriptions();
-          if (_isSetUp)
-            Logger?.LogDebug("TSW API setup completed");
+        if (_setupTimeout >= 30
+          && await SetupSubscriptions()) {
+          _setupTimeout = 0;
+          Logger?.LogDebug("TSW API setup completed");
         }
 
-        if (_isSetUp) {
-          nowAvail = await CheckSubscriptions();
-        }
+        nowAvail = await CheckSubscriptions();
 
         if (IsAvailable != nowAvail) {
           Logger?.LogDebug("TSW API availability: {nowAvail}", nowAvail);
@@ -125,9 +143,8 @@ internal class EbulaTswApi : IEbulaGameApi {
       }
       catch (HttpRequestException e) {
         IsAvailable = false;
-        _isSetUp = false;
-        Logger?.LogWarning(e, "TSW API error: {error}", e.Message);
-        await Task.Delay(9000);
+        _setupTimeout += 1;
+        Logger?.LogWarning("TSW API error: {error}", e.Message);
       }
       await Task.Delay(1000); // Poll every second
     }
@@ -190,9 +207,9 @@ internal class EbulaTswApi : IEbulaGameApi {
 
   private readonly HttpClient _httpClient = new();
   private readonly CancellationTokenSource _messageLoopCancel = new();
-  private bool _isSetUp = false;
-  private Queue<Position>? _monitoringQueue;
-  private Position? _lastPosition;
+  private int _setupTimeout = int.MaxValue;
+  private readonly List<EbulaEntry> _monitoringList = [];
+  private Vector2? _lastPosition;
   private DateTime? _lastGameTime;
 
   public bool IsAvailable { get; private set; }
