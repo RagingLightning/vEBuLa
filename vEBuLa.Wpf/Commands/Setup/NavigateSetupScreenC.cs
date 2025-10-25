@@ -156,7 +156,7 @@ internal partial class NavigateSetupScreenC : NavigateScreenC {
       service.ShiftStops(oldService.Model.Stops, oldService.StartTime, EditServiceDialog.StartTime);
     }
 
-    Screen.RouteServices.Add(service.ToVM());
+    Screen.RouteServices.Add(service.ToVM(Screen.EditServiceCommand, Screen));
     Logger?.LogInformation("Created new service {Service}", service);
     Screen.Ebula.MarkDirty();
   } // Add new Service

@@ -150,13 +150,11 @@
             <Button Style="{DynamicResource EditBtn}" Command="{Binding EditCommand}" CommandParameter="{Binding .}" Click="Service_Click">
                 <Grid ToolTip="{Binding StopInfo}">
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="3*"/>
-                        <ColumnDefinition/>
-                        <ColumnDefinition/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
-                    <TextBlock Text="{Binding Description}" d:Text="RE 57031 - Aschaffenburg Hbf"/>
-                    <TextBlock Grid.Column="1" Text="{Binding FormattedStartTime}" d:Text="13:12:00"/>
-                    <TextBlock Grid.Column="2" Text="{Binding FormattedDuration}" d:Text="00:54:00"/>
+                    <TextBlock Text="{Binding Description}" d:Text="RE 57031 - Aschaffenburg Hbf" TextAlignment="Left"/>
+                    <TextBlock Grid.Column="1" Text="{Binding FormattedStartTime}" d:Text="13:12:00" TextAlignment="Right"/>
                 </Grid>
             </Button>
         </DataTemplate>

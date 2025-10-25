@@ -14,16 +14,13 @@ internal class EbulaEntryVM : BaseVM {
   private ILogger<EbulaEntryVM>? Logger => App.GetService<ILogger<EbulaEntryVM>>();
   public EbulaEntry Model { get; }
   public EbulaScreenVM Screen { get; }
-  public EbulaServiceStop Stop { get; }
-  private DateTime ServiceStartTime { get; }
 
   public override string ToString() => $"{Model.Location,6} | {Model.LocationName.Crop(16),-16} | {(Arrival is null ? "       " : $"{ArrivalHr}:{ArrivalMn}.{ArrivalFr}")} | {(Departure is null ? "       " : $"{DepartureHr}:{DepartureMn}.{DepartureFr}")}";
 
-  public EbulaEntryVM(EbulaEntry entry, EbulaEntryVM? prev, EbulaServiceStop stop, DateTime serviceStartTime, EbulaScreenVM screen) {
+  public EbulaEntryVM(EbulaEntry entry, EbulaEntryVM? prev, EbulaServiceStop? stop, EbulaScreenVM screen) {
     Model = entry;
     Screen = screen;
     Stop = stop;
-    ServiceStartTime = serviceStartTime;
 
     DisplayUnits = entry.LocationName.Where(c => c == '\n').Count() + 1;
 
@@ -73,6 +70,32 @@ internal class EbulaEntryVM : BaseVM {
   }
 
   #region Properties
+
+  private EbulaServiceStop? _stop;
+  public EbulaServiceStop? Stop {
+    get => _stop;
+    set {
+      if (_stop is not null)
+        return;
+
+      _stop = value;
+      OnPropertyChanged(nameof(Stop));
+      OnPropertyChanged(nameof(MainBold));
+      OnPropertyChanged(nameof(SecondaryBold));
+      OnPropertyChanged(nameof(ArrivalBold));
+      OnPropertyChanged(nameof(DepartureBold));
+      OnPropertyChanged(nameof(HasArrival));
+      OnPropertyChanged(nameof(Arrival));
+      OnPropertyChanged(nameof(ArrivalHr));
+      OnPropertyChanged(nameof(ArrivalMn));
+      OnPropertyChanged(nameof(ArrivalFr));
+      OnPropertyChanged(nameof(HasDeparture));
+      OnPropertyChanged(nameof(Departure));
+      OnPropertyChanged(nameof(DepartureHr));
+      OnPropertyChanged(nameof(DepartureMn));
+      OnPropertyChanged(nameof(DepartureFr));
+    }
+  }
 
   #region Edit Mode
 
@@ -191,7 +214,7 @@ internal class EbulaEntryVM : BaseVM {
     }
   }
 
-  public int? Location {
+  public int Location {
     get {
       return Model.Location;
     }
@@ -202,8 +225,8 @@ internal class EbulaEntryVM : BaseVM {
       OnPropertyChanged(nameof(LocationFrac));
     }
   }
-  public string LocationInt => Location is not int l ? string.Empty : (l / 1000).ToString();
-  public string LocationFrac => Location is not int l ? string.Empty : (l % 1000 / 100).ToString();
+  public string LocationInt => (Location / 1000).ToString();
+  public string LocationFrac => (Location % 1000 / 100).ToString();
 
   public Vector2? GpsLocation {
     get {
@@ -325,12 +348,12 @@ internal class EbulaEntryVM : BaseVM {
 
   public bool MainBold {
     get {
-      return Model.LocationNameBold || Stop.Bold;
+      return Model.LocationNameBold || (Stop?.Bold ?? false);
     }
     set {
       if (Screen.Ebula.RouteEditMode)
         Model.LocationNameBold = value;
-      else
+      else if (Stop is not null)
         Stop.Bold = value;
       OnPropertyChanged(nameof(MainBold));
       OnPropertyChanged(nameof(SecondaryBold));
@@ -351,12 +374,12 @@ internal class EbulaEntryVM : BaseVM {
 
   public bool SecondaryBold {
     get {
-      return Model.LocationNotesBold || Stop.Bold;
+      return Model.LocationNotesBold || (Stop?.Bold ?? false);
     }
     set {
       if (Screen.Ebula.RouteEditMode)
         Model.LocationNotesBold = value;
-      else
+      else if (Stop is not null)
         Stop.Bold = value;
       OnPropertyChanged(nameof(MainBold));
       OnPropertyChanged(nameof(SecondaryBold));
@@ -373,10 +396,11 @@ internal class EbulaEntryVM : BaseVM {
 
   public DateTime? Arrival {
     get {
-      return Stop.Arrival;
+      return Stop?.Arrival;
     }
     set {
-      Stop.Arrival = value;
+      if (Stop is not null)
+        Stop.Arrival = value;
       OnPropertyChanged(nameof(Arrival));
       OnPropertyChanged(nameof(HasArrival));
       OnPropertyChanged(nameof(ArrivalHr));
@@ -396,10 +420,11 @@ internal class EbulaEntryVM : BaseVM {
 
   public DateTime? Departure {
     get {
-      return Stop.Departure;
+      return Stop?.Departure;
     }
     set {
-      Stop.Departure = value;
+      if (Stop is not null)
+        Stop.Departure = value;
       OnPropertyChanged(nameof(Departure));
       OnPropertyChanged(nameof(HasDeparture));
       OnPropertyChanged(nameof(DepartureHr));

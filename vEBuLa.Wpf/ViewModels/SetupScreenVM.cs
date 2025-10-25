@@ -32,6 +32,7 @@ public class SetupScreenVM : BaseVM {
     EditDestinationCommand = EditConfigEntryC.DESTINATION;
     RemoveDestinationCommand = DeleteConfigStationC.DESTINATION;
 
+    Ebula.ServiceEditMode = false;
     Ebula.PropertyChanged += Ebula_PropertyChanged;
 
     LoadConfig();

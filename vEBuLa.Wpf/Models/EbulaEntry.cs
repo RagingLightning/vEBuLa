@@ -5,14 +5,14 @@ using vEBuLa.Extensions;
 namespace vEBuLa.Models;
 
 public class EbulaEntry {
-  public override string ToString() => $"{SpeedLimit,3} | {Location,6} | {LocationName.Crop(15),-17}";
-  public static EbulaEntry PreMarker(EbulaSegment segment) => new EbulaEntry{ SpeedLimit = -1, LocationName = $"-- PRE {segment.Origin} --" };
-  public static readonly EbulaEntry StartMarker = new EbulaEntry { SpeedLimit = -1, LocationName = "-- START --" };
-  public static readonly EbulaEntry PostMarker = new EbulaEntry { SpeedLimit = -1, LocationName = "-- POST --" };
+  public override string ToString() => $"{SpeedLimit,3} | {Location,6} | {LocationName.Crop(15),-17}".Replace('\n',' ');
+  public static EbulaEntry PreMarker(EbulaSegment segment) => new() { SpeedLimit = -1, LocationName = $"-- PRE {segment.Origin} --" };
+  public static readonly EbulaEntry StartMarker = new() { SpeedLimit = -1, LocationName = "-- START --" };
+  public static readonly EbulaEntry PostMarker = new() { SpeedLimit = -1, LocationName = "-- POST --" };
 
   public int SpeedLimit { get; set; } = 0;
   public bool SpeedSigned { get; set; } = true;
-  public int? Location { get; set; } = 0;
+  public int Location { get; set; } = 0;
   public Vector2? GpsLocation { get; set; } = null;
   public bool KilometerBreak { get; set; } = false;
   public EbulaSymbol Symbol { get; set; } = EbulaSymbol.NONE;

@@ -15,6 +15,7 @@ namespace vEBuLa.Models;
 public class EbulaService : IEbulaService {
   private ILogger<EbulaConfig>? Logger => App.AppHost?.Services.GetRequiredService<ILogger<EbulaConfig>>();
   public override string ToString() => $"{Name.Crop(6)} @ {StartTime:hh\\:mm} - {Route.Id.ToString().BiCrop(5,5)}";
+
   public EbulaService(EbulaConfig existingConfig, Guid id, JObject jService) {
     Id = id;
     ConfigName = existingConfig.Name;
@@ -31,7 +32,7 @@ public class EbulaService : IEbulaService {
       Route = existingConfig.Routes[routeId];
     }
 
-    Stops = new();
+    Stops = [];
     if (jService.Value<JArray>(nameof(Stops)) is JArray jStops)
     foreach (var jStop in jStops) {
       if (jStop.ToObject<EbulaServiceStop>() is not EbulaServiceStop stop) {

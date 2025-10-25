@@ -2,6 +2,7 @@
 using System;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
 using System.Windows.Input;
 using vEBuLa.Models;
 
@@ -12,7 +13,10 @@ namespace vEBuLa.Dialogs;
 public partial class EditDateTimeDialog : Window {
   private ILogger<EditDateTimeDialog>? Logger => App.GetService<ILogger<EditDateTimeDialog>>();
   public static DateTime? Date { get; private set; } = null;
-  public EditDateTimeDialog(DateTime? dateTime, DateTimeDialogType type, Vector startupLocation) {
+
+  private Func<DateTime?>? AutoTimeFn { get; }
+
+  public EditDateTimeDialog(DateTime? dateTime, Func<DateTime?>? autoTimeFn, DateTimeDialogType type, Vector startupLocation) {
     InitializeComponent();
 
     Header.Text = type switch {
@@ -28,6 +32,9 @@ public partial class EditDateTimeDialog : Window {
       txtMinute.Text = dt.Minute.ToString() ?? string.Empty;
       txtSecond.Text = dt.Second.ToString() ?? string.Empty;
     }
+
+    AutoTimeFn = autoTimeFn;
+    btnAuto.IsEnabled = autoTimeFn is not null;
 
     Left = startupLocation.X;
     Top = startupLocation.Y;
@@ -51,6 +58,15 @@ public partial class EditDateTimeDialog : Window {
     catch (Exception ex) {
       Logger?.LogWarning(ex, "Exception during Dialog submission");
       DialogResult = false;
+    }
+  }
+
+  private void Auto_Click(object sender, RoutedEventArgs e) {
+    if (AutoTimeFn?.Invoke() is DateTime dt) {
+      Date = dt;
+      txtHour.Text = (dt.Hour + 24 * (dt.Day - 1)).ToString() ?? string.Empty;
+      txtMinute.Text = dt.Minute.ToString() ?? string.Empty;
+      txtSecond.Text = dt.Second.ToString() ?? string.Empty;
     }
   }
 

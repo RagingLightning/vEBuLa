@@ -11,6 +11,7 @@ internal class EditSegmentStationC : BaseC {
   public static readonly EditSegmentStationC DESTINATION = new(true);
   private readonly bool IsDestination;
   private EditSegmentStationC(bool isDestination) { IsDestination = isDestination; }
+
   public override void Execute(object? parameter) {
     if (parameter is not EbulaMarkerEntryVM entry) return;
     if (IsDestination && entry.Segment.Destination.Station is null

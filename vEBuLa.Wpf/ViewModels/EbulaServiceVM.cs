@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
+using System.Windows.Documents;
 using vEBuLa.Commands;
 using vEBuLa.Extensions;
 using vEBuLa.Models;
@@ -10,6 +12,7 @@ namespace vEBuLa.ViewModels;
 public partial class EbulaServiceVM : BaseVM {
   public IEbulaService Model { get; }
   public SetupScreenVM? Screen { get; }
+
   public EbulaServiceVM(IEbulaService ebulaService, BaseC? editCommand = null, SetupScreenVM? screen = null) {
     Model = ebulaService;
     EditCommand = editCommand;
@@ -18,27 +21,20 @@ public partial class EbulaServiceVM : BaseVM {
 
   private void GenerateStopInfo() {
     _stopInfo += $"Start Time: {FormattedStartTime}\n";
+    _stopInfo += $"Service Duration: {FormattedDuration}\n";
+
+    List<EbulaEntry> allEntries = [];
+    allEntries.AddRange(Model.Segments[0].PreEntries);
+    foreach (var segment in Model.Segments)
+      allEntries.AddRange(segment.Entries);
+    allEntries.AddRange(Model.Segments[^1].PostEntries);
+
     foreach (var stop in Model.Stops) {
       if (stop.Arrival is null && stop.Departure is null) return;
-      var segment = Model.Segments[0];
-      if (stop.EntryIndex < segment.PreEntries.Count) {
-        _stopInfo += $"\n- {(stop.Arrival is null ? "        " : stop.Arrival?.ToString("HH':'mm':'ss"))} {segment.PreEntries[stop.EntryIndex].LocationName.Crop(16)}";
+      var entry = allEntries.FirstOrDefault(e => e.Location == stop.EntryLocation && e.LocationName == stop.EntryName);
+      if (entry is null)
         continue;
-      }
-      var index = segment.PreEntries.Count;
-
-      foreach (var s in Model.Segments) {
-        if (stop.EntryIndex > index + s.Entries.Count) {
-          index += s.Entries.Count;
-          continue;
-        }
-        _stopInfo += $"\n- {(stop.Arrival is null ? "        " : stop.Arrival?.ToString("HH':'mm':'ss"))} {s.Entries[stop.EntryIndex - index].LocationName.Crop(16)}";
-        goto nextStop;
-      }
-
-      _stopInfo += $"\n- {(stop.Arrival is null ? "        " : stop.Arrival?.ToString("HH':'mm':'ss"))} {Model.Segments[^1].PostEntries[stop.EntryIndex - index].LocationName.Crop(16)}";
-
-      nextStop: { }
+      _stopInfo += $"\n- {(stop.Arrival is null ? "        " : stop.Arrival?.ToString("HH':'mm':'ss"))} {entry.LocationName.Crop(16)}";
     }
   }
 

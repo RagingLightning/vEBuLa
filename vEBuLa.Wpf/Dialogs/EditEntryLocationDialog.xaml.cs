@@ -12,7 +12,7 @@ namespace vEBuLa.Dialogs;
 /// </summary>
 public partial class EditEntryLocationDialog : Window {
   private ILogger<EditEntryLocationDialog>? Logger => App.GetService<ILogger<EditEntryLocationDialog>>();
-  public static int? Location { get; private set; } = 0;
+  public static int Location { get; private set; } = 0;
   public static Vector2? GpsLocation { get; private set; } = null;
   public static double? Longitude { get; private set; } = null;
   public static Gradient Gradient { get; private set; } = 0;
@@ -20,12 +20,12 @@ public partial class EditEntryLocationDialog : Window {
 
   private IEbulaGameApi? Api { get; }
 
-  public EditEntryLocationDialog(int? location, Vector2? gps,  bool kilometerBreak, Gradient gradient, System.Windows.Vector startupLocation, IEbulaGameApi? api) {
+  public EditEntryLocationDialog(int location, Vector2? gps,  bool kilometerBreak, Gradient gradient, System.Windows.Vector startupLocation, IEbulaGameApi? api) {
     InitializeComponent();
     Api = api;
 
     Location = location;
-    txtLocation.Text = location is null ? string.Empty : location.ToString();
+    txtLocation.Text = location.ToString();
 
     GpsLocation = gps;
     txtLat.Text = gps is null ? "N/A" : gps?.X.ToString("F6");
@@ -47,7 +47,7 @@ public partial class EditEntryLocationDialog : Window {
   private void Window_KeyDown(object sender, KeyEventArgs e) {
     if (e.Key != Key.Enter && e.Key != Key.Escape) return;
     try {
-      Location = txtLocation.Text == string.Empty ? null : int.Parse(txtLocation.Text);
+      Location = txtLocation.Text == string.Empty ? 0 : int.Parse(txtLocation.Text);
       KilometerBreak = cbxBreak.IsChecked == true;
       if (rbtGradient0.IsChecked == true) Gradient = Gradient.BELOW_10;
       else if (rbtGradient1.IsChecked == true) Gradient = Gradient.BELOW_20;

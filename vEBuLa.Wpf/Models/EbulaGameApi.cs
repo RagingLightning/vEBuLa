@@ -4,6 +4,7 @@ using Newtonsoft.Json.Linq;
 using Serilog.Core;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -111,16 +112,17 @@ public class EbulaTswApi : IEbulaGameApi {
   }
 
   private void CheckTime(JObject timeData) {
-
     if (timeData["LocalTimeISO8601"] is not JToken localTimeToken) {
       Logger?.LogWarning("Invalid time data: {data}", timeData);
       Logger?.LogDebug("Data is missing required key: {key}", "LocalTimeISO8601");
       return;
     }
 
-    var time = localTimeToken.Value<DateTime>().ToLocalTime();
-    _lastGameTime = time;
-    Logger?.LogTrace("Game Time is: {gameTime}", time);
+    var localTime = localTimeToken.Value<DateTime>();
+    var localSun = localTime.IsDaylightSavingTime();
+    var newTime = new DateTime(localTime.Year, localTime.Month, localTime.Day, localSun ? localTime.Hour - 1 : localTime.Hour, localTime.Minute, localTime.Second);
+    _lastGameTime = newTime;
+    Logger?.LogTrace("Game Time is: {gameTime}", newTime);
   }
 
   private async Task MessageLoop() {
@@ -137,13 +139,18 @@ public class EbulaTswApi : IEbulaGameApi {
         nowAvail = await CheckSubscriptions();
 
         if (IsAvailable != nowAvail) {
-          Logger?.LogDebug("TSW API availability: {nowAvail}", nowAvail);
+          if (_setupTimeout > 5)
+            Logger?.LogDebug("TSW API availability: {nowAvail}", nowAvail);
           IsAvailable = nowAvail;
         }
       }
       catch (HttpRequestException e) {
         IsAvailable = false;
         _setupTimeout += 1;
+        if (_setupTimeout > 5)
+          Logger?.LogWarning("TSW API error: {error}", e.Message);
+      }
+      catch (Exception e) {
         Logger?.LogWarning("TSW API error: {error}", e.Message);
       }
       await Task.Delay(1000); // Poll every second

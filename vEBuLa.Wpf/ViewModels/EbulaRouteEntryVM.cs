@@ -6,6 +6,7 @@ namespace vEBuLa.ViewModels;
 public class EbulaRouteEntryVM : BaseVM {
   private SetupScreenVM Screen { get; }
   private EbulaSegmentVM Segment { get; }
+
   public EbulaRouteEntryVM(SetupScreenVM screen, EbulaSegmentVM segment, EbulaRouteEntryVM? prev) {
     Screen = screen;
     Segment = segment;

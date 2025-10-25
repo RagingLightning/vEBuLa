@@ -11,18 +11,28 @@ namespace vEBuLa.Models;
 
 public class EbulaServiceStop {
 
-  public EbulaServiceStop(int entryIndex, bool bold = false, DateTime? arrival = null, DateTime? departure = null) {
-    EntryIndex = entryIndex;
+  public EbulaServiceStop(int location, string name, bool bold = false, DateTime? arrival = null, DateTime? departure = null) {
+    EntryLocation = location;
+    EntryName = name;
     Bold = bold;
     Arrival = arrival;
     Departure = departure;
   }
 
-  public EbulaServiceStop Copy() => new(EntryIndex, Bold, Arrival, Departure);
+  public EbulaServiceStop(EbulaEntry entry) {
+    EntryLocation = entry.Location;
+    EntryName = entry.LocationName;
+  }
+
+  [JsonConstructor]
+  private EbulaServiceStop() { EntryName = string.Empty; }
+
+  public EbulaServiceStop Copy() => new(EntryLocation, EntryName, Bold, Arrival, Departure);
 
   public bool IsEmpty() => !Bold && Arrival is null && Departure is null;
 
-  public int EntryIndex { get; set; }
+  public int EntryLocation { get; set; }
+  public string EntryName { get; set; }
   public bool Bold { get; set; }
   public DateTime? Arrival { get; set; }
   public DateTime? Departure { get; set; }

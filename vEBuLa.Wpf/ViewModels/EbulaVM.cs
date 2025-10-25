@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Numerics;
@@ -121,6 +122,7 @@ public class EbulaVM : BaseVM {
 
         var serviceDate = DateOnly.FromDateTime(ServiceStartDate);
         var currentDate = DateOnly.FromDateTime(CurrentDate);
+
         if (serviceDate != currentDate)
           ServiceStartDate = new DateTime(currentDate, TimeOnly.FromDateTime(ServiceStartDate));
       };
@@ -134,8 +136,10 @@ public class EbulaVM : BaseVM {
   }
 
   public void StopServiceClock() {
-    if (ServiceClock is not null)
+    if (ServiceClock is not null) {
+      ServiceClock.AutoReset = false;
       ServiceClock.Stop();
+    }
   }
 
   public void MarkDirty() {
@@ -175,8 +179,8 @@ public class EbulaVM : BaseVM {
     }
   }
 
-  public string FormattedDate => CurrentDate.ToString(@"dd\.MM\.yyyy");
-  public string FormattedTime => CurrentDate.ToString(@"HH\:mm\:ss");
+  public string FormattedDate => CurrentDate.ToString(@"dd\.MM\.yyyy", CultureInfo.InvariantCulture);
+  public string FormattedTime => CurrentDate.ToString(@"HH\:mm\:ss", CultureInfo.InvariantCulture);
 
   private IEbulaGameApi? _gameApi;
   public IEbulaGameApi? GameApi {

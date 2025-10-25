@@ -25,4 +25,18 @@ internal static class MathEx {
   public static float SymmtricLinePointPassingScore(Vector2 a, Vector2 b, Vector2 c) {
     return 2 * LinePointPassingScore(a, b, c) - 1f;
   }
+
+  public static DateTime ExtrapolateFromTimeFrame(Vector2 posA, DateTime timeA, Vector2 posB, DateTime timeB, Vector2 posC) {
+    var t = LinePointPassingScore(posA, posB, posC);
+    var timeDiff = timeB - timeA;
+    var extrapolatedTime = timeA + (timeDiff * t);
+    return extrapolatedTime;
+  }
+
+  public static DateTime ExtrapolateFromTimeFrame(int posA, DateTime timeA, int posB, DateTime timeB, int posC) {
+    var t = (posC - posA) / (posB - posA);
+    var timeDiff = timeB - timeA;
+    var extrapolatedTime = timeA + (timeDiff * t);
+    return extrapolatedTime;
+  }
 }

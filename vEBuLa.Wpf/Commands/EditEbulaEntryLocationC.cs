@@ -8,6 +8,7 @@ namespace vEBuLa.Commands;
 internal class EditEbulaEntryLocationC : BaseC {
   private ILogger<EditEbulaEntryLocationC>? Logger => App.GetService<ILogger<EditEbulaEntryLocationC>>();
   public static readonly EditEbulaEntryLocationC INSTANCE = new();
+
   public override void Execute(object? parameter) {
     if (parameter is not EbulaEntryVM entry) return;
     if (entry.Screen is null) return;

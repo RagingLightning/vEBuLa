@@ -159,7 +159,7 @@ public class EbulaConfig {
     return route;
   }
 
-  internal void Save(string fileName) {
+  public void Save(string fileName) {
     JObject jConfig = new JObject();
     jConfig[nameof(Name)] = Name;
 

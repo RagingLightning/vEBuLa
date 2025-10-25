@@ -10,12 +10,12 @@
 				FocusManager.FocusedElement="{Binding ElementName=txtHour}">
     <Grid Margin="5">
         <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="3*"/>
             <ColumnDefinition Width="Auto"/>
-            <ColumnDefinition/>
+            <ColumnDefinition Width="3*"/>
             <ColumnDefinition Width="Auto"/>
-            <ColumnDefinition/>
-            <ColumnDefinition Width="Auto"/>
-            <ColumnDefinition/>
+            <ColumnDefinition Width="3*"/>
+            <ColumnDefinition Width="2*"/>
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
             <RowDefinition/>
@@ -24,11 +24,11 @@
 
         <TextBlock x:Name="Header" Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="6" d:Text="Change Departure" TextAlignment="Center" VerticalAlignment="Center" FontSize="22"/>
 
-        <TextBlock Text="T+" Grid.Row="1" FontSize="22" VerticalAlignment="Center"/>
-        <TextBox x:Name="txtHour" Grid.Row="1" Grid.Column="1" FontSize="22" TabIndex="1" FocusManager.GotFocus="Focus" VerticalContentAlignment="Center"/>
-        <TextBlock Text=":" Grid.Row="1" Grid.Column="2" FontSize="22" VerticalAlignment="Center"/>
-        <TextBox x:Name="txtMinute" Grid.Row="1" Grid.Column="3" FontSize="22" TabIndex="2" FocusManager.GotFocus="Focus" VerticalContentAlignment="Center"/>
-        <TextBlock Text=":" Grid.Row="1" Grid.Column="4" FontSize="22" VerticalAlignment="Center"/>
-        <TextBox x:Name="txtSecond" Grid.Row="1" Grid.Column="5" FontSize="22" TabIndex="3" FocusManager.GotFocus="Focus" VerticalContentAlignment="Center"/>
+        <TextBox x:Name="txtHour" Grid.Row="1" Grid.Column="0" FontSize="22" TabIndex="1" FocusManager.GotFocus="Focus" VerticalContentAlignment="Center"/>
+        <TextBlock Text=":" Grid.Row="1" Grid.Column="1" FontSize="22" VerticalAlignment="Center"/>
+        <TextBox x:Name="txtMinute" Grid.Row="1" Grid.Column="2" FontSize="22" TabIndex="2" FocusManager.GotFocus="Focus" VerticalContentAlignment="Center"/>
+        <TextBlock Text=":" Grid.Row="1" Grid.Column="3" FontSize="22" VerticalAlignment="Center"/>
+        <TextBox x:Name="txtSecond" Grid.Row="1" Grid.Column="4" FontSize="22" TabIndex="3" FocusManager.GotFocus="Focus" VerticalContentAlignment="Center"/>
+        <Button x:Name="btnAuto" Content="Auto" Grid.Row="1" Grid.Column="5" FontSize="10" VerticalAlignment="Center" Margin="5,0,0,0" Click="Auto_Click"/>
     </Grid>
 </Window>
