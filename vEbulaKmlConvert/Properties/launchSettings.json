@@ -1,8 +1,0 @@
-{
-  "profiles": {
-    "vEbulaKmlConvert": {
-      "commandName": "Project",
-      "commandLineArgs": "-i \"D:\\Users\\RagingLightning\\source\\resources\\vEbuLa\\config\\vEbula_Kinzigtalbahn.kml\""
-    }
-  }
-}

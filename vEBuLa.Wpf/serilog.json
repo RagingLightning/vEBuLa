@@ -27,13 +27,15 @@
       "ConsoleSink": {
         "Name": "Console",
         "Args": {
-          "outputTemplate": "[{Timestamp:G} {Level:u3}] {Message:lj}     <s:{SourceContext}>{NewLine}{Exception}"
+          "outputTemplate": "[{Timestamp:G} {Level:u3}] {Message:lj}{NewLine}{Exception}"
+          /*"outputTemplate": "[{Timestamp:G} {Level:u3}] {Message:lj}     <s:{SourceContext}>{NewLine}{Exception}"*/
         }
       },
       "DebugSink": {
         "Name": "Debug",
         "Args": {
-          "outputTemplate": "[{Timestamp:G} {Level:u3}] {Message:lj}     <s:{SourceContext}>{NewLine}{Exception}"
+          "outputTemplate": "[{Timestamp:G} {Level:u3}] {Message:lj}{NewLine}{Exception}"
+          /*"outputTemplate": "[{Timestamp:G} {Level:u3}] {Message:lj}     <s:{SourceContext}>{NewLine}{Exception}"*/
         }
       }/*,
       "ClefSink": {

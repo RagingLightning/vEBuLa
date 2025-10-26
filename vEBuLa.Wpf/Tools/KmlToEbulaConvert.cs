@@ -1,41 +1,19 @@
-﻿using Microsoft.AspNetCore.Routing;
+﻿using Serilog;
+using System;
+using System.Collections.Generic;
 using System.CommandLine;
 using System.Globalization;
+using System.IO;
+using System.Linq;
+using System.Threading;
 using System.Xml.Linq;
-using System.Xml.XPath;
 using vEBuLa.Models;
 
-Option<FileInfo?> InputPath = new("--input") {
-  Aliases = { "-i" },
-  Description = "Path to read kml data from",
-  DefaultValueFactory = (_) => new FileInfo("./ebula.kml")
-};
+internal partial class KmlToEbulaConvert {
 
-Option<DirectoryInfo?> OutputPath = new("--output") {
-  Aliases = { "-o" },
-  Description = "Path to write ebula data to",
-  DefaultValueFactory = (r) => r.GetValue(InputPath)?.Directory
-};
-
-RootCommand rootCommand = new("Ebula KML conversion tool") {
-  Description = "A tool to convert kml folders into ebula presets"
-};
-rootCommand.Options.Add(InputPath);
-rootCommand.Options.Add(OutputPath);
-
-rootCommand.SetAction(res => {
-  var input = res.GetValue(InputPath)!;
-  var output = res.GetValue(OutputPath)!;
-  CreateEbula(input, output);
-});
-
-rootCommand.Parse(args).Invoke();
-
-internal partial class Program {
-
-  public static void CreateEbula(FileInfo input, DirectoryInfo output) {
+  public static void Run(FileInfo input, DirectoryInfo output, bool dryRun) {
     if (!input.Exists) {
-      Console.WriteLine($"Input file '{input.FullName}' does not exist, exiting");
+      Log.Error("Input file {file} does not exist, exiting", input);
       return;
     }
 
@@ -44,38 +22,47 @@ internal partial class Program {
     var kml = data.Elements().FirstOrDefault(e => e.Name.LocalName == "kml");
     var document = kml?.Elements().FirstOrDefault(e => e.Name.LocalName == "Document");
 
-    Console.WriteLine($"+---------------------");
-    Console.WriteLine($"| EbulaKmlConvert v0.1");
-    Console.WriteLine($"| KML > Ebula");
-    Console.WriteLine($"| Input: {input.Name}");
-    Console.WriteLine($"| Output: {output.Name}");
-    Console.WriteLine($"+---------------------");
+    Log.Information("+---------------------");
+    Log.Information("| EbulaKmlConvert v0.1");
+    Log.Information("| KML > Ebula");
+    Log.Information("| Input: {input}", input);
+    Log.Information("| Output: {output}", output);
+    Log.Information("+---------------------");
 
-    if(document is null) {
-      Console.WriteLine("Invalid KML format, exiting");
+    if (document is null) {
+      Log.Error("Invalid KML format, exiting");
       return;
     }
 
-    Console.WriteLine("!! Existing files will be overwritten !!");
-    Console.WriteLine("Starting conversion in 10 seconds...");
+    if (dryRun)
+      Log.Information("!! Dry run, no files will be written !!");
+    else
+      Log.Information("!! Existing files will be overwritten !!");
+    Log.Information("Starting conversion in 5 seconds...");
+
+    Thread.Sleep(5000);
 
     foreach (var presetFolder in document.Elements().Where(e => e.Name.LocalName == "Folder")) {
       var presetName = presetFolder.Elements().FirstOrDefault(e => e.Name.LocalName == "name")?.Value;
       if (string.IsNullOrWhiteSpace(presetName)) {
-        Console.WriteLine("Found preset folder without name, skipping");
+        Log.Information("Found preset folder without name, skipping");
         continue;
       }
 
-      Console.WriteLine();
-      Console.WriteLine($"Converting: {presetName}");
+      Log.Information("");
+      Log.Information("Converting {presetName}", presetName);
 
       var filePath = Path.Combine(output.FullName, $"{presetName}.ebula");
       EbulaConfig preset;
       if (File.Exists(filePath)) {
-        Console.WriteLine($"Found matching preset file {presetName}.ebula, loading existing data");
+        Log.Information("Found matching preset file {presetFile}, loading existing data", $"{presetName}.ebula");
         preset = new EbulaConfig(filePath);
-      } else {
-        Console.WriteLine($"No matching preset file was found, creating new preset");
+
+        if (!dryRun)
+          File.WriteAllText($"{filePath}.old", File.ReadAllText(filePath));
+      }
+      else {
+        Log.Warning($"No matching preset file was found, creating new preset");
         preset = new EbulaConfig();
       }
 
@@ -88,20 +75,22 @@ internal partial class Program {
       foreach (var routeFolder in presetFolder.Elements().Where(e => e.Name.LocalName == "Folder")) {
         ProcessRoute(preset, segments, stations, routeFolder);
       }
-    
-      preset.Save(Path.Combine(output.FullName, $"{presetName}.ebula"));
 
-      ValidateServices(preset);
+      // ValidateServices(preset);
+
+      if (!dryRun) {
+        preset.Save(Path.Combine(output.FullName, $"{presetName}.ebula"));
+      }
     }
   }
 
   private static void ProcessRoute(EbulaConfig preset, Dictionary<Guid, EbulaSegment> segments, Dictionary<Guid, EbulaStation> stations, XElement routeFolder) {
     var routeName = routeFolder.Elements().FirstOrDefault(e => e.Name.LocalName == "name")?.Value;
     if (string.IsNullOrWhiteSpace(routeName)) {
-      Console.WriteLine("#-Found route folder without name, skipping");
+      Log.Error(" - Found route folder without name, skipping");
       return;
     }
-    Console.WriteLine($" - Converting Route: {routeName}");
+    Log.Information(" - Converting Route: {routeName}", routeName);
 
     foreach (var segmentFolder in routeFolder.Elements().Where(e => e.Name.LocalName == "Folder")) {
       ProcessSegment(preset, segments, stations, routeName, segmentFolder);
@@ -111,19 +100,19 @@ internal partial class Program {
   private static void ProcessSegment(EbulaConfig preset, Dictionary<Guid, EbulaSegment> segments, Dictionary<Guid, EbulaStation> stations, string routeName, XElement segmentFolder) {
     var rawSegmentName = segmentFolder.Elements().FirstOrDefault(e => e.Name.LocalName == "name")?.Value;
     if (string.IsNullOrWhiteSpace(rawSegmentName)) {
-      Console.WriteLine("#-#- Found route segment folder without name, skipping");
+      Log.Error(" - - Found route segment folder without name, skipping");
       return;
     }
 
     var segmentStartEnd = rawSegmentName.Split("_");
     if (segmentStartEnd.Length == 1) {
-      Console.WriteLine($"#-#- Invalid segment name: {rawSegmentName}, skipping");
+      Log.Error(" - - Invalid segment name: {segmentName}, skipping", rawSegmentName);
       return;
     }
 
     var segmentStart = segmentStartEnd[0];
     var segmentEnd = segmentStartEnd[1];
-    Console.WriteLine($" - - Converting Route Segment: {segmentStart} - {segmentEnd}");
+    Log.Information(" - - Converting Route Segment: {segmentStart} - {segmentEnd}", segmentStart, segmentEnd);
 
     // Get start and end stations from preset
     var segmentStartLocation = segmentStart.Split("|")[0];
@@ -133,16 +122,22 @@ internal partial class Program {
 
     // Create stations if they do not exist
     if (startStation is null) {
-      Console.WriteLine($" - - - Adding new station: {segmentStartLocation}");
+      Log.Warning(" - - - Adding new station: {segmentStart}", segmentStartLocation);
       var id = GenerateId(stations.Keys);
       startStation = new EbulaStation(id, segmentStartLocation);
       stations.Add(id, startStation);
     }
+    else {
+      Log.Information(" - - - Using existing station: {segmentStart}", segmentStartLocation);
+    }
     if (endStation is null) {
-      Console.WriteLine($" - - - Adding new station: {segmentEndLocation}");
+      Log.Warning(" - - - Adding new station: {segmentEnd}", segmentEndLocation);
       var id = GenerateId(stations.Keys);
       endStation = new EbulaStation(id, segmentEndLocation);
       stations.Add(id, endStation);
+    }
+    else {
+      Log.Information(" - - - Using existing station: {segmentEnd}", segmentEndLocation);
     }
 
     // Add stations back to preset
@@ -151,19 +146,22 @@ internal partial class Program {
 
     // Get existing segment if it exists
     var segmentName = $"{routeName} - {rawSegmentName.Replace('_', '>')}";
-    var segment = preset.Segments.Values.FirstOrDefault(s =>
-      s.Origin.Station == startStation && s.Destination.Station == endStation && s.Name == rawSegmentName
+    var segment = segments.Values.FirstOrDefault(s =>
+      s.Origin.Station == startStation && s.Destination.Station == endStation && s.Name == segmentName
     );
 
     // Create new segment if it does not exist
     if (segment is null) {
-      Console.WriteLine($" - - - Adding new segment: {segmentName}");
+      Log.Warning(" - - - Adding new segment: {segmentName}", segmentName);
       var id = GenerateId(segments.Keys);
       segment = new EbulaSegment(preset, id, segmentName) {
         Origin = (startStation.Id, startStation),
         Destination = (endStation.Id, endStation)
       };
       segments.Add(id, segment);
+    }
+    else {
+      Log.Information(" - - - Using existing segment: {segmentName}", segmentName);
     }
 
     // Add segment back to preset
@@ -180,13 +178,13 @@ internal partial class Program {
   private static void ProcessPlaceMark(EbulaSegment segment, XElement place) {
     var placeName = place.Elements().FirstOrDefault(e => e.Name.LocalName == "name")?.Value;
     if (string.IsNullOrWhiteSpace(placeName)) {
-      Console.WriteLine("#-#-#-#- Found place mark without name, skipping");
+      Log.Error(" - - - - Found place mark without name, skipping");
       return;
     }
 
     var placeNameSegments = placeName.Split(";");
     if (placeNameSegments.Length != 6) {
-      Console.WriteLine($"#-#-#- Invalid place mark name: {placeName}, skipping");
+      Log.Error(" - - - - Invalid place mark name: {placeName}, skipping", placeName);
       return;
     }
 
@@ -206,19 +204,19 @@ internal partial class Program {
       tunnelEnd = true;
     }
     if (!int.TryParse(position, out var location)) {
-      Console.WriteLine($"#-#-#- Invalid place mark name: {placeName}, skipping");
+      Log.Error(" - - - - Invalid place mark name: {placeName}, skipping", placeName);
       return;
     }
     if (!Enum.TryParse<Gradient>(placeNameSegments[1], out var gradient)) {
-      Console.WriteLine($"#-#-#- Invalid place mark name: {placeName}, skipping");
+      Log.Error(" - - - - Invalid place mark name: {placeName}, skipping", placeName);
       return;
     }
     if (!int.TryParse(placeNameSegments[2], out var speedLimit)) {
-      Console.WriteLine($"#-#-#- Invalid place mark name: {placeName}, skipping");
+      Log.Error(" - - - - Invalid place mark name: {placeName}, skipping", placeName);
       return;
     }
     if (!Enum.TryParse<EbulaSymbol>(placeNameSegments[3], out var icon)) {
-      Console.WriteLine($"#-#-#- Invalid place mark name: {placeName}, skipping");
+      Log.Error(" - - - - Invalid place mark name: {placeName}, skipping", placeName);
       return;
     }
     var mainText = placeNameSegments[4].Replace('|', '\n');
@@ -231,7 +229,7 @@ internal partial class Program {
     var gpsCoordinates = place.Elements().FirstOrDefault(e => e.Name.LocalName == "Point")?
       .Elements().FirstOrDefault(e => e.Name.LocalName == "coordinates")?.Value;
     if (string.IsNullOrEmpty(gpsCoordinates)) {
-      Console.WriteLine($"#-#-#- Corrupted place mark: {placeName}, skipping");
+      Log.Error(" - - - - Corrupted place mark: {placeName}, skipping", placeName);
       return;
     }
     var gpsParts = gpsCoordinates.Split(",");
@@ -256,7 +254,7 @@ internal partial class Program {
 
     segment.Entries.Add(entry);
 
-    Console.WriteLine($" - - - Adding Entry: {entry}");
+    Log.Information(" - - - - Adding Entry: {entry}", entry);
   }
 
   private static void ValidateServices(EbulaConfig preset) {

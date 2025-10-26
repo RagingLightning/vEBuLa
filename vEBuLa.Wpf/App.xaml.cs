@@ -33,19 +33,6 @@ public partial class App : Application {
   internal static T? GetService<T>() where T : notnull => AppHost is null ? default : AppHost.Services.GetService<T>();
 
   public App() {
-    //AttachConsole();
-    AllocConsole();
-
-    IConfigurationBuilder configBuilder = new ConfigurationBuilder();
-#pragma warning disable CS8604 // Mögliches Nullverweisargument.
-    configBuilder.AddJsonStream(GetType().Assembly.GetManifestResourceStream(GetType().Namespace + ".serilog.json"));
-#pragma warning restore CS8604 // Mögliches Nullverweisargument.
-    _serilogConfig = configBuilder.Build();
-
-    Log.Logger = new LoggerConfiguration()
-      .ReadFrom.Configuration(_serilogConfig.ApplyTimestamp())
-      .ApplyDestructuringRules()
-      .CreateLogger();
 
     AppDomain.CurrentDomain.UnhandledException += new UnhandledExceptionEventHandler(OnUnhandledException);
 

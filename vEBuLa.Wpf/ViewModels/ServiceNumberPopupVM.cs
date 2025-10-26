@@ -8,8 +8,9 @@ using vEBuLa.Models;
 
 namespace vEBuLa.ViewModels;
 internal class ServiceNumberPopupVM : BaseVM {
-  EbulaScreenVM Screen;
+  public EbulaScreenVM Screen { get; }
   Ebula Ebula;
+
   public ServiceNumberPopupVM(EbulaScreenVM screen, Ebula ebula) {
     Screen = screen;
     Ebula = ebula;

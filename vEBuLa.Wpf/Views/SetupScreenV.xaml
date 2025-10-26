@@ -114,7 +114,7 @@
                         <TextBlock DockPanel.Dock="Right" Text="{Binding Name}" d:Text="Hbf-Melsungen S-Bahn" ToolTip="{Binding Description}" ToolTipService.InitialShowDelay="250"/>
                     </DockPanel>
                     <Rectangle Height="2" Fill="#666"/>
-                    <TextBlock Text="{Binding RouteOverview}" d:Text="Hbf S - Achim - Donau - Melsungen"/>
+                    <TextBlock Text="{Binding RouteOverview}" d:Text="Hbf S - Achim - Donau - Melsungen" FontSize="10"/>
                     <Rectangle Height="5" Fill="#666"/>
                 </StackPanel>
             </Button>

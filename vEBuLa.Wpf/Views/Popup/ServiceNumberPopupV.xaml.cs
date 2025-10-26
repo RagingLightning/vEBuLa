@@ -12,6 +12,9 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using vEBuLa.Commands;
+using vEBuLa.Commands.Navigation;
+using vEBuLa.ViewModels;
 
 namespace vEBuLa.Views;
 /// <summary>
@@ -20,5 +23,12 @@ namespace vEBuLa.Views;
 public partial class ServiceNumberPopupV : UserControl {
   public ServiceNumberPopupV() {
     InitializeComponent();
+  }
+
+  private void OnKeyUp(object sender, KeyEventArgs e) {
+    if (e.Key != Key.Return) return;
+    if (DataContext is not ServiceNumberPopupVM vm) return;
+    if (vm.Screen.Ebula.NavigateCommand is not NavigateServiceNumberPopupC cmd) return;
+    cmd.Execute(NavAction.ACCEPT);
   }
 }

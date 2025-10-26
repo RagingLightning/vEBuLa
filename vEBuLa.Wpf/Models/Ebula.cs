@@ -21,7 +21,8 @@ public class Ebula {
       Logger?.LogInformation("Loading single config {ConfigPath}", configPath);
       if (configPath is null) LoadedConfigs.Add(new EbulaConfig());
       else LoadedConfigs.Add(new EbulaConfig(configPath));
-    } else {
+    }
+    else {
       if (!Directory.Exists(configPath)) throw new InvalidOperationException("Config directory doesn't exist");
       Logger?.LogInformation("Loading config files from {ConfigPath}", configPath);
       LoadedConfigs.AddRange(Directory.EnumerateFiles(configPath).Where(p => p.EndsWith(".ebula")).Select(s => new EbulaConfig(s)));

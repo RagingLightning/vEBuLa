@@ -12,6 +12,9 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using vEBuLa.Commands;
+using vEBuLa.Commands.Navigation;
+using vEBuLa.ViewModels;
 
 namespace vEBuLa.Views;
 /// <summary>

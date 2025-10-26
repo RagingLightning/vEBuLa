@@ -29,7 +29,7 @@ internal class SelectServicePopupVM : BaseVM {
     Screen = screen;
     foreach (var service in services) { service.Selected = false; }
     Services.AddRange(services);
-    SelectedService = Services[0];
+    _selectedService = Services[0];
     SelectedService.Selected = true;
 
     Screen.Ebula.NavigateCommand = new NavigateSelectServicePopupC(screen, this);

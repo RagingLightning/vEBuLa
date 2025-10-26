@@ -26,7 +26,7 @@
                     </Grid.ColumnDefinitions>
 
                     <TextBlock Grid.Row="1" Grid.Column="0" Text="Zugnummer: " TextAlignment="Right" VerticalAlignment="Center" Margin="0,0,-15,0"/>
-                    <TextBox x:Name="txtService" Text="{Binding ServiceNumber, UpdateSourceTrigger=PropertyChanged}" Grid.Row="1" Grid.Column="1" Width="100" Height="20" HorizontalAlignment="Left" Margin="15,0,0,0"/>
+                    <TextBox x:Name="txtService" Text="{Binding ServiceNumber, UpdateSourceTrigger=PropertyChanged}" Grid.Row="1" Grid.Column="1" Width="100" Height="20" HorizontalAlignment="Left" Margin="15,0,0,0" KeyUp="OnKeyUp"/>
 
                     <Border Grid.Row="0" Grid.Column="2" HorizontalAlignment="Right" BorderThickness="1,1,0,0" BorderBrush="Black">
                         <Border BorderThickness="0,0,1,1" BorderBrush="White">
