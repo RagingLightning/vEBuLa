@@ -11,8 +11,12 @@ public class EbulaStationVM : BaseVM {
   public EbulaStationVM(EbulaStation station) { Model = station; }
   public override bool Equals(object? obj) => obj is EbulaStationVM vm && vm.Model.Equals(Model);
   public override int GetHashCode() => Model.GetHashCode();
-  public static bool operator ==(EbulaStationVM a, EbulaStationVM b) => a.Equals(b);
-  public static bool operator !=(EbulaStationVM a, EbulaStationVM b) => !a.Equals(b);
+
+  public static bool operator ==(EbulaStationVM? a, EbulaStationVM? b) {
+    return a is not null && b is not null && a.Model.Equals(b.Model)
+      || a is null && b is null;
+  }
+  public static bool operator !=(EbulaStationVM? a, EbulaStationVM? b) => !(a == b);
 
   public Guid Id => Model.Id;
   public string Name {

@@ -83,8 +83,8 @@ internal class EditEbulaEntryTimeC : BaseC {
 
     if (!innerEntries.Any(e => e is EbulaEntryVM vm && vm.KilometerBreak)) { // Use location on track if no break for better accuracy
       Logger?.LogInformation("Extrapolating time at {Position} from {TimeA} at {PositionA} and {TimeB} at {PositionB}",
-        entry.Location, startTime, prevStopEntry.Location, endTime, nextStopEntry.Location);
-      return MathEx.ExtrapolateFromTimeFrame(prevStopEntry.Location, startTime, nextStopEntry.Location, endTime, entry.Location);
+        entry.Location, startTime, prevStopEntry.Location, endTime, nextStopEntry!.Location);
+      return MathEx.ExtrapolateFromTimeFrame(prevStopEntry.Location, startTime, nextStopEntry!.Location, endTime, entry.Location);
     }
 
     if (prevStopEntry?.GpsLocation is not Vector2 startPos)

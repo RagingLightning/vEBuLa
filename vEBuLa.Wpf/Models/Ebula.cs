@@ -12,22 +12,39 @@ namespace vEBuLa.Models;
 
 public class Ebula {
   private ILogger<Ebula>? Logger => App.GetService<ILogger<Ebula>>();
-  public EbulaConfig? Config => LoadedConfigs.Count == 1 ? LoadedConfigs[0] : null;
-  public List<EbulaConfig> LoadedConfigs { get; } = new();
+  public bool SingleConfig { get; private set; }
+  public EbulaConfig? Config => SingleConfig ? LoadedConfigs.First().Value : null;
+  public Dictionary<string, EbulaConfig> LoadedConfigs { get; } = [];
 
   public Ebula(string? configPath, bool singleConfig) {
-    Logger?.LogInformation("Creating new EBuLa Model");
+    Logger?.LogInformation("Creating new EBuLa Model, single config mode: {singleConfig}", singleConfig);
+    SingleConfig = singleConfig;
+
     if (singleConfig) {
       Logger?.LogInformation("Loading single config {ConfigPath}", configPath);
-      if (configPath is null) LoadedConfigs.Add(new EbulaConfig());
-      else LoadedConfigs.Add(new EbulaConfig(configPath));
+      if (configPath is null)
+        LoadedConfigs.Add(string.Empty, new EbulaConfig());
+      else
+        LoadedConfigs.Add(configPath, new EbulaConfig(configPath));
     }
     else {
       if (!Directory.Exists(configPath)) throw new InvalidOperationException("Config directory doesn't exist");
       Logger?.LogInformation("Loading config files from {ConfigPath}", configPath);
-      LoadedConfigs.AddRange(Directory.EnumerateFiles(configPath).Where(p => p.EndsWith(".ebula")).Select(s => new EbulaConfig(s)));
+
+      foreach (var file in Directory.EnumerateFiles(configPath).Where(p => p.EndsWith(".ebula"))) {
+        LoadedConfigs.Add(file, new EbulaConfig(file));
+      }
+
       Logger?.LogInformation("Loaded {ConfigCount} configurations", LoadedConfigs.Count);
-      if (LoadedConfigs.Count == 0) LoadedConfigs.Add(new EbulaConfig());
+      if (LoadedConfigs.Count == 0)
+        LoadedConfigs.Add(string.Empty, new EbulaConfig());
     }
+
+    var configsToResolve = new List<EbulaConfig>(LoadedConfigs.Values.Where(c => !c.Available));
+    foreach (var config in configsToResolve)
+      config.ResolveDependencies(LoadedConfigs);
+
+    foreach (var config in LoadedConfigs)
+      config.Value.Initialize();
   }
 }

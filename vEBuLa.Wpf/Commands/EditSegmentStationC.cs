@@ -26,9 +26,9 @@ internal class EditSegmentStationC : BaseC {
       return;
     }
     if (IsDestination)
-      entry.Segment.Destination.Station.Name = EditStationDialog.StationName;
+      entry.Segment.Destination.Station!.Name = EditStationDialog.StationName;
     else
-      entry.Segment.Origin.Station.Name = EditStationDialog.StationName;
+      entry.Segment.Origin.Station!.Name = EditStationDialog.StationName;
 
     Logger?.LogInformation("{EditType} edit on EbulaSegment {EbulaSegment} complete", IsDestination ? "Destination Name" : "Origin Name", entry.Segment);
 

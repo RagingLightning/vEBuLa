@@ -22,15 +22,17 @@ internal static class SerilogConfigExtensions {
 
   public static void CleanFolder(this IConfigurationRoot config, int filesToKeep) {
     try {
-      if (config.GetSection(fileSection).Exists() && !string.IsNullOrEmpty(config[fileSection]))
-        foreach (var fi in new DirectoryInfo(Path.GetDirectoryName(config[fileSection].Replace("%temp%", Environment.GetEnvironmentVariable("temp")))).EnumerateFiles("*.log").OrderByDescending(f => f.LastWriteTime).Skip(filesToKeep))
+      if (config.GetSection(fileSection).Exists() && !string.IsNullOrEmpty(config[fileSection])
+        && Path.GetDirectoryName(config[fileSection]!.Replace("%temp%", Environment.GetEnvironmentVariable("temp"))) is string fileDir)
+        foreach (var fi in new DirectoryInfo(fileDir).EnumerateFiles("*.log").OrderByDescending(f => f.LastWriteTime).Skip(filesToKeep))
           fi.Delete();
     }
     catch (Exception) { }
 
     try {
-      if (config.GetSection(clefSection).Exists() && !string.IsNullOrEmpty(config[clefSection]))
-        foreach (var fi in new DirectoryInfo(Path.GetDirectoryName(config[clefSection].Replace("%temp%", Environment.GetEnvironmentVariable("temp")))).EnumerateFiles("*.clef").OrderByDescending(f => f.LastWriteTime).Skip(filesToKeep))
+      if (config.GetSection(clefSection).Exists() && !string.IsNullOrEmpty(config[clefSection])
+        && Path.GetDirectoryName(config[clefSection]!.Replace("%temp%", Environment.GetEnvironmentVariable("temp"))) is string clefDir)
+        foreach (var fi in new DirectoryInfo(clefDir).EnumerateFiles("*.clef").OrderByDescending(f => f.LastWriteTime).Skip(filesToKeep))
           fi.Delete();
     }
     catch (Exception) { }

@@ -13,6 +13,8 @@ public class EbulaSegment {
 
   public EbulaSegment(EbulaConfig existingConfig, Guid id, JObject jSegment) {
     Logger = App.GetService<ILogger<EbulaSegment>>();
+    Config = existingConfig;
+
     Id = id;
     if (Guid.TryParse(jSegment.Value<string>(nameof(Origin)), out var originKey)) {
       if (existingConfig.Stations.TryGetValue(originKey, out var origin))
@@ -64,6 +66,7 @@ public class EbulaSegment {
   }
 
   public EbulaSegment(EbulaConfig existingConfig, Guid id, string name) {
+    Config = existingConfig;
     Id = id;
     Name = name;
   }
@@ -89,6 +92,7 @@ public class EbulaSegment {
     return null;
   }
 
+  [JsonIgnore] public EbulaConfig Config { get; }
   [JsonIgnore] public Guid Id { get; } = Guid.Empty;
   public string Name { get; set; } = string.Empty;
   [JsonProperty(nameof(Origin))] private Guid OriginId => Origin.Key;

@@ -22,7 +22,7 @@ internal class ServiceNumberPopupVM : BaseVM {
     if (ServiceNumber == string.Empty)
       ServiceNumber = "0";
 
-    var matchingServices = Ebula.LoadedConfigs.Select(c => c.Services.Where(s => s.Value.Number == ServiceNumber).Select(s => s.Value)).Aggregate((a, b) => a.Concat(b));
+    var matchingServices = Ebula.LoadedConfigs.Select(c => c.Value.Services.Where(s => s.Value.Number == ServiceNumber).Select(s => s.Value)).Aggregate((a, b) => a.Concat(b));
     if (matchingServices.Count() == 0)
       Screen.PopupWindow = new NoServicePopupVM(Screen, ServiceNumber);
     //else if (matchingServices.Count() == 1)
@@ -40,7 +40,7 @@ internal class ServiceNumberPopupVM : BaseVM {
   }
 
   public void Overview() {
-    Screen.PopupWindow = new SelectConfigPopupVM(Screen, Screen.Ebula.Model.LoadedConfigs.Select(c => c.ToVM()));
+    Screen.PopupWindow = new SelectConfigPopupVM(Screen, Screen.Ebula.Model.LoadedConfigs.Select(c => c.Value.ToVM()));
   }
 
   private string _serviceNumber = string.Empty;

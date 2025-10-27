@@ -13,6 +13,7 @@ using vEBuLa.Commands;
 using vEBuLa.Events;
 using vEBuLa.Extensions;
 using vEBuLa.Models;
+using Windows.UI.Input.Inking.Preview;
 
 namespace vEBuLa.ViewModels;
 internal class EbulaScreenVM : BaseVM {
@@ -49,6 +50,7 @@ internal class EbulaScreenVM : BaseVM {
     switch (e.PropertyName) {
       case nameof(Ebula.EditMode):
         UpdateEntries();
+        OnPropertyChanged(nameof(EditModeMemo));
         break;
       case nameof(Ebula.CurrentDate):
         TimeScroll();
@@ -65,7 +67,7 @@ internal class EbulaScreenVM : BaseVM {
   }
 
   private void GameApi_PositionPassed(object? sender, PositionPassedEventArgs args) {
-    if (Ebula.EditMode) return;
+    if (Ebula.RouteEditMode) return;
     if (!PositionScrolling) return;
     if (!Entries.Any()) return;
 
@@ -85,7 +87,6 @@ internal class EbulaScreenVM : BaseVM {
     Entries.Clear();
     if (Ebula.Service is null) return;
     EbulaEntryVM? ebulaEntry = null;
-    int ebulaEntryIndex = 0;
     TimeSpan departureOffset = TimeSpan.Zero;
 
     if (Ebula.RouteEditMode) {
@@ -232,6 +233,7 @@ internal class EbulaScreenVM : BaseVM {
     var startEntry = Entries[start] as EbulaEntryVM;
     var endEntry = Entries[end] as EbulaEntryVM;
 
+    TimeSpan delay;
     if (start != CurrentEntry
       && Ebula.GameApi?.GetPosition() is Vector2 currentPos
       && startEntry?.GpsLocation is Vector2 startPos
@@ -244,18 +246,23 @@ internal class EbulaScreenVM : BaseVM {
         return;
 
       var scheduledTime = MathEx.ExtrapolateFromTimeFrame(startPos, startTime, endPos, endTime, currentPos);
-      var delay = Ebula.CurrentDate - scheduledTime;
-      Ebula.ServiceDelay = new TimeSpan(delay.Hours, delay.Minutes, delay.Seconds);
+      delay = Ebula.CurrentDate - scheduledTime;
     }
     else { // In transit without GPS or stopped at station
       if (startEntry?.Departure is not DateTime scheduleTime)
         return;
 
-      var delay = Ebula.CurrentDate - scheduleTime;
-      Ebula.ServiceDelay = new TimeSpan(delay.Hours, delay.Minutes, delay.Seconds);
+      delay = Ebula.CurrentDate - scheduleTime;
     }
+
+    if (delay.Hours >= 12)
+      Ebula.ServiceDelay = -1 * new TimeSpan(23 - delay.Hours, 59 - delay.Minutes, 60 - delay.Seconds);
+    else
+      Ebula.ServiceDelay = new TimeSpan(delay.Hours, delay.Minutes, delay.Seconds);
+
     //Ebula.StopServiceClock();
     OnPropertyChanged(nameof(ServiceDelay));
+    OnPropertyChanged(nameof(ServiceDelayFr));
     OnPropertyChanged(nameof(HasDelay));
     OnPropertyChanged(nameof(PositiveDelay));
     //Ebula.RunServiceClock();
@@ -326,6 +333,7 @@ internal class EbulaScreenVM : BaseVM {
       OnPropertyChanged(nameof(ScrollBackwards));
     }
   }
+
   public int ServiceDelay {
     get {
       return (int) Math.Floor(Ebula.ServiceDelay.TotalMinutes);
@@ -334,10 +342,19 @@ internal class EbulaScreenVM : BaseVM {
       Ebula.ServiceDelay = TimeSpan.FromMinutes(value);
       Logger?.LogDebug("Service Delay {Minutes} min", value);
       OnPropertyChanged(nameof(ServiceDelay));
+      OnPropertyChanged(nameof(ServiceDelayFr));
       OnPropertyChanged(nameof(HasDelay));
       OnPropertyChanged(nameof(PositiveDelay));
     }
   }
+
+  public string ServiceDelayFr {
+    get {
+      var delayFr = Math.Floor(Math.Abs(Ebula.ServiceDelay.Seconds / 10.0));
+      return delayFr == 0 ? string.Empty : $".{delayFr}";
+    }
+  }
+
   public bool HasDelay => ServiceDelay != 0;
   public bool PositiveDelay => ServiceDelay > 0;
   public (int startIndex, int endIndex)? RelevantTimeFrame { get; private set; }
@@ -420,6 +437,15 @@ internal class EbulaScreenVM : BaseVM {
   #endregion
 
   #region Footer
+
+  public string EditModeMemo {
+    get {
+      if (!Ebula.EditMode) return string.Empty;
+      if (Ebula.RouteEditMode) return "! RTE EDIT MODE !";
+      if (Ebula.ServiceEditMode) return "! SVC EDIT MODE !";
+      return "! EDIT MODE !";
+    }
+  }
 
   private string? _buttonLabel0 = "Zug";
   public string? ButtonLabel0 {

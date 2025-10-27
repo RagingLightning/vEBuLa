@@ -4,19 +4,21 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using vEBuLa.Models;
+using Windows.UI.Composition.Scenes;
 
 namespace vEBuLa.ViewModels;
 
 public class EbulaCustomEntryVM : BaseVM {
   private ILogger<EbulaCustomEntryVM>? Logger = App.GetService<ILogger<EbulaCustomEntryVM>>();
   public SetupScreenVM Screen { get; }
-  private EbulaConfig Config { get; }
   private bool _modeChange = false;
 
-  public EbulaCustomEntryVM(SetupScreenVM screen, EbulaConfig config) {
+  public EbulaCustomEntryVM(SetupScreenVM screen) {
     Screen = screen;
-    Config = config;
-    Origins = config.Stations.Values.Select(e => e.ToVM()).ToList();
+    Origins = new List<EbulaStationVM>();
+    foreach (var config in Screen.Ebula.Model.LoadedConfigs) {
+      Origins.AddRange(config.Value.Stations.Select(s => s.Value.ToVM()));
+    }
     Departure = TimeSpan.Zero;
 
     Screen.Ebula.PropertyChanged += Ebula_PropertyChanged;
@@ -24,7 +26,6 @@ public class EbulaCustomEntryVM : BaseVM {
 
   public EbulaCustomEntryVM(SetupScreenVM screen, EbulaConfig config, EbulaStationVM origin, TimeSpan departure) {
     Screen = screen;
-    Config = config;
     Origin = origin;
     if (Screen.Ebula.EditMode)
       Segments = config.Segments.Values.Select(e => e.ToVM()).ToList();
@@ -42,8 +43,8 @@ public class EbulaCustomEntryVM : BaseVM {
 
   public (bool Valid, TimeSpan nextDeparture) Validate(TimeSpan departure) {
     bool valid = true;
-    valid &= Origin is null || Config.Stations.ContainsKey(Origin.Id);
-    valid &= SelectedOrigin is null || Config.Stations.ContainsKey(SelectedOrigin.Id);
+    valid &= Origin is null || Origins.Contains(Origin);
+    valid &= SelectedOrigin is null || Origins.Contains(SelectedOrigin);
 
     if (!valid) {
       Logger?.LogError("Origin of {CustomEntry} is invalid, should have been caught before", this);
@@ -110,8 +111,8 @@ public class EbulaCustomEntryVM : BaseVM {
       Screen.CustomRoute.RemoveAt(index + 1);
   }
 
-  private List<EbulaStationVM>? _origins;
-  public List<EbulaStationVM>? Origins {
+  private List<EbulaStationVM> _origins = [];
+  public List<EbulaStationVM> Origins {
     get {
       return _origins;
     }

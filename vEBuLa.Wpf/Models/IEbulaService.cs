@@ -10,7 +10,7 @@ namespace vEBuLa.Models;
 
 public interface IEbulaService {
 
-  public EbulaServiceVM ToVM(BaseC? editCommand = null, SetupScreenVM screen = null);
+  public EbulaServiceVM ToVM(BaseC? editCommand = null, SetupScreenVM? screen = null);
 
   public List<EbulaServiceStop> Stops { get; }
   public TimeSpan StartTime { get; set; }

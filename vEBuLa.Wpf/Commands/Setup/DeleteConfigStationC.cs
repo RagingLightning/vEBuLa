@@ -29,8 +29,8 @@ internal class DeleteConfigStationC : BaseC {
     if (entry.Screen.Ebula.Model.Config is not EbulaConfig config) return;
     Logger?.LogInformation("Removing {StationType} station from Custom Route Entry {RouteEntry}", IsOrigin ? "Origin" : "Destination", entry);
 
-    if (IsOrigin) config.Stations.Remove(entry.SelectedOrigin.Id);
-    else config.Stations.Remove(entry.SelectedDestination.Id);
+    if (IsOrigin) config.Stations.Remove(entry.SelectedOrigin!.Id);
+    else config.Stations.Remove(entry.SelectedDestination!.Id);
     Logger?.LogInformation("Removed {StationType} station from Custom Route Entry {RouteEntry}", IsOrigin ? "Origin" : "Destination", entry);
 
     TimeSpan departure = entry.Screen.ServiceStart;

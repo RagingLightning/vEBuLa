@@ -7,7 +7,7 @@ internal class NoServicePopupVM : BaseVM {
 
   public NoServicePopupVM(EbulaScreenVM screen, string serviceNumber) {
     Screen = screen;
-    ServiceNumber = serviceNumber;
+    _serviceNumber = serviceNumber;
 
 		Screen.Ebula.NavigateCommand = new NavigateNoServicePopupC(screen);
   }

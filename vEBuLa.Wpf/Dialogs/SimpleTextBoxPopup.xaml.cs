@@ -17,12 +17,14 @@ namespace vEBuLa.Dialogs;
 /// Interaktionslogik für SimpleTextBoxPopup.xaml
 /// </summary>
 public partial class SimpleTextBoxPopup : Window {
-  public string Text { get; private set; }
+  public string Text { get; private set; } = string.Empty;
 
   public SimpleTextBoxPopup(string text, Point p, PopupOptions? options = null) : this(text, new Vector(p.X, p.Y), options) { }
+
   public SimpleTextBoxPopup(string text, Vector startupLocation, PopupOptions? options = null) {
     InitializeComponent();
-    if (options is null) options = new PopupOptions();
+    options ??= new PopupOptions();
+    Text = text;
     txt.Text = text;
 
     Left = startupLocation.X;

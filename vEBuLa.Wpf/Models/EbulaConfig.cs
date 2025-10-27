@@ -1,11 +1,13 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.Win32;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Xml.Linq;
 using vEBuLa.Extensions;
 using vEBuLa.ViewModels;
@@ -20,11 +22,19 @@ public class EbulaConfig {
   public void MarkDirty() { IsDirty = true; }
   public bool IsDirty { get; private set; } = false;
   public string Name { get; set; } = "Unnamed Configuration";
+  public Guid Id { get; } = Guid.NewGuid();
+  public Dictionary<Guid, string> Dependencies { get; private set; } = new();
+  public Dictionary<Guid, EbulaConfig> ResolvedDependencies { get; private set; } = [];
+  public bool Available => Dependencies.Keys.All(ResolvedDependencies.ContainsKey);
+  public bool Initialized { get; private set; } = false;
+
   public Dictionary<Guid, EbulaStation> Stations { get; private set; } = new();
   public Dictionary<Guid, EbulaSegment> Segments { get; private set; } = new();
   public Dictionary<Guid, EbulaRoute> Routes { get; private set; } = new();
   public Dictionary<Guid, EbulaService> Services { get; private set; } = new();
   public Dictionary<string, int> Vehicles { get; private set; } = new();
+
+  private JObject? _jConfig;
 
   public EbulaConfig() {
     Logger?.LogInformation("Using blank EBuLa Config");
@@ -32,25 +42,60 @@ public class EbulaConfig {
   }
 
   public EbulaConfig(string fileName) {
-    Logger?.LogInformation("Loading EBuLa Config from {ConfigFile}", fileName.BiCrop(10,30));
+    Logger?.LogInformation("Loading EBuLa Config from {ConfigFile}", fileName.BiCrop(10, 30));
     var jConfig = JObject.Parse(File.ReadAllText(fileName));
+
+    if (jConfig.Value<string>(nameof(Id)) is string idString)
+      Id = Guid.Parse(idString);
+    else
+      Id = Guid.NewGuid();
+
     Name = jConfig.Value<string>(nameof(Name)) ?? "Unnamed Config";
-    var jStations = jConfig.Value<JObject>(nameof(Stations));
+
+    var jDependencies = jConfig.Value<JObject>(nameof(Dependencies));
+    if (jDependencies is not null) {
+      foreach (var jDependency in jDependencies)
+        Dependencies[Guid.Parse(jDependency.Key)] = jDependency.Value!.ToString();
+    }
+
+    _jConfig = jConfig;
+
+    if (Dependencies.Count == 0)
+      Initialize();
+  }
+
+  public void Initialize() {
+    if (Initialized || IsEmpty)
+      return; // Already initialized
+
+    if (!Available)
+      throw new Exception($"Config {this} has unresolved dependencies and cannot be initialized");
+
+    if (_jConfig is null)
+      throw new Exception($"Config {this} has no JSON data to initialize from");
+
+    Logger?.LogDebug("Initializing {config}", this);
+
+    foreach (var dependency in ResolvedDependencies.Where(d => !d.Value.Initialized)) {
+      dependency.Value.Initialize();
+    }
+
+    var jStations = _jConfig.Value<JObject>(nameof(Stations));
     if (jStations is null) {
       Logger?.LogError("Config {Config} contains no Station entries", this);
       return;
     }
-    var jSegments = jConfig.Value<JObject>(nameof(Segments));
+    var jSegments = _jConfig.Value<JObject>(nameof(Segments));
     if (jSegments is null) {
       Logger?.LogError("Config {Config} contains no Segment entries", this);
       return;
     }
-    var jRoutes = jConfig.Value<JObject>(nameof(Routes));
+    var jRoutes = _jConfig.Value<JObject>(nameof(Routes));
     if (jRoutes is null) {
       Logger?.LogWarning("Config {Config} contains no Route entries", this);
       jRoutes = new JObject();
     }
-    var jServices = jConfig.Value<JObject>(nameof(Services));
+    var jServices = _jConfig.Value<JObject>(nameof(Services));
     if (jServices is null) {
       Logger?.LogWarning("Config {Config} contains no Service entries", this);
       jServices = new JObject();
@@ -119,12 +164,73 @@ public class EbulaConfig {
           Logger?.LogTrace("New Vehicle type {VehicleType}", vehicle);
           count = 0;
         }
-        Vehicles[vehicle] = count+1;
+        Vehicles[vehicle] = count + 1;
       }
     }
 
-    Logger?.LogInformation("EBuLa Config {Config} fully loaded", this);
+    Logger?.LogInformation("EBuLa Config {Config} fully initialized", this);
+    Initialized = true;
+    _jConfig = null;
     IsDirty = false;
+  }
+
+  public bool ResolveDependencies(Dictionary<string, EbulaConfig> loadedConfigs) {
+    Logger?.LogDebug("Resolving dependencies for {config}", this);
+
+    foreach (var dependency in Dependencies) {
+      // Dependency loaded
+      if (loadedConfigs.FirstOrDefault(c => c.Value.Id == dependency.Key).Value is EbulaConfig dep) {
+        // Dependency available
+        if (dep.Available || dep.ResolveDependencies(loadedConfigs)) {
+          ResolvedDependencies[dependency.Key] = dep;
+          continue;
+        }
+
+        return false;
+      }
+
+      if (!ResolveDependency(dependency.Key, dependency.Value, loadedConfigs))
+        return false; // Failed to resolve dependency
+
+      return true;
+    }
+
+    // All dependencies resolved
+    return true;
+  }
+
+  private bool ResolveDependency(Guid id, string name, Dictionary<string, EbulaConfig> loadedConfigs) {
+    while (true) {
+      var dialog = new OpenFileDialog {
+        Title = $"Select file for EBuLa config {name}",
+        FileName = "vEBuLa",
+        DefaultExt = ".ebula",
+        Filter = "vEBuLa config files|*.ebula|Json-Files|*.json|All Files|*.*",
+        InitialDirectory = App.ConfigFolder
+      };
+
+      if (dialog.ShowDialog() != true) return false;
+      Logger?.LogInformation("Loading EBuLa Config {ConfigFile}", dialog.FileName.BiCrop(10, 30));
+
+
+      if (LoadID(dialog.FileName) == id) {
+        var newConfig = new EbulaConfig(dialog.FileName);
+        loadedConfigs.Add(dialog.FileName, newConfig);
+        ResolvedDependencies.Add(id, newConfig);
+
+        return newConfig.ResolveDependencies(loadedConfigs);
+      }
+      return false;
+    }
+  }
+
+  private static Guid LoadID(string fileName) {
+    var jConfig = JObject.Parse(File.ReadAllText(fileName));
+
+    if (jConfig.Value<string>(nameof(Id)) is string idString)
+      return Guid.Parse(idString);
+    else
+      return Guid.NewGuid();
   }
 
   public IEnumerable<EbulaSegment> FindSegments(EbulaStation origin) {
@@ -153,7 +259,7 @@ public class EbulaConfig {
   public EbulaRoute AddRoute(IEnumerable<EbulaSegment> segments, string routeName, string description, int stations, TimeSpan duration, string routeDesc) {
     var id = Guid.NewGuid();
     while (Routes.ContainsKey(id)) id = Guid.NewGuid();
-    var route = new EbulaRoute(id, segments, routeName, description, stations, duration, routeDesc);
+    var route = new EbulaRoute(this, id, segments, routeName, description, stations, duration, routeDesc);
     Routes.Add(id, route);
     IsDirty = true;
     return route;
@@ -161,7 +267,15 @@ public class EbulaConfig {
 
   public void Save(string fileName) {
     JObject jConfig = new JObject();
+    jConfig[nameof(Id)] = Id;
     jConfig[nameof(Name)] = Name;
+
+    var jDependencies = new JObject();
+    foreach (var dependency in Dependencies) {
+      var id = dependency.Key;
+      var name = ResolvedDependencies.TryGetValue(id, out var r) ? r.Name : dependency.Value;
+      jDependencies[id] = name;
+    }
 
     var jStations = new JObject();
     foreach (var station in Stations) jStations[station.Key.ToString()] = JObject.FromObject(station.Value);

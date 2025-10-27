@@ -5,6 +5,7 @@ using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Windows.Documents;
 using vEBuLa.Commands;
 using vEBuLa.Extensions;
@@ -31,8 +32,11 @@ public class EbulaService : IEbulaService {
     if (Guid.TryParse(jService.Value<string>(nameof(Route)), out var routeId) && existingConfig.Routes.ContainsKey(routeId)) {
       Route = existingConfig.Routes[routeId];
     }
+    else {
+      throw new MissingMemberException($"No Route with Id {routeId} found for Service {this}!");
+    }
 
-    Stops = [];
+      Stops = [];
     if (jService.Value<JArray>(nameof(Stops)) is JArray jStops)
     foreach (var jStop in jStops) {
       if (jStop.ToObject<EbulaServiceStop>() is not EbulaServiceStop stop) {
@@ -61,7 +65,7 @@ public class EbulaService : IEbulaService {
     StartTime = startTime;
     Description = description;
     Vehicles = vehicles;
-    Stops = new();
+    Stops = [];
   }
 
   public EbulaServiceVM ToVM(BaseC? editCommand = null, SetupScreenVM? screen = null) {

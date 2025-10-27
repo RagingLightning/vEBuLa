@@ -64,6 +64,9 @@ public class EbulaRouteVM : BaseVM {
   }
 
   internal IEnumerable<EbulaServiceVM> ListServices() {
+    if (Screen.Ebula.Model.Config is null)
+      return [];
+
     return Screen.Ebula.Model.Config.Services.Values.Where(s => s.Route == Model).Select(e => e.ToVM(Screen.EditServiceCommand, Screen));
   }
 }

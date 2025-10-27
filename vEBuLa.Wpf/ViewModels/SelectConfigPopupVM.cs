@@ -28,8 +28,8 @@ internal class SelectConfigPopupVM : BaseVM {
   public SelectConfigPopupVM(EbulaScreenVM screen, IEnumerable<EbulaConfigVM> configs) {
     Screen = screen;
     Configs.AddRange(configs);
-    SelectedConfig = Configs[0];
-    SelectedConfig.Selected = true;
+    _selectedConfig = Configs[0];
+    _selectedConfig.Selected = true;
 
     Screen.Ebula.NavigateCommand = new NavigateSelectConfigPopupC(screen, this);
   }

@@ -31,7 +31,7 @@ public class EbulaVM : BaseVM {
     RunServiceClock();
 
     Logger?.LogDebug("Screen loading");
-    Screen = new EbulaScreenVM(this);
+    _screen = new EbulaScreenVM(this);
     ToggleScreenCommand = new ToggleScreenC(this);
     ToggleEditCommand = new ToggleEditModeC(this);
     ExitAppCommand = new ExitAppC();
@@ -106,11 +106,6 @@ public class EbulaVM : BaseVM {
       ServiceClock = new System.Timers.Timer(TimeSpan.FromSeconds(0.5));
       ServiceClock.AutoReset = true;
       ServiceClock.Elapsed += (sender, e) => {
-        if (EditMode) {
-          CurrentDate = ServiceStartDate;
-          return;
-        }
-
         if (TimerTicks == 0 && GameApi?.IsAvailable == true && GameApi.GetGameTime() is DateTime gameTime) {
           CurrentDate = gameTime;
         }

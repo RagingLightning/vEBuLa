@@ -12,11 +12,11 @@ namespace vEBuLa.Dialogs;
 /// </summary>
 public partial class EditSavedRouteDialog : Window {
   private ILogger<EditSavedRouteDialog>? Logger => App.GetService<ILogger<EditSavedRouteDialog>>();
-  public static string RouteName { get; private set; }
-  public static string Description { get; private set; }
-  public static int Stations { get; private set; }
-  public static TimeSpan Duration { get; private set; }
-  public static string Route { get; private set; }
+  public static string RouteName { get; private set; } = string.Empty;
+  public static string Description { get; private set; } = string.Empty;
+  public static int Stations { get; private set; } = 0;
+  public static TimeSpan Duration { get; private set; } = TimeSpan.Zero;
+  public static string Route { get; private set; } = string.Empty;
 
   public EditSavedRouteDialog(Vector startupLocation) : this(string.Empty, string.Empty, 0, TimeSpan.Zero, string.Empty, startupLocation) { }
 

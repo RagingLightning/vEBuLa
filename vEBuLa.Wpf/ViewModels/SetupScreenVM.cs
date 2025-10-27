@@ -73,7 +73,7 @@ public class SetupScreenVM : BaseVM {
 
   #region Properties
   public BaseC EditRouteCommand { get; }
-  public string LoadLabel => Ebula.Model.LoadedConfigs.Count == 1 ? Ebula.Model.Config.IsEmpty ? "LOAD" : "NEW" : "NEW";
+  public string LoadLabel => Ebula.Model.LoadedConfigs.Count == 1 ? Ebula.Model.Config!.IsEmpty ? "LOAD" : "NEW" : "NEW";
   public BaseC AddOriginCommand { get; }
   public BaseC EditOriginCommand { get; }
   public BaseC RemoveOriginCommand { get; }
@@ -85,7 +85,6 @@ public class SetupScreenVM : BaseVM {
   public BaseC EditDestinationCommand { get; }
   public BaseC RemoveDestinationCommand { get; }
   public bool CanSaveRoute => Ebula.EditMode && UsingCustom;
-  public BaseC SaveRouteCommand { get; }
   public string ConfigName {
     get {
       if (Ebula.Model.Config is EbulaConfig cfg)

@@ -8,18 +8,18 @@ namespace vEBuLa.ViewModels;
 internal class EbulaVehicleVM : BaseVM {
   
   public EbulaVehicleVM(string vehicle, int serviceCount) {
-    Vehicle = vehicle;
-		Services = serviceCount;
+    _vehicle = vehicle;
+		_services = serviceCount;
   }
 
 	#region Properties
-	private string _vehiche;
+	private string _vehicle;
 	public string Vehicle {
 		get {
-			return _vehiche;
+			return _vehicle;
 		}
 		set {
-			_vehiche = value;
+			_vehicle = value;
 			OnPropertyChanged(nameof(Vehicle));
 		}
 	}

@@ -14,7 +14,8 @@ public class EbulaRoute {
   public override string ToString() => $"{Id.ToString().BiCrop(5, 5)} | {Name.Crop(30)}";
   private ILogger<EbulaRoute>? Logger => App.GetService<ILogger<EbulaRoute>>();
 
-  public EbulaRoute(EbulaConfig existingConfig, Guid id, JObject jRoute) {
+  public EbulaRoute(EbulaConfig config, Guid id, JObject jRoute) {
+    Config = config;
     Id = id;
     Name = jRoute.Value<string>(nameof(Name)) ?? "noname";
     Description = jRoute.Value<string>(nameof(Description)) ?? "No description";
@@ -34,7 +35,7 @@ public class EbulaRoute {
           Logger?.LogWarning("Segment ID {SegmentIdJson} failed to parse", jSegment);
 
         }
-        if (!existingConfig.Segments.TryGetValue(segmentId, out var segment)) {
+        if (!config.Segments.TryGetValue(segmentId, out var segment)) {
           Logger?.LogWarning("No Segment with Id {SegmentId} found!", segmentId);
           continue;
         }
@@ -46,7 +47,8 @@ public class EbulaRoute {
 
   }
 
-  public EbulaRoute(Guid id, IEnumerable<EbulaSegment> segments, string routeName, string description, int stations, TimeSpan duration, string routeDesc) {
+  public EbulaRoute(EbulaConfig config, Guid id, IEnumerable<EbulaSegment> segments, string routeName, string description, int stations, TimeSpan duration, string routeDesc) {
+    Config = config;
     Id = id;
     Description = description;
     Duration = duration;
@@ -56,13 +58,17 @@ public class EbulaRoute {
     RouteOverview = routeDesc;
   }
 
+  [JsonIgnore] public EbulaConfig Config { get; }
   [JsonIgnore] public Guid Id { get; }
   public string Name { get; set; }
   public string Description { get; set; }
   public string RouteOverview { get; set; }
   public int StationCount { get; set; }
   public TimeSpan Duration { get; set; }
-  [JsonProperty(nameof(Segments))] private IEnumerable<Guid> SegmentIds => Segments.Select(e => e.Id);
   [JsonIgnore] public List<EbulaSegment> Segments { get; } = new();
-  
+  [JsonProperty(nameof(Segments))] public IEnumerable<string> SegmentIds => Segments.Select(s => {
+    if (s.Config == Config) return s.Id.ToString();
+    else return $"{s.Config.Id}.{s.Id}";
+  });
+
 }

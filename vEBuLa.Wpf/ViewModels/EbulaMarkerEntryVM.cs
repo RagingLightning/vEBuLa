@@ -25,7 +25,6 @@ internal class EbulaMarkerEntryVM : BaseVM {
       case EbulaMarkerType.PRE:
         IsMain = false;
         IsPrePost = true;
-        MarkerTypeName = "PRE";
         EntryCount = segment.PreEntries.Count;
         EditSegmentLocationCommand = EditSegmentStationC.ORIGIN;
         LocationName = Segment.Origin.Station?.Name ?? "null";
@@ -33,7 +32,6 @@ internal class EbulaMarkerEntryVM : BaseVM {
       case EbulaMarkerType.MAIN:
         IsMain = true;
         IsPrePost = false;
-        MarkerTypeName = "MAIN";
         EntryCount = segment.Entries.Count;
         EditSegmentOriginCommand = EditSegmentStationC.ORIGIN;
         EditSegmentDestinationCommand = EditSegmentStationC.DESTINATION;
@@ -43,7 +41,6 @@ internal class EbulaMarkerEntryVM : BaseVM {
       case EbulaMarkerType.POST:
         IsMain = false;
         IsPrePost = true;
-        MarkerTypeName = "POST";
         EntryCount = segment.PostEntries.Count;
         EditSegmentLocationCommand = EditSegmentStationC.DESTINATION;
         LocationName = Segment.Destination.Station?.Name ?? "null";
@@ -58,7 +55,6 @@ internal class EbulaMarkerEntryVM : BaseVM {
   public BaseC? EditSegmentDestinationCommand { get; }
   public BaseC? EditSegmentLocationCommand { get; }
 
-  public string MarkerTypeName { get; }
   public bool IsMain { get; }
   public bool IsPrePost { get; }
 

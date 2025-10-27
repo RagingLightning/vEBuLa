@@ -15,7 +15,7 @@ internal class EbulaEntryVM : BaseVM {
   public EbulaEntry Model { get; }
   public EbulaScreenVM Screen { get; }
 
-  public override string ToString() => $"{Model.Location,6} | {Model.LocationName.Crop(16),-16} | {(Arrival is null ? "       " : $"{ArrivalHr}:{ArrivalMn}.{ArrivalFr}")} | {(Departure is null ? "       " : $"{DepartureHr}:{DepartureMn}.{DepartureFr}")}";
+  public override string ToString() => $"{Model.Location,6} | {Model.LocationName.Replace('\n', '|').Crop(15),-17} | {(Arrival is null ? "       " : $"{ArrivalHr}:{ArrivalMn}.{ArrivalFr}")} | {(Departure is null ? "       " : $"{DepartureHr}:{DepartureMn}.{DepartureFr}")}";
 
   public EbulaEntryVM(EbulaEntry entry, EbulaEntryVM? prev, EbulaServiceStop? stop, EbulaScreenVM screen) {
     Model = entry;
@@ -411,7 +411,7 @@ internal class EbulaEntryVM : BaseVM {
   public bool HasArrival => Arrival is not null;
   public string ArrivalHr => Arrival?.Hour.ToString("00") ?? string.Empty;
   public string ArrivalMn => Arrival?.Minute.ToString("00") ?? string.Empty;
-  public string ArrivalFr => (Arrival?.Second / 6)?.ToString("0") ?? string.Empty;
+  public string ArrivalFr => (Arrival?.Second / 10)?.ToString("0") ?? string.Empty;
 
   #endregion
 
@@ -436,7 +436,7 @@ internal class EbulaEntryVM : BaseVM {
 
   public string DepartureHr => Departure?.Hour.ToString("00") ?? string.Empty;
   public string DepartureMn => Departure?.Minute.ToString("00") ?? string.Empty;
-  public string DepartureFr => (Departure?.Second / 6)?.ToString("0") ?? string.Empty;
+  public string DepartureFr => (Departure?.Second / 10)?.ToString("0") ?? string.Empty;
 
 
   #endregion

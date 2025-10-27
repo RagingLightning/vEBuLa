@@ -21,7 +21,7 @@ class EbulaCustomService : IEbulaService {
     Name = name;
   }
 
-  public EbulaServiceVM ToVM(BaseC? editCommand = null, SetupScreenVM screen = null) {
+  public EbulaServiceVM ToVM(BaseC? editCommand = null, SetupScreenVM? screen = null) {
     return new EbulaServiceVM(this, editCommand);
   }
 }

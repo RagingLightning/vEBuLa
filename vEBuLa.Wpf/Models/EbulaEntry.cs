@@ -5,7 +5,7 @@ using vEBuLa.Extensions;
 namespace vEBuLa.Models;
 
 public class EbulaEntry {
-  public override string ToString() => $"{SpeedLimit,3} | {Location,6} | {LocationName.Crop(15),-17}".Replace('\n',' ');
+  public override string ToString() => $"{SpeedLimit,3} | {Location,6} | {LocationName.Replace('\n', '|').Crop(15),-17}".Replace('\n',' ');
   public static EbulaEntry PreMarker(EbulaSegment segment) => new() { SpeedLimit = -1, LocationName = $"-- PRE {segment.Origin} --" };
   public static readonly EbulaEntry StartMarker = new() { SpeedLimit = -1, LocationName = "-- START --" };
   public static readonly EbulaEntry PostMarker = new() { SpeedLimit = -1, LocationName = "-- POST --" };

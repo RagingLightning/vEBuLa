@@ -30,8 +30,8 @@ internal class SelectVehiclePopupVM : BaseVM {
     Screen = screen;
     Config = config;
     Vehicles.AddRange(config.Model.Vehicles.Select(v => new EbulaVehicleVM(v.Key, v.Value)));
-    SelectedVehicle = Vehicles[0];
-    Vehicles[0].Selected = true;
+    _selectedVehicle = Vehicles[0];
+    _selectedVehicle.Selected = true;
 
     Screen.Ebula.NavigateCommand = new NavigateSelectVehiclePopupC(screen, this);
   }

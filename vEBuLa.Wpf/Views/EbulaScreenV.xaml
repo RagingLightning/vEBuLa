@@ -183,11 +183,14 @@
                 <TextBlock Grid.Column="4" VerticalAlignment="Center" Text="GSM-R" FontSize="16" Margin="15,0,0,0"/>
                 <StackPanel Orientation="Horizontal" Grid.Column="5" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0,0,5,0" Visibility="{Binding HasDelay, Converter={StaticResource BoolHide}}">
                     <TextBlock Text="+" FontSize="16" Visibility="{Binding PositiveDelay, Converter={StaticResource BoolHide}}"/>
-                    <TextBlock Text ="{Binding ServiceDelay}" d:Text="17" FontSize="16"/>
+                    <TextBlock Text="{Binding ServiceDelay}" d:Text="17" FontSize="16"/>
+                    <TextBlock Text="{Binding ServiceDelayFr}" d:Text=".3" FontSize="12" VerticalAlignment="Bottom" Margin="0,0,0,1"/>
                     <TextBlock Text=" min" FontSize="16"/>
                 </StackPanel>
                 <Rectangle Grid.Column="6" Width="3" Fill="Black"/>
-                <Rectangle Grid.Column="7" Fill="White"/>
+                <Grid Grid.Column="7" HorizontalAlignment="Right" VerticalAlignment="Center" Background="White">
+                    <TextBlock Text="{Binding EditModeMemo}" d:Text="! RTE EDIT MODE !" FontSize="16"/>
+                </Grid>
             </Grid>
             <Rectangle DockPanel.Dock="Bottom" Height="3" Fill="Black"/>
 

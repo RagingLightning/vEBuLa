@@ -1,5 +1,6 @@
 ﻿using Newtonsoft.Json;
 using System;
+using vEBuLa.Extensions;
 
 namespace vEBuLa.Models;
 
@@ -10,6 +11,8 @@ namespace vEBuLa.Models;
 /// </summary>
 
 public class EbulaServiceStop {
+
+  public override string ToString() => $"{EntryLocation,6} | {EntryName.Replace('\n','|').Crop(15),-17} | Arr: {(Arrival.HasValue ? Arrival.Value.ToString("HH:mm:ss") : "--:--:--")} | Dep: {(Departure.HasValue ? Departure.Value.ToString("HH:mm:ss") : "--:--:--")} | Bold: {Bold}";
 
   public EbulaServiceStop(int location, string name, bool bold = false, DateTime? arrival = null, DateTime? departure = null) {
     EntryLocation = location;
