@@ -53,7 +53,7 @@ public partial class EbulaServiceVM : BaseVM {
   public BaseC? EditCommand { get; init; }
 
   public string ConfigName {
-    get => Model is EbulaService s ? s.ConfigName : "CUSTOM";
+    get => Model is EbulaService s ? s.Config.Name : "CUSTOM";
   }
 
   public string Name {

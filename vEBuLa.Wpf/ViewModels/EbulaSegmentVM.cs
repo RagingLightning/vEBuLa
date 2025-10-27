@@ -21,13 +21,13 @@ public class EbulaSegmentVM : BaseVM {
     get => Model.Name;
     set { Model.Name = value; OnPropertyChanged(nameof(Name)); }
   }
-  public (Guid Key, EbulaStationVM? Station) Origin {
-    get => (Model.Origin.Key, Model.Origin.Station?.ToVM());
-    set { Model.Origin = (value.Key, value.Station?.Model); OnPropertyChanged(nameof(Origin)); }
+  public EbulaStationVM? Origin {
+    get => Model.Origin?.ToVM();
+    set { Model.Origin = value?.Model; OnPropertyChanged(nameof(Origin)); }
   }
-  public (Guid Key, EbulaStationVM? Station) Destination {
-    get => (Model.Destination.Key, Model.Destination.Station?.ToVM());
-    set { Model.Destination = (value.Key, value.Station?.Model); OnPropertyChanged(nameof(Destination)); }
+  public EbulaStationVM? Destination {
+    get => Model.Destination?.ToVM();
+    set { Model.Destination = value?.Model; OnPropertyChanged(nameof(Destination)); }
   }
   public TimeSpan Duration {
     get => Model.Duration;

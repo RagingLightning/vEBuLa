@@ -14,9 +14,9 @@ public class EbulaRouteEntryVM : BaseVM {
     Screen.PropertyChanged += Screen_PropertyChanged;
 
     if (prev is null) {
-      Name = segment.Origin.Station?.Name ?? segment.Origin.Key.ToString();
+      Name = segment.Origin?.Name ?? segment.Origin?.Id.ToString() ?? "null";
     } else {
-      Name = segment.Destination.Station?.Name ?? segment.Destination.Key.ToString();
+      Name = segment.Destination?.Name ?? segment.Destination?.Id.ToString() ?? "null";
       Departure = prev.Departure + prev.Segment.Duration;
     }
   }

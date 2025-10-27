@@ -9,30 +9,23 @@ namespace vEBuLa.Models;
 
 public class EbulaSegment {
   private readonly ILogger<EbulaSegment>? Logger;
-  public override string ToString() => $"{Id.ToString().BiCrop(5,5)}: {Origin.Station?.Name.Crop(30)} > {Destination.Station?.Name.Crop(30)}";
+  public override string ToString() => $"{Id.ToString().BiCrop(5,5)}: {Origin?.Name.Crop(30)} > {Destination?.Name.Crop(30)}";
 
   public EbulaSegment(EbulaConfig existingConfig, Guid id, JObject jSegment) {
     Logger = App.GetService<ILogger<EbulaSegment>>();
     Config = existingConfig;
 
     Id = id;
-    if (Guid.TryParse(jSegment.Value<string>(nameof(Origin)), out var originKey)) {
-      if (existingConfig.Stations.TryGetValue(originKey, out var origin))
-        Origin = (originKey, origin);
-      else {
-        Logger?.LogWarning("No Origin Station with Id {StationId} found!", originKey);
-        Origin = (originKey, null);
-      }
-    }
 
-    if (Guid.TryParse(jSegment.Value<string>(nameof(Destination)), out var destinationKey)) {
-      if (existingConfig.Stations.TryGetValue(destinationKey, out var destination))
-        Destination = (destinationKey, destination);
-      else {
-        Logger?.LogWarning("No Destination Station with Id {StationId} found!", destinationKey);
-        Origin = (destinationKey, null);
-      }
-    }
+    var rawOriginId = jSegment.Value<string>(nameof(Origin));
+    Origin = ParseStation(rawOriginId);
+    if (Origin is null)
+      Logger?.LogWarning("No Origin Station with Id {StationId} found!", rawOriginId);
+
+    var rawDestinationId = jSegment.Value<string>(nameof(Destination));
+    Destination = ParseStation(rawDestinationId);
+    if (Destination is null)
+      Logger?.LogWarning("No Destination Station with Id {StationId} found!", rawDestinationId);
 
     if (TimeSpan.TryParse(jSegment.Value<string>(nameof(Duration)), out var duration)) {
       Duration = duration;
@@ -71,6 +64,45 @@ public class EbulaSegment {
     Name = name;
   }
 
+  private EbulaStation? ParseStation(string? rawStationId) {
+    if (string.IsNullOrEmpty(rawStationId)) {
+      return null;
+    }
+
+    if (rawStationId.Contains('.')) { // ConfigId.StationId format
+      var parts = rawStationId.Split('.', 2);
+      var configId = Guid.Parse(parts[0]);
+      var stationId = Guid.Parse(parts[1]);
+
+      EbulaConfig? stationConfig;
+      if (Config.Id == configId) {
+        stationConfig = Config;
+      }
+      else if (!Config.ResolvedDependencies.TryGetValue(configId, out stationConfig)) {
+        Logger?.LogWarning("Station ID {StationId} references missing config {ConfigId}", stationId, configId);
+        return null;
+      }
+
+      if (!stationConfig.Stations.TryGetValue(stationId, out var station)) {
+        Logger?.LogWarning("No Station with ID {StationId} found in config {ConfigId}!", stationId, configId);
+        return null;
+      }
+
+      return station;
+    }
+    else { // Deprecated: Station from same config without config prefix
+      if (!Guid.TryParse(rawStationId, out var stationId)) {
+        Logger?.LogWarning("Station ID {StationIdJson} failed to parse", rawStationId);
+        return null;
+      }
+      if (!Config.Stations.TryGetValue(stationId, out var station)) {
+        Logger?.LogWarning("No Station with Id {StationId} found!", rawStationId);
+        return null;
+      }
+      return station;
+    }
+  }
+
   private void ParseEntries(List<EbulaEntry> list, JArray jArray) {
     foreach (var jEntry in jArray) {
       if (jEntry.ToObject<EbulaEntry>() is not EbulaEntry entry) {
@@ -95,10 +127,10 @@ public class EbulaSegment {
   [JsonIgnore] public EbulaConfig Config { get; }
   [JsonIgnore] public Guid Id { get; } = Guid.Empty;
   public string Name { get; set; } = string.Empty;
-  [JsonProperty(nameof(Origin))] private Guid OriginId => Origin.Key;
-  [JsonIgnore] public (Guid Key, EbulaStation? Station) Origin { get; set; } = (Guid.Empty, null);
-  [JsonProperty(nameof(Destination))] private Guid DestinationId => Destination.Key;
-  [JsonIgnore] public (Guid Key, EbulaStation? Station) Destination { get; set; } = (Guid.Empty, null);
+  [JsonProperty(nameof(Origin))] private string OriginId => $"{Origin?.Config.Id ?? Guid.Empty}.{Origin?.Id ?? Guid.Empty}";
+  [JsonIgnore] public EbulaStation? Origin { get; set; } = null;
+  [JsonProperty(nameof(Destination))] private string DestinationId => $"{Destination?.Config.Id ?? Guid.Empty}.{Destination?.Id ?? Guid.Empty}";
+  [JsonIgnore] public EbulaStation? Destination { get; set; } = null;
   public TimeSpan Duration { get; set; } = new TimeSpan(0, 0, 0);
   public List<EbulaEntry> PreEntries { get; } = new();
   public List<EbulaEntry> Entries { get; } = new();

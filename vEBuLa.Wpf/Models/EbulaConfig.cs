@@ -34,6 +34,7 @@ public class EbulaConfig {
   public Dictionary<Guid, EbulaService> Services { get; private set; } = new();
   public Dictionary<string, int> Vehicles { get; private set; } = new();
 
+  private string? _originFileName;
   private JObject? _jConfig;
 
   public EbulaConfig() {
@@ -58,6 +59,7 @@ public class EbulaConfig {
         Dependencies[Guid.Parse(jDependency.Key)] = jDependency.Value!.ToString();
     }
 
+    _originFileName = fileName;
     _jConfig = jConfig;
 
     if (Dependencies.Count == 0)
@@ -106,7 +108,7 @@ public class EbulaConfig {
         Logger?.LogWarning("Station {StationJson} failed to parse", jStation);
         continue;
       }
-      var station = new EbulaStation(Guid.Parse(jStation.Key), (JObject) jStation.Value);
+      var station = new EbulaStation(this, Guid.Parse(jStation.Key), (JObject) jStation.Value);
       if (Stations.TryGetValue(station.Id, out var st)) {
         Logger?.LogWarning("Station {Station} shares ID {StationId} with {ExistingStation}", station, station.Id, st);
         continue;
@@ -191,9 +193,10 @@ public class EbulaConfig {
 
       if (!ResolveDependency(dependency.Key, dependency.Value, loadedConfigs))
         return false; // Failed to resolve dependency
-
-      return true;
     }
+
+    if (_originFileName is not null)
+      Save(_originFileName); // To update dependency names
 
     // All dependencies resolved
     return true;
@@ -234,13 +237,13 @@ public class EbulaConfig {
   }
 
   public IEnumerable<EbulaSegment> FindSegments(EbulaStation origin) {
-    return Segments.Values.Where(s => s.Origin.Station == origin);
+    return Segments.Values.Where(s => s.Origin == origin);
   }
 
   public EbulaStation AddStation(string name) {
     var id = Guid.NewGuid();
     while (Stations.ContainsKey(id)) id = Guid.NewGuid();
-    var station = new EbulaStation(id, name);
+    var station = new EbulaStation(this, id, name);
     Stations.Add(id, station);
     IsDirty = true;
     return station;
@@ -250,7 +253,7 @@ public class EbulaConfig {
     var id = Guid.NewGuid();
     while (Segments.ContainsKey(id)) id = Guid.NewGuid();
     var segment = new EbulaSegment(this, id, name);
-    if (origin is not null) segment.Origin = (origin.Id, origin);
+    if (origin is not null) segment.Origin = origin;
     Segments.Add(id, segment);
     IsDirty = true;
     return segment;
@@ -274,8 +277,9 @@ public class EbulaConfig {
     foreach (var dependency in Dependencies) {
       var id = dependency.Key;
       var name = ResolvedDependencies.TryGetValue(id, out var r) ? r.Name : dependency.Value;
-      jDependencies[id] = name;
+      jDependencies[id.ToString()] = name;
     }
+    jConfig[nameof(Dependencies)] = jDependencies;
 
     var jStations = new JObject();
     foreach (var station in Stations) jStations[station.Key.ToString()] = JObject.FromObject(station.Value);
@@ -301,7 +305,7 @@ public class EbulaConfig {
   internal EbulaService AddService(EbulaRoute selectedRoute, string serviceName, TimeSpan startTime, string description, List<string> vehicles) {
     var id = Guid.NewGuid();
     while (Services.ContainsKey(id)) id = Guid.NewGuid();
-    var service = new EbulaService(id, selectedRoute, serviceName, startTime, description, vehicles);
+    var service = new EbulaService(this, id, selectedRoute, serviceName, startTime, description, vehicles);
     Services.Add(id, service);
     IsDirty = true;
     return service;

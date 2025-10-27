@@ -31,15 +31,47 @@ public class EbulaRoute {
 
     if (jRoute.Value<JArray>(nameof(Segments)) is JArray jSegments) {
       foreach (var jSegment in jSegments) {
-        if (!Guid.TryParse(jSegment.Value<string>(), out var segmentId)) {
-          Logger?.LogWarning("Segment ID {SegmentIdJson} failed to parse", jSegment);
+        var rawSegmentId = jSegment.Value<string>();
 
-        }
-        if (!config.Segments.TryGetValue(segmentId, out var segment)) {
-          Logger?.LogWarning("No Segment with Id {SegmentId} found!", segmentId);
+        if (string.IsNullOrEmpty(rawSegmentId)) {
+          Logger?.LogWarning("Segment ID {SegmentIdJson} failed to parse", jSegment);
           continue;
         }
-        Segments.Add(segment);
+
+        if (rawSegmentId.Contains('.')) // ConfigId.SegmentId format
+        {
+          var parts = rawSegmentId.Split('.', 2);
+          var configId = Guid.Parse(parts[0]);
+          var segmentId = Guid.Parse(parts[1]);
+
+          EbulaConfig? segmentConfig;
+          if (config.Id == configId) {
+            segmentConfig = config;
+          }
+          else if (!config.ResolvedDependencies.TryGetValue(configId, out segmentConfig)) {
+            Logger?.LogWarning("Segment ID {SegmentId} references missing config {ConfigId}", segmentId, configId);
+            continue;
+          }
+
+          if (!segmentConfig.Segments.TryGetValue(segmentId, out var segment)) {
+            Logger?.LogWarning("No Segment with ID {SegmentId} found in config {ConfigId}!", segmentId, configId);
+            continue;
+          }
+
+          Segments.Add(segment);
+        }
+        else { // Deprecated: Segment from same config without config prefix
+          if (!Guid.TryParse(jSegment.Value<string>(), out var segmentId)) {
+            Logger?.LogWarning("Segment ID {SegmentIdJson} failed to parse", jSegment);
+          }
+
+          if (!config.Segments.TryGetValue(segmentId, out var segment)) {
+            Logger?.LogWarning("No Segment with Id {SegmentId} found!", rawSegmentId);
+            continue;
+          }
+
+          Segments.Add(segment);
+        }
       }
     }
     else
@@ -66,9 +98,6 @@ public class EbulaRoute {
   public int StationCount { get; set; }
   public TimeSpan Duration { get; set; }
   [JsonIgnore] public List<EbulaSegment> Segments { get; } = new();
-  [JsonProperty(nameof(Segments))] public IEnumerable<string> SegmentIds => Segments.Select(s => {
-    if (s.Config == Config) return s.Id.ToString();
-    else return $"{s.Config.Id}.{s.Id}";
-  });
+  [JsonProperty(nameof(Segments))] private IEnumerable<string> SegmentIds => Segments.Select(s => $"{s.Config.Id}.{s.Id}");
 
 }

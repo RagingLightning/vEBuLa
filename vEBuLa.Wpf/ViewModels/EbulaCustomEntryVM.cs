@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -15,22 +16,22 @@ public class EbulaCustomEntryVM : BaseVM {
 
   public EbulaCustomEntryVM(SetupScreenVM screen) {
     Screen = screen;
-    Origins = new List<EbulaStationVM>();
-    foreach (var config in Screen.Ebula.Model.LoadedConfigs) {
-      Origins.AddRange(config.Value.Stations.Select(s => s.Value.ToVM()));
-    }
+    if (Screen.Ebula.EditMode)
+      Origins = Screen.Ebula.Model.Stations.Select(s => s.Value.ToVM()).ToList();
     Departure = TimeSpan.Zero;
 
     Screen.Ebula.PropertyChanged += Ebula_PropertyChanged;
   }
 
-  public EbulaCustomEntryVM(SetupScreenVM screen, EbulaConfig config, EbulaStationVM origin, TimeSpan departure) {
+  public EbulaCustomEntryVM(SetupScreenVM screen, EbulaStationVM origin, TimeSpan departure) {
     Screen = screen;
     Origin = origin;
     if (Screen.Ebula.EditMode)
-      Segments = config.Segments.Values.Select(e => e.ToVM()).ToList();
-    else
-      Segments = config.FindSegments(origin.Model).Select(e => e.ToVM()).ToList();
+      Segments = Screen.Ebula.Model.Segments.Values.Select(e => e.ToVM()).ToList();
+    else {
+      var segments = Screen.Ebula.Model.LoadedConfigs.SelectMany(c => c.Value.FindSegments(origin.Model));
+      Segments = segments.Select(e => e.ToVM()).ToList();
+    }
     Departure = departure;
 
     Screen.Ebula.PropertyChanged += Ebula_PropertyChanged;
@@ -43,8 +44,8 @@ public class EbulaCustomEntryVM : BaseVM {
 
   public (bool Valid, TimeSpan nextDeparture) Validate(TimeSpan departure) {
     bool valid = true;
-    valid &= Origin is null || Origins.Contains(Origin);
-    valid &= SelectedOrigin is null || Origins.Contains(SelectedOrigin);
+    valid &= Origin is null || Screen.Ebula.Model.Stations.ContainsKey(Origin.Id);
+    valid &= SelectedOrigin is null || Screen.Ebula.Model.Stations.ContainsKey(SelectedOrigin.Id);
 
     if (!valid) {
       Logger?.LogError("Origin of {CustomEntry} is invalid, should have been caught before", this);
@@ -53,18 +54,18 @@ public class EbulaCustomEntryVM : BaseVM {
     }
 
     OnPropertyChanged(nameof(OriginText));
-    valid &= SelectedSegment is null || Config.Segments.ContainsKey(SelectedSegment.Id);
-    valid &= SelectedSegment is null || Origin is null || SelectedSegment.Origin.Station == Origin;
-    valid &= SelectedSegment is null || SelectedOrigin is null || SelectedSegment.Origin.Station == SelectedOrigin;
+    valid &= SelectedSegment is null || Screen.Ebula.Model.Segments.ContainsKey(SelectedSegment.Id);
+    valid &= SelectedSegment is null || Origin is null || SelectedSegment.Origin == Origin;
+    valid &= SelectedSegment is null || SelectedOrigin is null || SelectedSegment.Origin == SelectedOrigin;
 
     if (!valid) {
       SelectedSegment = null;
     }
 
-    valid &= Destination is null || Config.Stations.ContainsKey(Destination.Id);
-    valid &= SelectedSegment is null || Destination is null || SelectedSegment.Destination.Station == Destination;
-    valid &= SelectedDestination is null || Config.Stations.ContainsKey(SelectedDestination.Id);
-    valid &= SelectedSegment is null || SelectedDestination is null || SelectedSegment.Destination.Station == SelectedDestination;
+    valid &= Destination is null || Screen.Ebula.Model.Stations.ContainsKey(Destination.Id);
+    valid &= SelectedSegment is null || Destination is null || SelectedSegment.Destination == Destination;
+    valid &= SelectedDestination is null || Screen.Ebula.Model.Stations.ContainsKey(SelectedDestination.Id);
+    valid &= SelectedSegment is null || SelectedDestination is null || SelectedSegment.Destination == SelectedDestination;
 
     if (!valid) {
       SelectedDestination = null;
@@ -74,16 +75,19 @@ public class EbulaCustomEntryVM : BaseVM {
     }
     OnPropertyChanged(nameof(DestinationText));
 
-    Origins = Origins is null ? null : Config.Stations.Values.Select(e => e.ToVM()).ToList();
+    Origins = Origins is null ? null : Screen.Ebula.Model.Stations.Values.Select(e => e.ToVM()).ToList();
     OnPropertyChanged(nameof(SelectedOrigin));
     if (Screen.Ebula.EditMode) {
-      Segments = Config.Segments.Values.Select(e => e.ToVM()).ToList();
+      Segments = Screen.Ebula.Model.Segments.Values.Select(e => e.ToVM()).ToList();
     }
     else {
-      if (Origin is not null) Segments = Config.FindSegments(Origin.Model).Select(e => e.ToVM()).ToList();
+      if (Origin is not null) {
+        var segments = Screen.Ebula.Model.LoadedConfigs.SelectMany(c => c.Value.FindSegments(Origin.Model));
+        Segments = segments.Select(e => e.ToVM()).ToList();
+      }
     }
     OnPropertyChanged(nameof(SelectedSegment));
-    Destinations = Destinations is null ? null : Config.Stations.Values.Select(e => e.ToVM()).ToList();
+    Destinations = Destinations is null ? null : Screen.Ebula.Model.Stations.Values.Select(e => e.ToVM()).ToList();
     OnPropertyChanged(nameof(SelectedDestination));
 
     return (valid, departure + SelectedSegment?.Duration ?? TimeSpan.Zero);
@@ -93,7 +97,7 @@ public class EbulaCustomEntryVM : BaseVM {
     if (e.PropertyName == nameof(Screen.Ebula.EditMode)) {
       _modeChange = true;
       if (Screen.Ebula.EditMode) {
-        Destinations = SelectedSegment is null ? null : Config.Stations.Values.Select(e => e.ToVM()).ToList();
+        Destinations = SelectedSegment is null ? null : Screen.Ebula.Model.Stations.Values.Select(e => e.ToVM()).ToList();
         SelectedDestination = Destination;
         Destination = null;
       }
@@ -111,8 +115,8 @@ public class EbulaCustomEntryVM : BaseVM {
       Screen.CustomRoute.RemoveAt(index + 1);
   }
 
-  private List<EbulaStationVM> _origins = [];
-  public List<EbulaStationVM> Origins {
+  private List<EbulaStationVM>? _origins;
+  public List<EbulaStationVM>? Origins {
     get {
       return _origins;
     }
@@ -130,8 +134,10 @@ public class EbulaCustomEntryVM : BaseVM {
     set {
       _selectedOrigin = value;
       if (!_modeChange) ReduceRoute();
-      if (value is not null)
-        Segments = Config.FindSegments(value.Model).Select(e => e.ToVM()).ToList();
+      if (value is not null) {
+        var segments = Screen.Ebula.Model.LoadedConfigs.SelectMany(c => c.Value.FindSegments(value.Model));
+        Segments = segments.Select(e => e.ToVM()).ToList();
+      }
       else
         Segments = null;
       OnPropertyChanged(nameof(SelectedOrigin));
@@ -145,8 +151,10 @@ public class EbulaCustomEntryVM : BaseVM {
     }
     set {
       _origin = value;
-      if (value is not null)
-        Segments = Config.FindSegments(value.Model).Select(e => e.ToVM()).ToList();
+      if (value is not null) {
+        var segments = Screen.Ebula.Model.LoadedConfigs.SelectMany(c => c.Value.FindSegments(value.Model));
+        Segments = segments.Select(e => e.ToVM()).ToList();
+      }
       else
         Segments = null;
       OnPropertyChanged(nameof(Origin));
@@ -189,13 +197,13 @@ public class EbulaCustomEntryVM : BaseVM {
       _selectedSegment = value;
       if (!_modeChange) ReduceRoute();
       if (Screen.Ebula.EditMode) {
-        Destinations = Config.Stations.Values.Select(e => e.ToVM()).ToList();
-        SelectedDestination = value?.Destination.Station;
+        Destinations = Screen.Ebula.Model.Stations.Values.Select(e => e.ToVM()).ToList();
+        SelectedDestination = value?.Destination;
       }
       else {
-        Destination = value?.Destination.Station;
-        if (value?.Destination.Station is not null)
-          Screen.CustomRoute.Add(new EbulaCustomEntryVM(Screen, Config, value.Destination.Station, Departure + value.Duration));
+        Destination = value?.Destination;
+        if (value?.Destination is not null)
+          Screen.CustomRoute.Add(new EbulaCustomEntryVM(Screen, value.Destination, Departure + value.Duration));
       }
       OnPropertyChanged(nameof(SelectedSegment));
     }
@@ -221,8 +229,8 @@ public class EbulaCustomEntryVM : BaseVM {
       _selectedDestination = value;
       if (!_modeChange) ReduceRoute();
       if (Screen.Ebula.EditMode && value is not null && SelectedSegment is not null) {
-        SelectedSegment.Destination = (value.Id, value);
-        if (!_modeChange) Screen.CustomRoute.Add(new EbulaCustomEntryVM(Screen, Config, value, Departure + SelectedSegment.Duration));
+        SelectedSegment.Destination = value;
+        if (!_modeChange) Screen.CustomRoute.Add(new EbulaCustomEntryVM(Screen, value, Departure + SelectedSegment.Duration));
       }
       OnPropertyChanged(nameof(SelectedDestination));
     }

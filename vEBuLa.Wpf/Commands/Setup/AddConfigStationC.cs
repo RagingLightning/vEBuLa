@@ -39,8 +39,8 @@ internal class AddConfigStationC : BaseC {
 
     EbulaStation station = config.AddStation(EditStationDialog.StationName);
 
-    if (IsOrigin) { entry.SelectedOrigin = station.ToVM(); if (entry.SelectedSegment is not null) entry.SelectedSegment.Origin = (station.Id, station.ToVM()); }
-    else { entry.SelectedDestination = station.ToVM(); if (entry.SelectedSegment is not null) entry.SelectedSegment.Destination = (station.Id, station.ToVM()); }
+    if (IsOrigin) { entry.SelectedOrigin = station.ToVM(); if (entry.SelectedSegment is not null) entry.SelectedSegment.Origin = station.ToVM(); }
+    else { entry.SelectedDestination = station.ToVM(); if (entry.SelectedSegment is not null) entry.SelectedSegment.Destination = station.ToVM(); }
     Logger?.LogInformation("New {StationType} added for Custom Route Entry {RouteEntry}", IsOrigin ? "Origin" : "Destination", entry);
 
     TimeSpan departure = entry.Screen.ServiceStart;

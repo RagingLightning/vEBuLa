@@ -47,7 +47,7 @@ internal static class SerilogConfigExtensions {
       .Destructure.ByTransforming<EbulaConfig>(m => new { Name = m.Name, Routes = m.Routes.Values, Segments = m.Segments.Values, Stations = m.Stations.Values })
       .Destructure.ByTransforming<EbulaEntry>(m => new { SpeedLimit = m.SpeedLimit, Location = m.Location, Label = m.LocationName })
       .Destructure.ByTransforming<EbulaRoute>(m => new { Id = m.Id, Name = m.Name, Route = m.RouteOverview, Segments = m.Segments.Select(s => s.Id) })
-      .Destructure.ByTransforming<EbulaSegment>(m => new { Id = m.Id, Name = m.Name, Origin = m.Origin.Key, Destination = m.Destination.Key, PreEntries = m.PreEntries, MainEntries = m.Entries, PostEntries = m.PostEntries })
+      .Destructure.ByTransforming<EbulaSegment>(m => new { Id = m.Id, Name = m.Name, Origin = m.Origin?.Id, Destination = m.Destination?.Id, PreEntries = m.PreEntries, MainEntries = m.Entries, PostEntries = m.PostEntries })
       .Destructure.ByTransforming<EbulaStation>(m => new { Id = m.Id, Name = m.Name })
       /* ViewModels */
       .Destructure.ByTransforming<EbulaCustomEntryVM>(vm => new { Origin = vm.Origin ?? vm.SelectedOrigin, Segment = vm.SelectedSegment, Destination = vm.Destination ?? vm.SelectedDestination })

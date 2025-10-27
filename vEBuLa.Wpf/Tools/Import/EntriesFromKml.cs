@@ -97,7 +97,7 @@ internal partial class EntriesFromKml {
     }
   }
 
-  private static void ProcessSegment(EbulaConfig preset, Dictionary<Guid, EbulaSegment> segments, Dictionary<Guid, EbulaStation> stations, string routeName, XElement segmentFolder) {
+  private static void ProcessSegment(EbulaConfig config, Dictionary<Guid, EbulaSegment> segments, Dictionary<Guid, EbulaStation> stations, string routeName, XElement segmentFolder) {
     var rawSegmentName = segmentFolder.Elements().FirstOrDefault(e => e.Name.LocalName == "name")?.Value;
     if (string.IsNullOrWhiteSpace(rawSegmentName)) {
       Log.Error(" - - Found route segment folder without name, skipping");
@@ -124,7 +124,7 @@ internal partial class EntriesFromKml {
     if (startStation is null) {
       Log.Warning(" - - - Adding new station: {segmentStart}", segmentStartLocation);
       var id = GenerateId(stations.Keys);
-      startStation = new EbulaStation(id, segmentStartLocation);
+      startStation = new EbulaStation(config, id, segmentStartLocation);
       stations.Add(id, startStation);
     }
     else {
@@ -133,7 +133,7 @@ internal partial class EntriesFromKml {
     if (endStation is null) {
       Log.Warning(" - - - Adding new station: {segmentEnd}", segmentEndLocation);
       var id = GenerateId(stations.Keys);
-      endStation = new EbulaStation(id, segmentEndLocation);
+      endStation = new EbulaStation(config, id, segmentEndLocation);
       stations.Add(id, endStation);
     }
     else {
@@ -141,22 +141,22 @@ internal partial class EntriesFromKml {
     }
 
     // Add stations back to preset
-    preset.Stations[startStation.Id] = startStation;
-    preset.Stations[endStation.Id] = endStation;
+    config.Stations[startStation.Id] = startStation;
+    config.Stations[endStation.Id] = endStation;
 
     // Get existing segment if it exists
     var segmentName = $"{routeName} - {rawSegmentName.Replace('_', '>')}";
     var segment = segments.Values.FirstOrDefault(s =>
-      s.Origin.Station == startStation && s.Destination.Station == endStation && s.Name == segmentName
+      s.Origin == startStation && s.Destination == endStation && s.Name == segmentName
     );
 
     // Create new segment if it does not exist
     if (segment is null) {
       Log.Warning(" - - - Adding new segment: {segmentName}", segmentName);
       var id = GenerateId(segments.Keys);
-      segment = new EbulaSegment(preset, id, segmentName) {
-        Origin = (startStation.Id, startStation),
-        Destination = (endStation.Id, endStation)
+      segment = new EbulaSegment(config, id, segmentName) {
+        Origin = startStation,
+        Destination = endStation
       };
       segments.Add(id, segment);
     }
@@ -165,7 +165,7 @@ internal partial class EntriesFromKml {
     }
 
     // Add segment back to preset
-    preset.Segments.Add(segment.Id, segment);
+    config.Segments.Add(segment.Id, segment);
 
     // Clear existing entries
     segment.Entries.Clear();

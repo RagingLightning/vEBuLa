@@ -8,16 +8,19 @@ namespace vEBuLa.Models;
 public class EbulaStation {
   public override string ToString() => $"{Id.ToString().BiCrop(5,5)} | {Name.Crop(30)}";
 
-  public EbulaStation(Guid id, JObject jStation) {
+  public EbulaStation(EbulaConfig config, Guid id, JObject jStation) {
+    Config = config;
     Id = id;
     Name = jStation.Value<string>(nameof(Name)) ?? string.Empty;
   }
 
-  public EbulaStation(Guid id, string name) {
+  public EbulaStation(EbulaConfig config, Guid id, string name) {
+    Config = config;
     Id = id;
     Name = name;
   }
 
+  [JsonIgnore] public EbulaConfig Config { get; }
   [JsonIgnore] public Guid Id { get; } = Guid.Empty;
   public string Name { get; set; } = string.Empty;
 }

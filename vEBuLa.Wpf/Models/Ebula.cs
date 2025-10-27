@@ -16,6 +16,12 @@ public class Ebula {
   public EbulaConfig? Config => SingleConfig ? LoadedConfigs.First().Value : null;
   public Dictionary<string, EbulaConfig> LoadedConfigs { get; } = [];
 
+  public Dictionary<Guid, EbulaStation> Stations => LoadedConfigs.Values.SelectMany(c => c.Stations).ToDictionary(s => s.Key, s => s.Value);
+  public Dictionary<Guid, EbulaSegment> Segments => LoadedConfigs.Values.SelectMany(c => c.Segments).ToDictionary(s => s.Key, s => s.Value);
+  public Dictionary<Guid, EbulaRoute> Routes => LoadedConfigs.Values.SelectMany(c => c.Routes).ToDictionary(s => s.Key, s => s.Value);
+  public Dictionary<Guid, EbulaService> Services => LoadedConfigs.Values.SelectMany(c => c.Services).ToDictionary(s => s.Key, s => s.Value);
+  public Dictionary<string, int> Vehicles => LoadedConfigs.Values.SelectMany(c => c.Vehicles).GroupBy(e => e.Key).ToDictionary(e => e.Key, e => e.Aggregate(0, (acc, v) => acc + v.Value));
+
   public Ebula(string? configPath, bool singleConfig) {
     Logger?.LogInformation("Creating new EBuLa Model, single config mode: {singleConfig}", singleConfig);
     SingleConfig = singleConfig;

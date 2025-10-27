@@ -67,7 +67,7 @@ public class SetupScreenVM : BaseVM {
     RouteOverview.Clear();
 
     CustomRoute.Clear();
-    CustomRoute.Add(new EbulaCustomEntryVM(this, config));
+    CustomRoute.Add(new EbulaCustomEntryVM(this));
   }
 
 
