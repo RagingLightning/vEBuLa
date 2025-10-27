@@ -12,6 +12,7 @@
         <conv:BoolBoldConverter x:Key="BoolBold"/>
         <conv:NullHideConverter x:Key="NullHide"/>
         <conv:BoolNumConverter x:Key="BoolNum"/>
+        <conv:BoolColorConverter x:Key="BoolColor"/>
         <PathGeometry x:Key="Marker" Figures="M0,0 l10,-10 l10,10 l-10,10 Z"/>
         <PathGeometry x:Key="ZigZag" Figures="M0,-1 L7,7 L0,15 L7,23 L0,31"/>
         <PathGeometry x:Key="TunnelStart" Figures="M0,11 L0,-13 L15,-13 L15,11 L14,11 L12,-2 L3,-2 L1,11 Z"/>
@@ -22,6 +23,7 @@
         <PathGeometry x:Key="TMarker" Figures="M0,-15 L0,5 M0,-5 L25,-5"/>
         <Style TargetType="TextBlock">
             <Setter Property="Height" Value="31" />
+            <Setter Property="Foreground" Value="{Binding ColorInactive, Converter={StaticResource BoolColor}, ConverterParameter=aaaaaa|000000}"/>
         </Style>
         <Style TargetType="Image">
             <Setter Property="Height" Value="31"/>
@@ -62,7 +64,7 @@
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate>
-                        <TextBlock Text="{Binding}" d:Text="Herchener Tunnel" FontSize="20" Margin="1,-3,1,1" Foreground="Black" FontWeight="{Binding DataContext.MainBold, RelativeSource={RelativeSource AncestorType=ListView}, Converter={StaticResource BoolBold}}" VerticalAlignment="Center" HorizontalAlignment="Left"/>
+                        <TextBlock Text="{Binding}" d:Text="Herchener Tunnel" FontSize="20" Margin="1,-3,1,1" FontWeight="{Binding DataContext.MainBold, RelativeSource={RelativeSource AncestorType=ListView}, Converter={StaticResource BoolBold}}" VerticalAlignment="Center" HorizontalAlignment="Left" Foreground="{Binding DataContext.ColorInactive, RelativeSource={RelativeSource AncestorType=Grid}, Converter={StaticResource BoolColor}, ConverterParameter=aaaaaa|000000}"/>
                     </ControlTemplate>
                 </Setter.Value>
             </Setter>
@@ -107,22 +109,22 @@
         <Rectangle Grid.Column="3" Fill="Black" Width="2" Panel.ZIndex="5"/>
 
         <DockPanel Grid.Column="0" Margin="0,0,5,0">
-            <Rectangle DockPanel.Dock="Left" Fill="Black" Width="4" Visibility="{Binding SpeedColumn1, Converter={StaticResource BoolHide}}"/>
-            <Rectangle DockPanel.Dock="Left" Fill="Black" Width="5" Visibility="{Binding SpeedColumn2, Converter={StaticResource BoolHide}}"/>
-            <Rectangle DockPanel.Dock="Left" Fill="Black" Width="4" Visibility="{Binding SpeedColumn3, Converter={StaticResource BoolHide}}"/>
-            <Rectangle DockPanel.Dock="Left" Fill="Black" Width="5" Visibility="{Binding SpeedColumn4, Converter={StaticResource BoolHide}}"/>
-            <Rectangle DockPanel.Dock="Left" Fill="Black" Width="4" Visibility="{Binding SpeedColumn5, Converter={StaticResource BoolHide}}"/>
-            <Rectangle DockPanel.Dock="Left" Fill="Black" Width="5" Visibility="{Binding SpeedColumn6, Converter={StaticResource BoolHide}}"/>
-            <Rectangle DockPanel.Dock="Left" Fill="Black" Width="4" Visibility="{Binding SpeedColumn7, Converter={StaticResource BoolHide}}"/>
-            <Rectangle DockPanel.Dock="Left" Fill="Black" Width="5" Visibility="{Binding SpeedColumn8, Converter={StaticResource BoolHide}}"/>
-            <Rectangle DockPanel.Dock="Left" Fill="Black" Width="4" Visibility="{Binding SpeedColumn9, Converter={StaticResource BoolHide}}"/>
-            <Rectangle DockPanel.Dock="Left" Fill="Black" Width="5" Visibility="{Binding SpeedColumn10, Converter={StaticResource BoolHide}}"/>
-            <Rectangle DockPanel.Dock="Left" Fill="Black" Width="4" Visibility="{Binding SpeedColumn11, Converter={StaticResource BoolHide}}"/>
-            <Rectangle DockPanel.Dock="Left" Fill="Black" Width="5" Visibility="{Binding SpeedColumn12, Converter={StaticResource BoolHide}}"/>
-            <Rectangle DockPanel.Dock="Left" Fill="Black" Width="4" Visibility="{Binding SpeedColumn13, Converter={StaticResource BoolHide}}"/>
-            <Rectangle DockPanel.Dock="Left" Fill="Black" Width="5" Visibility="{Binding SpeedColumn14, Converter={StaticResource BoolHide}}"/>
-            <Rectangle DockPanel.Dock="Left" Fill="Black" Width="4" Visibility="{Binding SpeedColumn15, Converter={StaticResource BoolHide}}"/>
-            <Rectangle DockPanel.Dock="Left" Fill="Black" Width="5" Visibility="{Binding SpeedColumn16, Converter={StaticResource BoolHide}}"/>
+            <Rectangle DockPanel.Dock="Left" Width="4" Visibility="{Binding SpeedColumn1, Converter={StaticResource BoolHide}}" Fill="{Binding ColorInactive, Converter={StaticResource BoolColor}, ConverterParameter=aaaaaa|000000}" d:Fill="Black"/>
+            <Rectangle DockPanel.Dock="Left" Width="5" Visibility="{Binding SpeedColumn2, Converter={StaticResource BoolHide}}" Fill="{Binding ColorInactive, Converter={StaticResource BoolColor}, ConverterParameter=aaaaaa|000000}" d:Fill="Black"/>
+            <Rectangle DockPanel.Dock="Left" Width="4" Visibility="{Binding SpeedColumn3, Converter={StaticResource BoolHide}}" Fill="{Binding ColorInactive, Converter={StaticResource BoolColor}, ConverterParameter=aaaaaa|000000}" d:Fill="Black"/>
+            <Rectangle DockPanel.Dock="Left" Width="5" Visibility="{Binding SpeedColumn4, Converter={StaticResource BoolHide}}" Fill="{Binding ColorInactive, Converter={StaticResource BoolColor}, ConverterParameter=aaaaaa|000000}" d:Fill="Black"/>
+            <Rectangle DockPanel.Dock="Left" Width="4" Visibility="{Binding SpeedColumn5, Converter={StaticResource BoolHide}}" Fill="{Binding ColorInactive, Converter={StaticResource BoolColor}, ConverterParameter=aaaaaa|000000}" d:Fill="Black"/>
+            <Rectangle DockPanel.Dock="Left" Width="5" Visibility="{Binding SpeedColumn6, Converter={StaticResource BoolHide}}" Fill="{Binding ColorInactive, Converter={StaticResource BoolColor}, ConverterParameter=aaaaaa|000000}" d:Fill="Black"/>
+            <Rectangle DockPanel.Dock="Left" Width="4" Visibility="{Binding SpeedColumn7, Converter={StaticResource BoolHide}}" Fill="{Binding ColorInactive, Converter={StaticResource BoolColor}, ConverterParameter=aaaaaa|000000}" d:Fill="Black"/>
+            <Rectangle DockPanel.Dock="Left" Width="5" Visibility="{Binding SpeedColumn8, Converter={StaticResource BoolHide}}" Fill="{Binding ColorInactive, Converter={StaticResource BoolColor}, ConverterParameter=aaaaaa|000000}" d:Fill="Black"/>
+            <Rectangle DockPanel.Dock="Left" Width="4" Visibility="{Binding SpeedColumn9, Converter={StaticResource BoolHide}}" Fill="{Binding ColorInactive, Converter={StaticResource BoolColor}, ConverterParameter=aaaaaa|000000}" d:Fill="Black"/>
+            <Rectangle DockPanel.Dock="Left" Width="5" Visibility="{Binding SpeedColumn10, Converter={StaticResource BoolHide}}" Fill="{Binding ColorInactive, Converter={StaticResource BoolColor}, ConverterParameter=aaaaaa|000000}" d:Fill="Black"/>
+            <Rectangle DockPanel.Dock="Left" Width="4" Visibility="{Binding SpeedColumn11, Converter={StaticResource BoolHide}}" Fill="{Binding ColorInactive, Converter={StaticResource BoolColor}, ConverterParameter=aaaaaa|000000}" d:Fill="Black"/>
+            <Rectangle DockPanel.Dock="Left" Width="5" Visibility="{Binding SpeedColumn12, Converter={StaticResource BoolHide}}" Fill="{Binding ColorInactive, Converter={StaticResource BoolColor}, ConverterParameter=aaaaaa|000000}" d:Fill="Black"/>
+            <Rectangle DockPanel.Dock="Left" Width="4" Visibility="{Binding SpeedColumn13, Converter={StaticResource BoolHide}}" Fill="{Binding ColorInactive, Converter={StaticResource BoolColor}, ConverterParameter=aaaaaa|000000}" d:Fill="Black"/>
+            <Rectangle DockPanel.Dock="Left" Width="5" Visibility="{Binding SpeedColumn14, Converter={StaticResource BoolHide}}" Fill="{Binding ColorInactive, Converter={StaticResource BoolColor}, ConverterParameter=aaaaaa|000000}" d:Fill="Black"/>
+            <Rectangle DockPanel.Dock="Left" Width="4" Visibility="{Binding SpeedColumn15, Converter={StaticResource BoolHide}}" Fill="{Binding ColorInactive, Converter={StaticResource BoolColor}, ConverterParameter=aaaaaa|000000}" d:Fill="Black"/>
+            <Rectangle DockPanel.Dock="Left" Width="5" Visibility="{Binding SpeedColumn16, Converter={StaticResource BoolHide}}" Fill="{Binding ColorInactive, Converter={StaticResource BoolColor}, ConverterParameter=aaaaaa|000000}" d:Fill="Black"/>
             <Button Style="{DynamicResource EditBtn}" IsEnabled="{Binding Screen.Ebula.RouteEditMode}" DockPanel.Dock="Right" Command="{Binding EditSpeedCommand}" CommandParameter="{Binding .}">
                 <TextBlock Text="{Binding SpeedLimitText}" d:Text="160" FontSize="20" TextAlignment="Right" FontWeight="Bold" VerticalAlignment="Bottom" Visibility="{Binding SpeedLimitDisplay, Converter={StaticResource BoolHide}}" HorizontalAlignment="Right" Foreground="{Binding SpeedColor}" Background="{Binding SpeedBackground}"/>
             </Button>

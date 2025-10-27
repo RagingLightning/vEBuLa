@@ -10,13 +10,22 @@ public class EbulaRouteVM : BaseVM {
   public override string ToString() => $"[{Model}]";
   public SetupScreenVM Screen { get; }
   public EbulaRoute Model { get; }
+  public bool ReadOnly { get; }
+  public bool ColorInactive { get; }
 
   public EbulaRouteVM(SetupScreenVM screen, EbulaRoute route) {
     Screen = screen;
     Model = route;
+    ReadOnly = route.Config.Id != screen.Ebula.Model.Config?.Id;
+    ColorInactive = ReadOnly && screen.Ebula.Model.SingleConfig;
+
+    if (!ReadOnly) {
+      EditCommand = Screen.EditRouteCommand;
+    }
   }
 
-  public BaseC EditCommand => Screen.EditRouteCommand;
+  public BaseC? EditCommand { get; }
+
   public string Name {
     get => Model.Name;
     set {

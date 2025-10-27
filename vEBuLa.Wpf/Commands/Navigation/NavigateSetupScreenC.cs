@@ -29,7 +29,14 @@ internal partial class NavigateSetupScreenC : NavigateScreenC {
 
     Logger?.LogInformation("Switching to main EBuLa screen");
     if (Screen.UsingRoutes) {
-      if (Screen.UsingServices) {
+      if (Screen.SelectedRoute?.ReadOnly == true) {
+        if (Screen.SelectedService is null) {
+          Logger?.LogWarning("Routes from other configurations can't be edited");
+          return;
+        }
+        Screen.Ebula.LoadService(Screen.SelectedService.Model);
+      }
+      else if (Screen.UsingServices) {
         if (Screen.SelectedService is null) {
           Logger?.LogWarning("No Service is selected. Remaining on Setup screen");
           return;
@@ -182,6 +189,8 @@ internal partial class NavigateSetupScreenC : NavigateScreenC {
     EbulaRoute route = Screen.Ebula.Model.Config.AddRoute(segments, EditSavedRouteDialog.RouteName, EditSavedRouteDialog.Description, EditSavedRouteDialog.Stations, EditSavedRouteDialog.Duration, EditSavedRouteDialog.Route);
     Logger?.LogInformation("Saved Custom Route as {Route}", route);
     Screen.Ebula.MarkDirty();
+
+    Screen.LoadConfig();
   } // Save custom route as predefined route
 
   protected override void Button6() {

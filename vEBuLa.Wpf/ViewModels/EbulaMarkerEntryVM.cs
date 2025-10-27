@@ -14,10 +14,14 @@ internal class EbulaMarkerEntryVM : BaseVM {
   public static bool operator ==(EbulaMarkerEntryVM a, EbulaMarkerEntryVM b) => a.Equals(b);
   public static bool operator !=(EbulaMarkerEntryVM a, EbulaMarkerEntryVM b) => !a.Equals(b);
 
+  public bool ReadOnly { get; }
+
   public EbulaMarkerEntryVM(EbulaScreenVM screen, EbulaSegment segment, EbulaMarkerType type) {
     Screen = screen;
     Segment = segment.ToVM();
     MarkerType = type;
+
+    ReadOnly = segment.Config.Id != screen.Ebula.Model.Config?.Id;
 
     EditSegmentDurationCommand = EditSegmentDurationC.INSTANCE;
 
@@ -117,6 +121,8 @@ internal class EbulaMarkerEntryVM : BaseVM {
     EbulaMarkerType.POST => "--POST--",
     _ => Duration.ToString("hh':'mm':'ss")
   };
+
+  public string MarkerTypeName => MarkerType.ToString();
 
   #endregion
 

@@ -15,6 +15,7 @@
         <conv:BoolHideConverter x:Key="BoolHide"/>
         <conv:NullHideConverter x:Key="NullHide"/>
         <conv:BoolNumConverter x:Key="BoolNum"/>
+        <conv:BoolColorConverter x:Key="BoolColor"/>
         <Style TargetType="TextBlock">
             <Setter Property="Foreground" Value="White"/>
             <Setter Property="FontSize" Value="15"/>
@@ -98,7 +99,8 @@
         <DataTemplate x:Key="RouteTemplate">
             <DataTemplate.Resources>
                 <Style TargetType="TextBlock">
-                    <Setter Property="Foreground" Value="White"/>
+                    <Setter Property="Foreground" Value="{Binding ColorInactive, Converter={StaticResource BoolColor}, ConverterParameter=aaaaaa|ffffff}"/>
+                    <d:Setter Property="Foreground" Value="White"/>
                     <Setter Property="FontSize" Value="17"/>
                     <Setter Property="FontWeight" Value="Bold"/>
                     <Setter Property="TextAlignment" Value="Center" />
@@ -227,8 +229,8 @@
                 </ComboBox>
                 <TextBlock Text="{Binding OriginText}" d:Text="München Hbf S" FontSize="12" Visibility="{Binding Origin, Converter={StaticResource NullHide}}" Grid.ColumnSpan="{Binding DataContext.Ebula.EditMode, ElementName=SetupScreen, Converter={StaticResource BoolNum}, ConverterParameter=1|4}"/>
                 <Button Grid.Column="1" Content="+" Command="{Binding DataContext.AddOriginCommand, ElementName=SetupScreen}" CommandParameter="{Binding .}" Visibility="{Binding DataContext.Ebula.EditMode, ElementName=SetupScreen, Converter={StaticResource BoolHide}}"/>
-                <Button Grid.Column="2" Content="E" Command="{Binding DataContext.EditOriginCommand, ElementName=SetupScreen}" CommandParameter="{Binding .}" Visibility="{Binding DataContext.Ebula.EditMode, ElementName=SetupScreen, Converter={StaticResource BoolHide}}"/>
-                <Button Grid.Column="3" Content="-" Command="{Binding DataContext.RemoveOriginCommand, ElementName=SetupScreen}" CommandParameter="{Binding .}" Visibility="{Binding DataContext.Ebula.EditMode, ElementName=SetupScreen, Converter={StaticResource BoolHide}}"/>
+                <Button Grid.Column="2" Content="E" Command="{Binding DataContext.EditOriginCommand, ElementName=SetupScreen}" CommandParameter="{Binding .}" Visibility="{Binding DataContext.Ebula.EditMode, ElementName=SetupScreen, Converter={StaticResource BoolHide}}" IsEnabled="{Binding CanEditOrigin}"/>
+                <Button Grid.Column="3" Content="-" Command="{Binding DataContext.RemoveOriginCommand, ElementName=SetupScreen}" CommandParameter="{Binding .}" Visibility="{Binding DataContext.Ebula.EditMode, ElementName=SetupScreen, Converter={StaticResource BoolHide}}" IsEnabled="{Binding CanEditOrigin}"/>
                 <TextBlock Grid.Column="4" Text="{Binding DepartureText}" d:Text="00:00:00"/>
                 <ComboBox Grid.Column="5" ItemsSource="{Binding Segments}" SelectedItem="{Binding SelectedSegment}" Visibility="{Binding Segments, Converter={StaticResource NullHide}}"  Grid.ColumnSpan="{Binding DataContext.Ebula.EditMode, ElementName=SetupScreen, Converter={StaticResource BoolNum}, ConverterParameter=1|4}">
                     <ComboBox.ItemTemplate>
@@ -238,8 +240,8 @@
                     </ComboBox.ItemTemplate>
                 </ComboBox>
                 <Button Grid.Column="6" Content="+" Command="{Binding DataContext.AddSegmentCommand, ElementName=SetupScreen}" CommandParameter="{Binding .}" Visibility="{Binding DataContext.Ebula.EditMode, ElementName=SetupScreen, Converter={StaticResource BoolHide}}"/>
-                <Button Grid.Column="7" Content="E" Command="{Binding DataContext.EditSegmentCommand, ElementName=SetupScreen}" CommandParameter="{Binding .}" Visibility="{Binding DataContext.Ebula.EditMode, ElementName=SetupScreen, Converter={StaticResource BoolHide}}"/>
-                <Button Grid.Column="8" Content="-" Command="{Binding DataContext.RemoveSegmentCommand, ElementName=SetupScreen}" CommandParameter="{Binding .}" Visibility="{Binding DataContext.Ebula.EditMode, ElementName=SetupScreen, Converter={StaticResource BoolHide}}"/>
+                <Button Grid.Column="7" Content="E" Command="{Binding DataContext.EditSegmentCommand, ElementName=SetupScreen}" CommandParameter="{Binding .}" Visibility="{Binding DataContext.Ebula.EditMode, ElementName=SetupScreen, Converter={StaticResource BoolHide}}" IsEnabled="{Binding CanEditSegment}"/>
+                <Button Grid.Column="8" Content="-" Command="{Binding DataContext.RemoveSegmentCommand, ElementName=SetupScreen}" CommandParameter="{Binding .}" Visibility="{Binding DataContext.Ebula.EditMode, ElementName=SetupScreen, Converter={StaticResource BoolHide}}" IsEnabled="{Binding CanEditSegment}"/>
                 <ComboBox Grid.Column="9" ItemsSource="{Binding Destinations}" SelectedItem="{Binding SelectedDestination}" Visibility="{Binding Destinations, Converter={StaticResource NullHide}}" Grid.ColumnSpan="{Binding DataContext.Ebula.EditMode, ElementName=SetupScreen, Converter={StaticResource BoolNum}, ConverterParameter=1|4}">
                     <ComboBox.ItemTemplate>
                         <DataTemplate>
@@ -249,8 +251,8 @@
                 </ComboBox>
                 <TextBlock Grid.Column="9" Text="{Binding DestinationText}" d:Text="München Pasing" FontSize="12" Visibility="{Binding Destination, Converter={StaticResource NullHide}}" Grid.ColumnSpan="{Binding DataContext.Ebula.EditMode, ElementName=SetupScreen, Converter={StaticResource BoolNum}, ConverterParameter=1|4}"/>
                 <Button Grid.Column="10" Content="+" Command="{Binding DataContext.AddDestinationCommand, ElementName=SetupScreen}" CommandParameter="{Binding .}" Visibility="{Binding DataContext.Ebula.EditMode, ElementName=SetupScreen, Converter={StaticResource BoolHide}}"/>
-                <Button Grid.Column="11" Content="E" Command="{Binding DataContext.EditDestinationCommand, ElementName=SetupScreen}" CommandParameter="{Binding .}" Visibility="{Binding DataContext.Ebula.EditMode, ElementName=SetupScreen, Converter={StaticResource BoolHide}}"/>
-                <Button Grid.Column="12" Content="-" Command="{Binding DataContext.RemoveDestinationCommand, ElementName=SetupScreen}" CommandParameter="{Binding .}" Visibility="{Binding DataContext.Ebula.EditMode, ElementName=SetupScreen, Converter={StaticResource BoolHide}}"/>
+                <Button Grid.Column="11" Content="E" Command="{Binding DataContext.EditDestinationCommand, ElementName=SetupScreen}" CommandParameter="{Binding .}" Visibility="{Binding DataContext.Ebula.EditMode, ElementName=SetupScreen, Converter={StaticResource BoolHide}}" IsEnabled="{Binding CanEditDestination}"/>
+                <Button Grid.Column="12" Content="-" Command="{Binding DataContext.RemoveDestinationCommand, ElementName=SetupScreen}" CommandParameter="{Binding .}" Visibility="{Binding DataContext.Ebula.EditMode, ElementName=SetupScreen, Converter={StaticResource BoolHide}}" IsEnabled="{Binding CanEditDestination}"/>
             </Grid>
         </DataTemplate>
     </UserControl.Resources>
@@ -307,7 +309,7 @@
             </Grid.ColumnDefinitions>
             <DockPanel Grid.Row="1" Grid.Column="0" Visibility="{Binding UsingRoutes, Converter={StaticResource BoolHide}}" d:Visibility="Visible">
                 <TextBlock DockPanel.Dock="Top" Text="Available Routes"/>
-                <ListView ItemsSource="{Binding Routes}" SelectedItem="{Binding SelectedRoute}" d:ItemsSource="{d:SampleData}" ItemTemplate="{StaticResource RouteTemplate}"/>
+                <ListView ItemsSource="{Binding Routes}" SelectedItem="{Binding SelectedRoute}" d:ItemsSource="{d:SampleData}" ItemTemplate="{DynamicResource RouteTemplate}"/>
             </DockPanel>
 
             <DockPanel Grid.Row="1" Grid.Column="1" Visibility="{Binding UsingOverview, Converter={StaticResource BoolHide}}" d:Visibility="Hidden">

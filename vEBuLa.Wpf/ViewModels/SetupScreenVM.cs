@@ -63,6 +63,7 @@ public class SetupScreenVM : BaseVM {
     ConfigName = config.Name;
 
     Routes.Clear();
+    Routes.AddRange(config.ResolvedDependencies.SelectMany(d => d.Value.Routes.Values).Select(r => new EbulaRouteVM(this, r)));
     Routes.AddRange(config.Routes.Values.Select(r => new EbulaRouteVM(this, r)));
     RouteOverview.Clear();
 
@@ -85,6 +86,7 @@ public class SetupScreenVM : BaseVM {
   public BaseC EditDestinationCommand { get; }
   public BaseC RemoveDestinationCommand { get; }
   public bool CanSaveRoute => Ebula.EditMode && UsingCustom;
+
   public string ConfigName {
     get {
       if (Ebula.Model.Config is EbulaConfig cfg)

@@ -97,7 +97,7 @@ internal class EbulaScreenVM : BaseVM {
 
     foreach (var entry in Ebula.Service.Segments[0].PreEntries) {
       var stop = Ebula.Service.Stops.FirstOrDefault(s => s.EntryLocation == entry.Location && s.EntryName == entry.LocationName);
-      Entries.Add(ebulaEntry = new EbulaEntryVM(entry, ebulaEntry, stop, this));
+      Entries.Add(ebulaEntry = new EbulaEntryVM(Ebula.Service.Segments[0], entry, ebulaEntry, stop, this));
     }
     Logger?.LogTrace("Added {AddCount} EbulaEntries from Segment {Segment} Pre stage; Count={EntryCount}", Ebula.Service.Segments[0].Entries.Count, Ebula.Service.Segments[0], Entries.Count);
 
@@ -110,7 +110,7 @@ internal class EbulaScreenVM : BaseVM {
 
       foreach (var entry in segment.Entries) {
         var stop = Ebula.Service.Stops.FirstOrDefault(s => s.EntryLocation == entry.Location && s.EntryName == entry.LocationName);
-        Entries.Add(ebulaEntry = new EbulaEntryVM(entry, ebulaEntry, stop, this));
+        Entries.Add(ebulaEntry = new EbulaEntryVM(segment, entry, ebulaEntry, stop, this));
       }
       departureOffset += segment.Duration;
       Logger?.LogTrace("Added {AddCount} EbulaEntries from Segment {Segment} Main stage; Count={EntryCount}", segment.Entries.Count, segment, Entries.Count);
@@ -124,7 +124,7 @@ internal class EbulaScreenVM : BaseVM {
 
     foreach (var entry in Ebula.Service.Segments[^1].PostEntries) {
       var stop = Ebula.Service.Stops.FirstOrDefault(s => s.EntryLocation == entry.Location && s.EntryName == entry.LocationName);
-      Entries.Add(ebulaEntry = new EbulaEntryVM(entry, ebulaEntry, stop, this));
+      Entries.Add(ebulaEntry = new EbulaEntryVM(Ebula.Service.Segments[^1], entry, ebulaEntry, stop, this));
     }
     Logger?.LogTrace("Added {AddCount} EbulaEntries from Segment {Segment} Post stage; Count={EntryCount}", Ebula.Service.Segments[^1].Entries.Count, Ebula.Service.Segments[^1], Entries.Count);
 

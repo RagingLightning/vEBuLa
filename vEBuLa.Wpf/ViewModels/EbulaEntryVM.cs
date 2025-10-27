@@ -14,23 +14,29 @@ internal class EbulaEntryVM : BaseVM {
   private ILogger<EbulaEntryVM>? Logger => App.GetService<ILogger<EbulaEntryVM>>();
   public EbulaEntry Model { get; }
   public EbulaScreenVM Screen { get; }
+  public bool ReadOnly { get; }
+  public bool ColorInactive { get; }
 
   public override string ToString() => $"{Model.Location,6} | {Model.LocationName.Replace('\n', '|').Crop(15),-17} | {(Arrival is null ? "       " : $"{ArrivalHr}:{ArrivalMn}.{ArrivalFr}")} | {(Departure is null ? "       " : $"{DepartureHr}:{DepartureMn}.{DepartureFr}")}";
 
-  public EbulaEntryVM(EbulaEntry entry, EbulaEntryVM? prev, EbulaServiceStop? stop, EbulaScreenVM screen) {
+  public EbulaEntryVM(EbulaSegment segment, EbulaEntry entry, EbulaEntryVM? prev, EbulaServiceStop? stop, EbulaScreenVM screen) {
     Model = entry;
     Screen = screen;
     Stop = stop;
+    ReadOnly = segment.Config.Id != screen.Ebula.Model.Config?.Id;
+    ColorInactive = ReadOnly && screen.Ebula.Model.SingleConfig;
 
     DisplayUnits = entry.LocationName.Where(c => c == '\n').Count() + 1;
 
-    EditSpeedCommand = EditEbulaEntrySpeedC.INSTANCE;
-    EditLocationCommand = EditEbulaEntryLocationC.INSTANCE;
-    EditTunnelCommand = EditEbulaEntryTunnelC.INSTANCE;
-    EditSymbolCommand = EditEbulaEntrySymbolC.INSTANCE;
-    EditStationCommand = EditEbulaEntryStationC.INSTANCE;
-    EditArrivalCommand = EditEbulaEntryTimeC.ARRIVAL;
-    EditDepartureCommand = EditEbulaEntryTimeC.DEPARTURE;
+    if (!ReadOnly) {
+      EditSpeedCommand = EditEbulaEntrySpeedC.INSTANCE;
+      EditLocationCommand = EditEbulaEntryLocationC.INSTANCE;
+      EditTunnelCommand = EditEbulaEntryTunnelC.INSTANCE;
+      EditSymbolCommand = EditEbulaEntrySymbolC.INSTANCE;
+      EditStationCommand = EditEbulaEntryStationC.INSTANCE;
+      EditArrivalCommand = EditEbulaEntryTimeC.ARRIVAL;
+      EditDepartureCommand = EditEbulaEntryTimeC.DEPARTURE;
+    }
 
     PrevSpeedLimit = prev?.SpeedLimit ?? 0;
     PrevTunnel = prev is null ? false : prev.TunnelMid.Count > 0 || prev.TunnelStart;

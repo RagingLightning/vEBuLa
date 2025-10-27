@@ -13,6 +13,8 @@ internal class AddEbulaEntryC : BaseC {
     var newEntry = new EbulaEntry();
 
     if (parameter is EbulaMarkerEntryVM marker) {
+      if (marker.ReadOnly) return;
+
       if (marker.Screen.Ebula.Service is null) return;
       Logger?.LogInformation("Adding new entry above {ExistingMarker}", marker);
       Logger?.LogDebug("{MarkerEntry} is marker of type {MarkerType}", marker, marker.MarkerType);
@@ -34,6 +36,8 @@ internal class AddEbulaEntryC : BaseC {
       marker.Screen.Ebula.MarkDirty();
     }
     else if (parameter is EbulaEntryVM entry) {
+      if (entry.ReadOnly) return;
+
       if (entry.Screen.Ebula.Service is null) return;
       Logger?.LogInformation("Adding new entry above {ExistingEntry}", entry);
       var index = entry.Screen.Ebula.Service.Segments.Select(s => s.FindEntry(entry.Model)).FirstOrDefault(p => p is not null);

@@ -16,8 +16,7 @@ public class EbulaCustomEntryVM : BaseVM {
 
   public EbulaCustomEntryVM(SetupScreenVM screen) {
     Screen = screen;
-    if (Screen.Ebula.EditMode)
-      Origins = Screen.Ebula.Model.Stations.Select(s => s.Value.ToVM()).ToList();
+    Origins = Screen.Ebula.Model.Stations.Select(s => s.Value.ToVM()).ToList();
     Departure = TimeSpan.Zero;
 
     Screen.Ebula.PropertyChanged += Ebula_PropertyChanged;
@@ -26,7 +25,7 @@ public class EbulaCustomEntryVM : BaseVM {
   public EbulaCustomEntryVM(SetupScreenVM screen, EbulaStationVM origin, TimeSpan departure) {
     Screen = screen;
     Origin = origin;
-    if (Screen.Ebula.EditMode)
+    if (Screen.Ebula.EditMode && CanEditOrigin)
       Segments = Screen.Ebula.Model.Segments.Values.Select(e => e.ToVM()).ToList();
     else {
       var segments = Screen.Ebula.Model.LoadedConfigs.SelectMany(c => c.Value.FindSegments(origin.Model));
@@ -43,6 +42,7 @@ public class EbulaCustomEntryVM : BaseVM {
   }
 
   public (bool Valid, TimeSpan nextDeparture) Validate(TimeSpan departure) {
+#warning logic broken with cross config
     bool valid = true;
     valid &= Origin is null || Screen.Ebula.Model.Stations.ContainsKey(Origin.Id);
     valid &= SelectedOrigin is null || Screen.Ebula.Model.Stations.ContainsKey(SelectedOrigin.Id);
@@ -141,6 +141,7 @@ public class EbulaCustomEntryVM : BaseVM {
       else
         Segments = null;
       OnPropertyChanged(nameof(SelectedOrigin));
+      OnPropertyChanged(nameof(CanEditOrigin));
     }
   }
 
@@ -162,6 +163,8 @@ public class EbulaCustomEntryVM : BaseVM {
     }
   }
   public string OriginText => Origin?.Name ?? string.Empty;
+
+  public bool CanEditOrigin => SelectedOrigin?.Model.Config == Screen.Ebula.Model.Config;
 
   private TimeSpan _departure;
   public TimeSpan Departure {
@@ -196,18 +199,24 @@ public class EbulaCustomEntryVM : BaseVM {
     set {
       _selectedSegment = value;
       if (!_modeChange) ReduceRoute();
-      if (Screen.Ebula.EditMode) {
+      if (Screen.Ebula.EditMode && CanEditSegment) {
+        Destination = null;
         Destinations = Screen.Ebula.Model.Stations.Values.Select(e => e.ToVM()).ToList();
         SelectedDestination = value?.Destination;
       }
       else {
+        Destinations = null;
+        SelectedDestination = null;
         Destination = value?.Destination;
         if (value?.Destination is not null)
           Screen.CustomRoute.Add(new EbulaCustomEntryVM(Screen, value.Destination, Departure + value.Duration));
       }
       OnPropertyChanged(nameof(SelectedSegment));
+      OnPropertyChanged(nameof(CanEditSegment));
     }
   }
+
+  public bool CanEditSegment => SelectedSegment?.Model.Config == Screen.Ebula.Model.Config;
 
   private List<EbulaStationVM>? _destinations;
   public List<EbulaStationVM>? Destinations {
@@ -233,6 +242,7 @@ public class EbulaCustomEntryVM : BaseVM {
         if (!_modeChange) Screen.CustomRoute.Add(new EbulaCustomEntryVM(Screen, value, Departure + SelectedSegment.Duration));
       }
       OnPropertyChanged(nameof(SelectedDestination));
+      OnPropertyChanged(nameof(CanEditDestination));
     }
   }
 
@@ -248,4 +258,6 @@ public class EbulaCustomEntryVM : BaseVM {
     }
   }
   public string DestinationText => Destination?.Name ?? string.Empty;
+
+  public bool CanEditDestination => SelectedDestination?.Model.Config == Screen.Ebula.Model.Config;
 }
