@@ -16,7 +16,7 @@ internal class GlobalHotkeyHelper {
   [DllImport("kernel32.dll")] private static extern uint GetLastError();
 
   private ILogger<GlobalHotkeyHelper>? Logger => App.GetService<ILogger<GlobalHotkeyHelper>>();
-  private HwndSource _source;
+  private HwndSource? _source;
   private readonly Random IdGenerator = new Random();
   private readonly Dictionary<int, Action> HotkeyHandlers = [];
   public int Count => HotkeyHandlers.Count;
@@ -28,7 +28,7 @@ internal class GlobalHotkeyHelper {
   }
 
   ~GlobalHotkeyHelper() {
-    _source.RemoveHook(HwndHook);
+    _source?.RemoveHook(HwndHook);
     _source = null;
     UnregisterHotKeys();
   }

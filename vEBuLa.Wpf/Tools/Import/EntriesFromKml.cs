@@ -9,9 +9,18 @@ using System.Threading;
 using System.Xml.Linq;
 using vEBuLa.Models;
 
-internal partial class KmlToEbulaConvert {
+namespace vEBuLa.Tools.Import;
+
+internal partial class EntriesFromKml {
 
   public static void Run(FileInfo input, DirectoryInfo output, bool dryRun) {
+    Log.Information("+---------------------");
+    Log.Information("| vEBuLa v0.1 - KML importer");
+    Log.Information("| KML data file   : {file}", input);
+    Log.Information("| Output directory: {file}", output);
+    Log.Information("+---------------------");
+    Log.Information("");
+
     if (!input.Exists) {
       Log.Error("Input file {file} does not exist, exiting", input);
       return;
@@ -21,13 +30,6 @@ internal partial class KmlToEbulaConvert {
 
     var kml = data.Elements().FirstOrDefault(e => e.Name.LocalName == "kml");
     var document = kml?.Elements().FirstOrDefault(e => e.Name.LocalName == "Document");
-
-    Log.Information("+---------------------");
-    Log.Information("| EbulaKmlConvert v0.1");
-    Log.Information("| KML > Ebula");
-    Log.Information("| Input: {input}", input);
-    Log.Information("| Output: {output}", output);
-    Log.Information("+---------------------");
 
     if (document is null) {
       Log.Error("Invalid KML format, exiting");
@@ -39,6 +41,7 @@ internal partial class KmlToEbulaConvert {
     else
       Log.Information("!! Existing files will be overwritten !!");
     Log.Information("Starting conversion in 5 seconds...");
+    Log.Information("");
 
     Thread.Sleep(5000);
 
@@ -49,7 +52,6 @@ internal partial class KmlToEbulaConvert {
         continue;
       }
 
-      Log.Information("");
       Log.Information("Converting {presetName}", presetName);
 
       var filePath = Path.Combine(output.FullName, $"{presetName}.ebula");
@@ -59,7 +61,7 @@ internal partial class KmlToEbulaConvert {
         preset = new EbulaConfig(filePath);
 
         if (!dryRun)
-          File.WriteAllText($"{filePath}.old", File.ReadAllText(filePath));
+          File.Copy(filePath, $"{filePath}.bak", true);
       }
       else {
         Log.Warning($"No matching preset file was found, creating new preset");
@@ -78,9 +80,7 @@ internal partial class KmlToEbulaConvert {
 
       // ValidateServices(preset);
 
-      if (!dryRun) {
-        preset.Save(Path.Combine(output.FullName, $"{presetName}.ebula"));
-      }
+      if (!dryRun)         preset.Save(Path.Combine(output.FullName, $"{presetName}.ebula"));
     }
   }
 
@@ -265,9 +265,7 @@ internal partial class KmlToEbulaConvert {
       var route = routeKv.Value;
 
       foreach (var segment in route.Segments) {
-        if (!preset.Segments.ContainsKey(segment.Id)) {
-          Console.WriteLine($"Warning: Route {routeKv.Value.Name} references missing segment {segment.Name}");
-        }
+        if (!preset.Segments.ContainsKey(segment.Id))           Console.WriteLine($"Warning: Route {routeKv.Value.Name} references missing segment {segment.Name}");
       }
     }
 

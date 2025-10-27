@@ -49,7 +49,7 @@ internal partial class NavigateSetupScreenC : NavigateScreenC {
         Logger?.LogWarning("Custom Route contains no Segments. Remaining on Setup screen.");
         return;
       }
-      Screen.Ebula.LoadSegments(Screen.CustomRoute.Where(e => e.SelectedSegment is not null).Select(e => e.SelectedSegment.Model), Screen.ServiceName, Screen.ServiceStart);
+      Screen.Ebula.LoadSegments(Screen.CustomRoute.Where(e => e.SelectedSegment is not null).Select(e => e.SelectedSegment!.Model), Screen.ServiceName, Screen.ServiceStart);
     }
   } // Start EBuLa with selection
 
@@ -136,6 +136,7 @@ internal partial class NavigateSetupScreenC : NavigateScreenC {
     base.Button4();
     if (!Screen.CanAddService) return;
     if (Screen.Ebula.Model.Config is null) return;
+    if (Screen.SelectedRoute is null) return;
     var oldService = Screen.SelectedService as EbulaServiceVM;
 
     var mainWindow = Application.Current.MainWindow;
@@ -163,12 +164,12 @@ internal partial class NavigateSetupScreenC : NavigateScreenC {
 
   protected override void Button5() { // Save custom route as predefined route
     base.Button5();
-
     if (Screen.UsingRoutes) return;
+    if (Screen.Ebula.Model.Config is null) return;
     if (!Screen.CustomRoute.Any(e => e.SelectedSegment is not null)) return;
 
     Logger?.LogInformation("Saving Custom Route {Route}", Screen.CustomRoute);
-    var segments = Screen.CustomRoute.Where(e => e.SelectedSegment is not null).Select(e => e.SelectedSegment.Model);
+    var segments = Screen.CustomRoute.Where(e => e.SelectedSegment is not null).Select(e => e.SelectedSegment!.Model);
 
     var mainWindow = Application.Current.MainWindow;
     var dialog = new EditSavedRouteDialog(mainWindow.PointToScreen(Mouse.GetPosition(mainWindow)) - new Point(150, 20));

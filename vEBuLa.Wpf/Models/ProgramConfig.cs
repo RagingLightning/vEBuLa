@@ -1,5 +1,6 @@
 ﻿using System.IO;
 using System.Linq;
+using System.Runtime.CompilerServices;
 
 namespace vEBuLa.Models;
 
@@ -31,6 +32,8 @@ public class ProgramConfig {
       }
     }
   }
+
+  internal ProgramConfig() { }
 
   public bool GlobalHotkeys { get; private set; } = false;
 

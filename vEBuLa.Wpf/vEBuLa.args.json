@@ -1,0 +1,126 @@
+{
+  "FileVersion": 2,
+  "Id": "30a435e8-2ca7-4f43-9985-94b4b3cedc7a",
+  "Items": [
+    {
+      "Id": "6bd23d33-124d-4f88-a9b9-6e200dc88d9c",
+      "Command": "[diagram]"
+    },
+    {
+      "Id": "bbce1e93-c81b-440d-9218-d45b25012b23",
+      "Command": "Main Program",
+      "Items": [
+        {
+          "Id": "0d8b6f0a-ebaa-474d-aea9-e7415ed24d14",
+          "Command": "--console"
+        }
+      ]
+    },
+    {
+      "Id": "d24952a8-9bc3-4a76-9bc5-e4481b76a71e",
+      "Command": "Import",
+      "Items": [
+        {
+          "Id": "15d22a7e-37d2-4b51-80d2-9af86b2ed22d",
+          "Command": "Entries from KML",
+          "Items": [
+            {
+              "Id": "8b1a6a16-32e1-4cd8-bfa5-9a7ec508b65e",
+              "Command": "import kml"
+            },
+            {
+              "Id": "39dca715-ca9d-4188-9fed-c2df1d35e0ec",
+              "Command": "--input data.kml"
+            },
+            {
+              "Id": "b3201aec-96a3-44f3-910c-216ee3e05a59",
+              "Command": "--dry-run"
+            }
+          ]
+        },
+        {
+          "Id": "7223283e-da57-40b2-9a11-a7ebc1b97b02",
+          "Command": "Stops from CSV",
+          "Items": [
+            {
+              "Id": "7f6c6730-ff5f-4aca-a0e4-f8c989893a46",
+              "Command": "import stops"
+            },
+            {
+              "Id": "47994f38-aab4-412c-ab41-05402f005691",
+              "Command": "--config \"D:\\Users\\RagingLightning\\source\\resources\\vEbuLa\\config\\vEbula_Kinzigtalbahn.ebula\""
+            },
+            {
+              "Id": "2ab23537-70bd-4f93-bdf3-dcc78598c77f",
+              "Command": "--input \"D:\\Users\\RagingLightning\\source\\resources\\vEbuLa\\config\\vEbula_Kinzigtalbahn_990.stops.csv\""
+            },
+            {
+              "Id": "b494d4a1-3a1c-4bb4-b0eb-8962c0d50e6f",
+              "Command": "--service 990"
+            },
+            {
+              "Id": "6728eccd-efaa-40f1-b8c4-bb394acfe634",
+              "Command": "--trim"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "Id": "dede3bd8-4c42-4537-bdf2-7639a0d5c539",
+      "Command": "Export",
+      "Items": [
+        {
+          "Id": "5f24a756-6c31-4364-82fd-b90bd70fbc84",
+          "Command": "Stops to CSV",
+          "Items": [
+            {
+              "Id": "f9180ac2-abda-4726-a052-3df3ed93ce03",
+              "Command": "export stops"
+            },
+            {
+              "Id": "c0c71ac0-38d8-470e-9a72-e223b187a7e1",
+              "Command": "--config \"D:\\Users\\RagingLightning\\source\\resources\\vEbuLa\\config\\vEbula_Kinzigtalbahn.ebula\""
+            },
+            {
+              "Id": "d6bba914-b474-4f72-b243-a7ebfbb2af33",
+              "Command": "--service 990"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "Id": "d42430e0-cbbe-4a88-b705-582a842d590e",
+      "Command": "Tools",
+      "Items": [
+        {
+          "Id": "cadf3c3f-f885-4ac6-ae65-a7c3133617c5",
+          "Command": "Adjust Stop Times",
+          "Items": [
+            {
+              "Id": "79bca150-722d-4202-9540-f0da2d0798c9",
+              "Command": "tools adjust-times"
+            },
+            {
+              "Id": "dec58cb8-226d-4a00-98ec-a0b652368d86",
+              "Command": "--input \"D:\\Users\\RagingLightning\\source\\resources\\vEbuLa\\config\\vEbula_Kinzigtalbahn_990.stops.csv\""
+            },
+            {
+              "Id": "c2872624-d47f-4bd0-a681-c44cf1f01fd3",
+              "Command": "--start-time 01:13:00"
+            },
+            {
+              "Id": "8abf509c-4ef2-496b-a072-20ae1d8c02e5",
+              "Command": "--end-time 01:53:10"
+            },
+            {
+              "Id": "cbed6e99-0fd0-46bd-bf21-f67b01e65936",
+              "Command": "--target-time 01:54:00"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

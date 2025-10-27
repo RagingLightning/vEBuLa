@@ -26,9 +26,8 @@ public partial class App : Application {
   private static partial void FreeConsole();
 
   internal static IHost? AppHost { get; private set; }
-  private readonly IConfigurationRoot? _serilogConfig;
   internal static string ConfigFolder { get; private set; } = "config";
-  internal static ProgramConfig Configuration { get; private set; }
+  internal static ProgramConfig Configuration { get; private set; } = new();
 
   internal static T? GetService<T>() where T : notnull => AppHost is null ? default : AppHost.Services.GetService<T>();
 

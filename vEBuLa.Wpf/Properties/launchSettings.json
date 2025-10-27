@@ -2,20 +2,7 @@
   "profiles": {
     "vEBuLa": {
       "commandName": "Project",
-      "environmentVariables": {
-        "vEbulaConfigPath": "D:\\Users\\RagingLightning\\source\\resources\\vEbuLa\\config"
-      }
-    },
-    "KmlConvert": {
-      "commandName": "Project",
-      "commandLineArgs": "kml-to-ebula -i \"D:\\Users\\RagingLightning\\source\\resources\\vEbuLa\\config\\vEbula_Kinzigtalbahn.kml\"",
-      "environmentVariables": {
-        "vEbulaConfigPath": "D:\\Users\\RagingLightning\\source\\resources\\vEbuLa\\config"
-      }
-    },
-    "KmlConvert (Dry)": {
-      "commandName": "Project",
-      "commandLineArgs": "kml-to-ebula -d -i \"D:\\Users\\RagingLightning\\source\\resources\\vEbuLa\\config\\vEbula_Kinzigtalbahn.kml\"",
+      "commandLineArgs": "--console",
       "environmentVariables": {
         "vEbulaConfigPath": "D:\\Users\\RagingLightning\\source\\resources\\vEbuLa\\config"
       }
