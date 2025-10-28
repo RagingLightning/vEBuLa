@@ -37,14 +37,15 @@
           "outputTemplate": "[{Timestamp:G} {Level:u3}] {Message:lj}{NewLine}{Exception}"
           /*"outputTemplate": "[{Timestamp:G} {Level:u3}] {Message:lj}     <s:{SourceContext}>{NewLine}{Exception}"*/
         }
-      }/*,
+      },
       "ClefSink": {
         "Name": "File",
         "Args": {
-          "path": "d:/temp/",
-          "formatter": "Serilog.Formatting.Compact.CompactJsonFormatter, Serilog.Formatting.Compact"
+          "path": "%temp%\\vEbula\\",
+          "outputTemplate": "[{Timestamp:G} {Level:u3}] {Message:lj}{NewLine}{Exception}"
+          // "formatter": "Serilog.Formatting.Compact.CompactJsonFormatter, Serilog.Formatting.Compact"
         }
-      }*/
+      }
     }
   }
 }

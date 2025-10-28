@@ -101,7 +101,7 @@ public static partial class Startup {
     };
 
     command.SetAction((r) => {
-      AllocConsole();
+      AttachConsole();
       Tools.Import.EntriesFromKml.Run(
         r.GetValue(optInput)!,
         r.GetValue(optOutput)!,
@@ -154,7 +154,7 @@ public static partial class Startup {
     };
 
     command.SetAction((r) => {
-      AllocConsole();
+      AttachConsole();
       Tools.Import.StopsFromCsv.Run(
         r.GetValue(optConfig)!,
         r.GetValue(optInputCsv)!,
@@ -210,7 +210,7 @@ public static partial class Startup {
     };
 
     command.SetAction((r) => {
-      AllocConsole();
+      AttachConsole();
       Tools.Export.StopsToCsv.Run(
         r.GetValue(optInput)!,
         r.GetValue(optOutput)!,
@@ -263,7 +263,7 @@ public static partial class Startup {
     };
 
     command.SetAction((r) => {
-      AllocConsole();
+      AttachConsole();
       Tools.AdjustStopTimes.Run(
         r.GetValue(optInput)!,
         r.GetValue(optStart)!,
