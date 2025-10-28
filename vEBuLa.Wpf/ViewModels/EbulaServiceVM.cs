@@ -34,7 +34,10 @@ public partial class EbulaServiceVM : BaseVM {
       var entry = allEntries.FirstOrDefault(e => e.Location == stop.EntryLocation && e.LocationName == stop.EntryName);
       if (entry is null)
         continue;
-      _stopInfo += $"\n- {(stop.Arrival is null ? "        " : stop.Arrival?.ToString("HH':'mm':'ss"))} {entry.LocationName.Crop(16)}";
+      _stopInfo += $"\n- {entry.LocationName.Replace('\n',' ').Crop(16)}";
+
+      _stopInfo += $" {(stop.Arrival is null ? "        " : stop.Arrival?.ToString("HH':'mm':'ss"))}";
+      _stopInfo += $"|{(stop.Departure is null ? "        " : stop.Departure?.ToString("HH':'mm':'ss"))}";
     }
   }
 

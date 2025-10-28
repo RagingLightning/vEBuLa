@@ -11,10 +11,10 @@
              mc:Ignorable="d" 
              Height="600" Width="800" d:DataContext="{d:DesignInstance vm:EbulaScreenVM}">
     <UserControl.Resources>
+        <BooleanToVisibilityConverter x:Key="BoolVis"/>
         <conv:BoolHideConverter x:Key="BoolHide"/>
         <conv:NullHideConverter x:Key="NullHide"/>
         <conv:NullVisConverter x:Key="NullVis"/>
-        <BooleanToVisibilityConverter x:Key="BoolVis"/>
         <ContextMenu x:Key="EditMenu">
             <MenuItem Header="Add Entry above" Command="{Binding DataContext.AddEntryCommand, RelativeSource={RelativeSource AncestorType=local:EbulaScreenV}}" CommandParameter="{Binding .}"/>
             <Separator/>
